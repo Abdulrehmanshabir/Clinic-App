@@ -3,25 +3,684 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FBF9F5;
+  --foreground: #1E1915;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html.dark {
+  --background: #0B1120;
+  --foreground: #F8FAFC;
+  color-scheme: dark;
+}
+
+body,
+input,
+select,
+textarea,
+button,
+table {
+  color: #1E1915;
+  background-color: transparent;
+  font-family: "Times New Roman", Times, Baskerville, Georgia, serif;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #FBF9F5;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* ==============================================================================
+   DEEP MIDNIGHT NAVY & LUXURY WARM GOLD (Eye-Protecting Aesthetic Clinic Dark Theme)
+   - Background: Deep Midnight Navy (#0B1120)
+   - Cards & Surfaces: Elevated Rich Slate Charcoal (#131B2A)
+   - Primary Buttons & Badges: Luxury Champagne Gold (#C5A059) with Deep Charcoal Text
+   - StatCards: Custom Color-Coded (Gold Total, Crimson Active Waiting, Sky Calls, Emerald Completed)
+   ============================================================================== */
+.dark body {
+  background-color: #0B1120 !important;
+  color: #F8FAFC !important;
+}
+
+/* 1. Main Backgrounds (Deep Midnight Navy) */
+.dark .bg-\[\#F8F5EE\],
+.dark .bg-\[\#FBF9F5\],
+.dark .bg-\[\#FCFAF6\] {
+  background-color: #0B1120 !important;
+}
+
+/* 2. Elevated Cards, Modals, Panels, Header & Table Surfaces (Crisp Slate Navy) */
+.dark .bg-\[\#FAF7F2\],
+.dark .bg-\[\#F4EFE6\],
+.dark .bg-\[\#F7F3EB\],
+.dark .bg-\[\#F7F3EB\]\/50,
+.dark .bg-\[\#F7F3EB\]\/60,
+.dark .bg-\[\#FCFAF6\]\/90,
+.dark .bg-\[\#FCFAF6\]\/95,
+.dark .bg-\[\#FFFFFF\] {
+  background-color: #131B2A !important;
+}
+
+/* 3. Primary Action Buttons (Luxury Warm Gold & Deep Charcoal) */
+.dark button.bg-\[\#1E1915\],
+.dark a.bg-\[\#1E1915\],
+.dark button.bg-\[\#1A120B\],
+.dark a.bg-\[\#1A120B\] {
+  background: linear-gradient(135deg, #D4AF37 0%, #C5A059 100%) !important;
+  color: #12100E !important;
+  border-color: #E6CA85 !important;
+  box-shadow: 0 4px 16px 0 rgba(197, 160, 89, 0.35) !important;
+}
+
+.dark button.bg-\[\#1E1915\]:hover,
+.dark a.bg-\[\#1E1915\]:hover,
+.dark button.bg-\[\#1A120B\]:hover,
+.dark a.bg-\[\#1A120B\]:hover {
+  background: linear-gradient(135deg, #E5C158 0%, #D4AF37 100%) !important;
+  border-color: #FFF2C6 !important;
+  box-shadow: 0 6px 20px 0 rgba(212, 175, 55, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+.dark button.bg-\[\#1E1915\] span,
+.dark a.bg-\[\#1E1915\] span,
+.dark button.bg-\[\#1A120B\] span,
+.dark a.bg-\[\#1A120B\] span,
+.dark button.bg-\[\#1E1915\] p,
+.dark a.bg-\[\#1E1915\] p {
+  color: #12100E !important;
+  font-weight: 900 !important;
+}
+
+.dark button.bg-\[\#1E1915\] svg,
+.dark a.bg-\[\#1E1915\] svg,
+.dark button.bg-\[\#1A120B\] svg,
+.dark a.bg-\[\#1A120B\] svg {
+  color: #12100E !important;
+  stroke-width: 2.5px;
+}
+
+/* 4. Secondary Action Buttons (Deep Charcoal Slate with Gold/Bronze Hover) */
+.dark button.bg-\[\#FAF7F2\],
+.dark button.bg-\[\#F4EFE6\] {
+  background-color: #1A2234 !important;
+  color: #F8FAFC !important;
+  border-color: #2D3D54 !important;
+}
+
+.dark button.bg-\[\#FAF7F2\]:hover,
+.dark button.bg-\[\#F4EFE6\]:hover {
+  background-color: #222E44 !important;
+  border-color: #C5A059 !important;
+  color: #E5C158 !important;
+}
+
+.dark .hover\:bg-\[\#382C22\]:hover,
+.dark .hover\:bg-\[\#F4EFE6\]:hover,
+.dark .hover\:bg-\[\#EAE1D3\]:hover,
+.dark .hover\:bg-\[\#EFE6D8\]\/60:hover,
+.dark .hover\:bg-\[\#EFE6D8\]\/80:hover {
+  background-color: #1E283A !important;
+}
+
+/* 5. Card Borders & Subtle Dividers (Crisp Slate Outline) */
+.dark .border-\[\#E8DFD1\],
+.dark .border-\[\#E9DFD1\],
+.dark .border-\[\#D8C5AD\],
+.dark .border-\[\#EFE6D8\],
+.dark .border-\[\#BCA58C\],
+.dark .border-\[\#DFCBB5\],
+.dark .border-\[\#EAE1D3\],
+.dark .border-\[\#2B1E14\] {
+  border-color: #243248 !important;
+}
+
+/* 6. Primary Headings & Bold Titles (Crisp Diamond Ice White - Maximum Legibility) */
+.dark .text-\[\#1A120B\],
+.dark .text-\[\#1E1915\],
+.dark .text-\[\#2B1E14\],
+.dark .text-\[\#111111\] {
+  color: #F8FAFC !important;
+}
+
+/* 7. Subheadings, Labels, Patient Names & Body Text (Soft Ice Slate) */
+.dark .text-\[\#4A3522\],
+.dark .text-\[\#5C4D3E\],
+.dark .text-\[\#6B4E31\],
+.dark .text-\[\#6B5E51\],
+.dark .text-\[\#4A453E\] {
+  color: #CBD5E1 !important;
+}
+
+/* 8. Muted Captions, Timestamps & Placeholders */
+.dark .text-\[\#8C7A6B\],
+.dark .text-\[\#A89887\] {
+  color: #94A3B8 !important;
+}
+
+/* 9. Luxury Warm Champagne Gold Accents (Replacing harsh electric cyan) */
+.dark .text-\[\#A8835A\],
+.dark .text-\[\#8C6843\],
+.dark .text-\[\#9A6B27\],
+.dark .text-\[\#7A634E\],
+.dark .text-\[\#8C6226\] {
+  color: #E5C158 !important;
+}
+
+/* 10. Inputs, Selects & Textareas (Deep Slate with Gold Focus) */
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: #0E1626 !important;
+  color: #F8FAFC !important;
+  border-color: #2D3E58 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #C5A059 !important;
+  background-color: #121A2B !important;
+  box-shadow: 0 0 0 2px rgba(197, 160, 89, 0.25) !important;
+}
+
+/* 11. Table Headers & Row Dividers */
+.dark thead tr {
+  background-color: #0F172A !important;
+  border-color: #243248 !important;
+}
+
+.dark tbody tr {
+  border-color: #1E283A !important;
+}
+
+.dark tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* ==============================================================================
+   12. STATCARDS: BESPOKE DARK MODE COLORS (User-Requested Color Coding)
+   - Today Total: Warm Luxury Gold / Bronze
+   - Active Waiting: Alert Crimson Red / Rose (User requested: "jesy waitng red")
+   - Call Bookings: Luminous Sky Blue
+   - Completed: Medical Soothing Emerald Green
+   ============================================================================== */
+/* 1. Today Total Patients (Bronze / Warm Gold - 2px Bold Outline) */
+.stat-card-bronze,
+.stat-card-default {
+  border: 2px solid #8C6843 !important;
+}
+.stat-card-bronze .stat-card-title,
+.stat-card-default .stat-card-title {
+  color: #8C6843 !important;
+  font-weight: 800 !important;
+}
+.stat-card-bronze .stat-card-value,
+.stat-card-default .stat-card-value {
+  color: #8C6843 !important;
+  font-weight: 900 !important;
+}
+.stat-icon-bronze,
+.stat-icon-default {
+  background-color: #F3E8DB !important;
+  border: 1.5px solid #8C6843 !important;
+  color: #8C6843 !important;
+}
+.stat-icon-bronze svg,
+.stat-icon-default svg {
+  color: #8C6843 !important;
+  stroke: #8C6843 !important;
+}
+.stat-card-active-bronze,
+.stat-card-active-default {
+  border: 2px solid #8C6843 !important;
+  box-shadow: 0 0 0 2px #8C6843, 0 8px 24px -4px rgba(140, 104, 67, 0.35) !important;
+}
+
+.dark .stat-card-bronze,
+.dark .stat-card-default {
+  background-color: #171E2B !important;
+  border: 2px solid #D4AF37 !important;
+  color: #F8FAFC !important;
+}
+.dark .stat-card-bronze .stat-card-title,
+.dark .stat-card-default .stat-card-title {
+  color: #E5C158 !important;
+  font-weight: 800 !important;
+}
+.dark .stat-card-bronze .stat-card-value,
+.dark .stat-card-default .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+}
+.dark .stat-icon-bronze,
+.dark .stat-icon-default {
+  background-color: rgba(197, 160, 89, 0.18) !important;
+  border: 1.5px solid #D4AF37 !important;
+  color: #F3E5AB !important;
+}
+.dark .stat-icon-bronze svg,
+.dark .stat-icon-default svg {
+  color: #F3E5AB !important;
+  stroke: #F3E5AB !important;
+}
+.dark .stat-card-active-bronze,
+.dark .stat-card-active-default {
+  border: 2px solid #D4AF37 !important;
+  box-shadow: 0 0 0 2px #D4AF37, 0 8px 24px -4px rgba(197, 160, 89, 0.5) !important;
+}
+
+/* 2. Active Waiting (True Solid Vibrant Red - 2px Bold Outline) */
+.stat-card-rose,
+.stat-card-amber {
+  border: 2px solid #DC2626 !important;
+}
+.stat-card-rose .stat-card-title,
+.stat-card-amber .stat-card-title {
+  color: #DC2626 !important;
+  font-weight: 800 !important;
+}
+.stat-card-rose .stat-card-value,
+.stat-card-amber .stat-card-value {
+  color: #DC2626 !important;
+  font-weight: 900 !important;
+}
+.stat-icon-rose,
+.stat-icon-amber {
+  background-color: #FEE2E2 !important;
+  border: 1.5px solid #DC2626 !important;
+  color: #DC2626 !important;
+}
+.stat-icon-rose svg,
+.stat-icon-amber svg {
+  color: #DC2626 !important;
+  stroke: #DC2626 !important;
+}
+.stat-card-active-rose,
+.stat-card-active-amber {
+  border: 2px solid #DC2626 !important;
+  box-shadow: 0 0 0 2px #DC2626, 0 8px 24px -4px rgba(220, 38, 38, 0.35) !important;
+}
+
+.dark .stat-card-rose,
+.dark .stat-card-amber {
+  background-color: #171E2B !important;
+  border: 2px solid #EF4444 !important;
+  color: #EF4444 !important;
+}
+.dark .stat-card-rose .stat-card-title,
+.dark .stat-card-amber .stat-card-title {
+  color: #EF4444 !important;
+  font-weight: 800 !important;
+}
+.dark .stat-card-rose .stat-card-value,
+.dark .stat-card-amber .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+.dark .stat-icon-rose,
+.dark .stat-icon-amber {
+  background-color: rgba(239, 68, 68, 0.18) !important;
+  border: 1.5px solid #EF4444 !important;
+  color: #EF4444 !important;
+}
+.dark .stat-icon-rose svg,
+.dark .stat-icon-amber svg {
+  color: #EF4444 !important;
+  stroke: #EF4444 !important;
+}
+.dark .stat-card-active-rose,
+.dark .stat-card-active-amber {
+  border: 2px solid #EF4444 !important;
+  box-shadow: 0 0 0 2px #EF4444, 0 8px 24px -4px rgba(239, 68, 68, 0.5) !important;
+}
+
+/* 3. Call Bookings (Luminous Sapphire Sky - 2px Bold Outline) */
+.stat-card-sky,
+.stat-card-indigo {
+  border: 2px solid #0284C7 !important;
+}
+.stat-card-sky .stat-card-title,
+.stat-card-indigo .stat-card-title {
+  color: #0284C7 !important;
+  font-weight: 800 !important;
+}
+.stat-card-sky .stat-card-value,
+.stat-card-indigo .stat-card-value {
+  color: #0284C7 !important;
+  font-weight: 900 !important;
+}
+.stat-icon-sky,
+.stat-icon-indigo {
+  background-color: #E0F2FE !important;
+  border: 1.5px solid #0284C7 !important;
+  color: #0284C7 !important;
+}
+.stat-icon-sky svg,
+.stat-icon-indigo svg {
+  color: #0284C7 !important;
+  stroke: #0284C7 !important;
+}
+.stat-card-active-sky,
+.stat-card-active-indigo {
+  border: 2px solid #0284C7 !important;
+  box-shadow: 0 0 0 2px #0284C7, 0 8px 24px -4px rgba(2, 132, 199, 0.35) !important;
+}
+
+.dark .stat-card-sky,
+.dark .stat-card-indigo {
+  background-color: #171E2B !important;
+  border: 2px solid #38BDF8 !important;
+  color: #F8FAFC !important;
+}
+.dark .stat-card-sky .stat-card-title,
+.dark .stat-card-indigo .stat-card-title {
+  color: #38BDF8 !important;
+  font-weight: 800 !important;
+}
+.dark .stat-card-sky .stat-card-value,
+.dark .stat-card-indigo .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+}
+.dark .stat-icon-sky,
+.dark .stat-icon-indigo {
+  background-color: rgba(56, 189, 248, 0.18) !important;
+  border: 1.5px solid #38BDF8 !important;
+  color: #BAE6FD !important;
+}
+.dark .stat-icon-sky svg,
+.dark .stat-icon-indigo svg {
+  color: #BAE6FD !important;
+  stroke: #BAE6FD !important;
+}
+.dark .stat-card-active-sky,
+.dark .stat-card-active-indigo {
+  border: 2px solid #38BDF8 !important;
+  box-shadow: 0 0 0 2px #38BDF8, 0 8px 24px -4px rgba(56, 189, 248, 0.5) !important;
+}
+
+/* 4. Completed (Medical Mint Emerald - 2px Bold Outline) */
+.stat-card-emerald {
+  border: 2px solid #15803D !important;
+}
+.stat-card-emerald .stat-card-title {
+  color: #15803D !important;
+  font-weight: 800 !important;
+}
+.stat-card-emerald .stat-card-value {
+  color: #15803D !important;
+  font-weight: 900 !important;
+}
+.stat-icon-emerald {
+  background-color: #E6F4EA !important;
+  border: 1.5px solid #15803D !important;
+  color: #15803D !important;
+}
+.stat-icon-emerald svg {
+  color: #15803D !important;
+  stroke: #15803D !important;
+}
+.stat-card-active-emerald {
+  border: 2px solid #15803D !important;
+  box-shadow: 0 0 0 2px #15803D, 0 8px 24px -4px rgba(21, 128, 61, 0.35) !important;
+}
+
+.dark .stat-card-emerald {
+  background-color: #171E2B !important;
+  border: 2px solid #34D399 !important;
+  color: #F8FAFC !important;
+}
+.dark .stat-card-emerald .stat-card-title {
+  color: #34D399 !important;
+  font-weight: 800 !important;
+}
+.dark .stat-card-emerald .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+}
+.dark .stat-icon-emerald {
+  background-color: rgba(52, 211, 153, 0.18) !important;
+  border: 1.5px solid #34D399 !important;
+  color: #A7F3D0 !important;
+}
+.dark .stat-icon-emerald svg {
+  color: #A7F3D0 !important;
+  stroke: #A7F3D0 !important;
+}
+.dark .stat-card-active-emerald {
+  border: 2px solid #34D399 !important;
+  box-shadow: 0 0 0 2px #34D399, 0 8px 24px -4px rgba(52, 211, 153, 0.5) !important;
+}
+
+/* Smooth Premium Hover Elevation for all 4 StatCards */
+.stat-card-bronze:hover,
+.stat-card-default:hover {
+  border-color: #8C6843 !important;
+}
+.stat-card-rose:hover,
+.stat-card-amber:hover {
+  border-color: #DC2626 !important;
+}
+.stat-card-sky:hover,
+.stat-card-indigo:hover {
+  border-color: #0284C7 !important;
+}
+.stat-card-emerald:hover {
+  border-color: #15803D !important;
+}
+
+.dark .stat-card-bronze:hover,
+.dark .stat-card-default:hover,
+.dark .stat-card-rose:hover,
+.dark .stat-card-amber:hover,
+.dark .stat-card-sky:hover,
+.dark .stat-card-indigo:hover,
+.dark .stat-card-emerald:hover {
+  background-color: #1C2535 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
+}
+.dark .stat-card-bronze:hover,
+.dark .stat-card-default:hover {
+  border-color: #D4AF37 !important;
+}
+.dark .stat-card-rose:hover,
+.dark .stat-card-amber:hover {
+  border-color: #EF4444 !important;
+}
+.dark .stat-card-sky:hover,
+.dark .stat-card-indigo:hover {
+  border-color: #38BDF8 !important;
+}
+.dark .stat-card-emerald:hover {
+  border-color: #34D399 !important;
+}
+
+/* 13. Status Badges in Dark Blue Mode */
+.dark .bg-\[\#FFF9EE\],
+.dark .bg-\[\#FEF3D6\] {
+  background-color: #381E0C !important;
+  border-color: #78350F !important;
+}
+.dark .text-\[\#B45309\] {
+  color: #FBBF24 !important;
+}
+
+.dark .bg-\[\#F0F9FF\],
+.dark .bg-\[\#E0F2FE\] {
+  background-color: #082F49 !important;
+  border-color: #0369A1 !important;
+}
+.dark .text-\[\#0369A1\] {
+  color: #38BDF8 !important;
+}
+
+.dark .bg-\[\#FAF5FF\],
+.dark .bg-\[\#F5E8F3\] {
+  background-color: #2E1065 !important;
+  border-color: #581C87 !important;
+}
+.dark .text-\[\#7E22CE\] {
+  color: #C084FC !important;
+}
+
+.dark .bg-\[\#F0FDF4\],
+.dark .bg-\[\#E6F4EA\] {
+  background-color: #052E16 !important;
+  border-color: #14532D !important;
+}
+.dark .text-\[\#15803D\],
+.dark .text-\[\#16A34A\] {
+  color: #4ADE80 !important;
+}
+
+.dark .bg-\[\#FEF2F2\],
+.dark .bg-\[\#FEE2E2\] {
+  background-color: #3B0D13 !important;
+  border-color: #7F1D1D !important;
+}
+.dark .text-\[\#B91C1C\],
+.dark .text-\[\#DC2626\] {
+  color: #F87171 !important;
+}
+
+/* 13. Modals Backdrop in Dark Blue Mode */
+.dark .bg-\[\#1A120B\]\/65 {
+  background-color: rgba(3, 7, 18, 0.82) !important;
+}
+
+/* 14. Dedicated High-Contrast Exception for Printable Paper Token Slip */
+.dark #printable-slip {
+  background-color: #FAF7F2 !important;
+  color: #1A120B !important;
+  border-color: #D8C5AD !important;
+}
+.dark #printable-slip * {
+  color: #1A120B !important;
+}
+.dark #printable-slip .text-\[\#A8835A\] {
+  color: #A8835A !important;
+}
+.dark #printable-slip .text-\[\#5C4D3E\] {
+  color: #5C4D3E !important;
+}
+.dark #printable-slip .text-\[\#1A120B\] {
+  color: #1A120B !important;
+}
+.dark #printable-slip .border-\[\#D8C5AD\],
+.dark #printable-slip .border-\[\#EFE6D8\] {
+  border-color: #D8C5AD !important;
+}
+
+/* 15. Dark Mode Scrollbars (Cyan Glow) */
+.dark .custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.8) !important;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.35) !important;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.6) !important;
+}
+
+/* 16. Luxury Card Shadow in Dark Mode */
+.dark .aesthetic-card-shadow {
+  box-shadow: 0 4px 20px -2px rgba(2, 6, 23, 0.7), 0 2px 6px -1px rgba(2, 6, 23, 0.5) !important;
+}
+
+/* Custom Aesthetic Scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(233, 223, 209, 0.4);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(168, 131, 90, 0.35);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 131, 90, 0.6);
+}
+
+/* Subtle luxury card glow */
+.aesthetic-card-shadow {
+  box-shadow: 0 4px 20px -2px rgba(140, 104, 67, 0.06), 0 2px 6px -1px rgba(140, 104, 67, 0.04);
+}
+
+.aesthetic-card-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aesthetic-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px rgba(140, 104, 67, 0.12), 0 4px 10px -2px rgba(140, 104, 67, 0.06);
+}
+
+/* Luxury Card Entrance & Subtle Background Breathing Animation */
+@keyframes luxuryEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes luxurySlowZoom {
+  0% {
+    transform: scale(1.15) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.22) translate(-1%, -1%);
+  }
+  100% {
+    transform: scale(1.15) translate(0, 0);
+  }
+}
+
+.animate-luxury-card {
+  animation: luxuryEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-luxury-bg {
+  animation: luxurySlowZoom 22s ease-in-out infinite;
+}
+
+/* Dedicated Print Slip Media Rules */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #printable-slip,
+  #printable-slip * {
+    visibility: visible !important;
+  }
+  #printable-slip {
+    position: fixed !important;
+    left: 50% !important;
+    top: 20px !important;
+    transform: translateX(-50%) !important;
+    width: 350px !important;
+    max-width: 95vw !important;
+    border: 2px dashed #8C6843 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 16px !important;
+    border-radius: 12px !important;
   }
 }

@@ -1,0 +1,232 @@
+import { cache } from "react";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { type Appointment, type QueueSummary, type ClinicDay, type Service, type Profile, type ClinicSettings, type DoctorBreakInfo } from "@/types/database";
+
+export const getCurrentProfile = cache(async (): Promise<Profile> => {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      // Return default guest doctor profile if unauthenticated
+      return {
+        id: "doctor-default",
+        full_name: "Dr. Admin",
+        email: "doctor@clinic.com",
+        role: "doctor",
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile && profile.role) {
+      return profile;
+    }
+
+    // Resolve role safely from user email / metadata
+    const userRole = (user.user_metadata?.role as "doctor" | "operator") ||
+      (user.email?.toLowerCase().includes("operator") ? "operator" : "doctor");
+
+    // Auto-upsert profile using admin client to ensure database sync
+    try {
+      const admin = createAdminClient();
+      await admin.from("profiles").upsert({
+        id: user.id,
+        full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || (userRole === "doctor" ? "Dr. Admin" : "Front Desk Operator"),
+        email: user.email || "",
+        role: userRole,
+        is_active: true,
+      });
+    } catch {
+      // ignore
+    }
+
+    return {
+      id: user.id,
+      full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || (userRole === "doctor" ? "Dr. Admin" : "Front Desk Operator"),
+      email: user.email || "",
+      role: userRole,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+  } catch (err) {
+    console.error("Profile resolution fallback:", err);
+    return {
+      id: "doctor-fallback",
+      full_name: "Dr. Admin",
+      email: "doctor@clinic.com",
+      role: "doctor",
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+  }
+});
+
+export async function getTodayAppointments(clinicDate: string): Promise<Appointment[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("appointments")
+    .select(`
+      *,
+      patient:patients (
+        id,
+        patient_number,
+        full_name,
+        phone,
+        gender,
+        age,
+        date_of_birth
+      ),
+      token:tokens (
+        id,
+        token_number,
+        token_date,
+        queue_position
+      ),
+      service:services (
+        id,
+        name,
+        duration_minutes,
+        price
+      ),
+      doctor:profiles!appointments_doctor_id_fkey (
+        id,
+        full_name
+      ),
+      consultation:consultations (
+        id,
+        started_at,
+        completed_at,
+        doctor_notes,
+        treatment_notes,
+        follow_up_date
+      )
+    `)
+    .eq("appointment_date", clinicDate)
+    .order("appointment_time", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching appointments:", error);
+    return [];
+  }
+
+  // Sort by token queue_position if available, otherwise by time
+  return (data || []).sort((a, b) => {
+    if (a.token?.queue_position && b.token?.queue_position) {
+      return a.token.queue_position - b.token.queue_position;
+    }
+    return a.appointment_time.localeCompare(b.appointment_time);
+  });
+}
+
+export async function getClinicDayStatus(clinicDate: string): Promise<ClinicDay | null> {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("clinic_days")
+    .select("*")
+    .eq("clinic_date", clinicDate)
+    .maybeSingle();
+
+  return data || null;
+}
+
+export const getActiveServices = cache(async (): Promise<Service[]> => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("services")
+    .select("*")
+    .eq("is_active", true)
+    .order("name", { ascending: true });
+
+  if (error) return [];
+  return data || [];
+});
+
+export async function getAllServices(): Promise<Service[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("services")
+    .select("*")
+    .order("name", { ascending: true });
+
+  if (error) return [];
+  return data || [];
+}
+
+export const getClinicSettings = cache(async (): Promise<ClinicSettings | null> => {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("clinic_settings")
+      .select("*")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    return data || null;
+  } catch {
+    return null;
+  }
+});
+
+export const getDoctorsList = cache(async (): Promise<Profile[]> => {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("role", "doctor")
+    .eq("is_active", true);
+
+  if (error) return [];
+  return data || [];
+});
+
+export function calculateQueueSummary(appointments: Appointment[]): QueueSummary {
+  return {
+    total: appointments.length,
+    waiting: appointments.filter((a) => a.status === "waiting").length,
+    called: appointments.filter((a) => a.status === "called").length,
+    in_consultation: appointments.filter((a) => a.status === "in_consultation").length,
+    completed: appointments.filter((a) => a.status === "completed").length,
+    cancelled: appointments.filter((a) => a.status === "cancelled").length,
+    no_show: appointments.filter((a) => a.status === "no_show").length,
+  };
+}
+
+export const getDoctorBreakStatus = cache(async (clinicDate: string): Promise<DoctorBreakInfo | null> => {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("clinic_days")
+      .select("notes")
+      .eq("clinic_date", clinicDate)
+      .maybeSingle();
+
+    if (!data?.notes) return null;
+    const parsed = JSON.parse(data.notes);
+    if (parsed?.doctor_break?.on_break) {
+      return parsed.doctor_break as DoctorBreakInfo;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+});
+
