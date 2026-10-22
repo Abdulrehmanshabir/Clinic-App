@@ -59,8 +59,17 @@ export function LoginForm() {
     }
   };
 
+  useEffect(() => {
+    // Keep login screen in its pure original glassmorphic aesthetic
+    try {
+      document.documentElement.classList.remove("dark");
+    } catch {
+      // ignore
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen relative flex flex-col bg-[#FBF9F5] overflow-hidden">
+    <div className="min-h-screen relative flex flex-col bg-[#FBF9F5] overflow-hidden login-page-card">
       {/* High-Resolution Aesthetic Clinic & Laser Interior Backdrop (Full View with Clinic Branding) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
@@ -77,17 +86,17 @@ export function LoginForm() {
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[34rem] h-[34rem] bg-[#A8835A]/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Full-Width Top Header Bar */}
-      <header className="border-b border-[#E8DFD1]/40 bg-gradient-to-r from-[#C4A482] via-transparent to-transparent sticky top-0 z-30 px-3 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between">
+      <header className="border-b border-[#E8DFD1]/40 bg-gradient-to-r from-[#C4A482] via-transparent to-transparent sticky top-0 z-30 px-4 sm:px-8 py-3.5 flex items-center justify-between">
         {/* Clinic Brand - Seamless within Header */}
-        <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-[#2B1E14] to-[#4A3522] flex items-center justify-center shadow-lg shadow-[#2B1E14]/20 border border-[#6B4E31]/30 flex-shrink-0">
-            <span className="font-serif text-xl sm:text-2xl font-bold text-[#E9DFD1] italic tracking-tighter">G</span>
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#2B1E14] to-[#4A3522] flex items-center justify-center shadow-lg shadow-[#2B1E14]/20 border border-[#6B4E31]/30 flex-shrink-0">
+            <span className="font-serif text-2xl font-bold text-[#E9DFD1] italic tracking-tighter">G</span>
           </div>
-          <div className="min-w-0">
-            <h1 className="text-base sm:text-2xl font-serif font-black tracking-tight text-[#1A120B] leading-none truncate">
+          <div>
+            <h1 className="text-lg sm:text-2xl font-serif font-black tracking-tight text-[#1A120B] leading-none">
               Glow Derm
             </h1>
-            <p className="text-[10px] sm:text-[13px] text-[#1A120B] font-black tracking-wider uppercase mt-0.5 sm:mt-1 truncate max-w-[150px] xs:max-w-none">
+            <p className="text-xs sm:text-[13px] text-[#1A120B] font-black tracking-wider uppercase mt-1">
               Expert Laser and Skin Clinic
             </p>
           </div>
@@ -98,10 +107,10 @@ export function LoginForm() {
       </header>
 
       {/* Main Centered Login Card Area */}
-      <div className="flex-1 flex items-center justify-center p-3 sm:p-4 relative z-20">
+      <div className="flex-1 flex items-center justify-center p-4 relative z-20">
         <div className="w-full max-w-md my-auto animate-luxury-card">
         {/* Pure Water Glassmorphic Card Box */}
-        <div className="relative bg-white/25 backdrop-blur-2xl border border-white/60 rounded-3xl p-5 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.15),0_1px_0_rgba(255,255,255,0.8)_inset] overflow-hidden">
+        <div className="relative bg-white/25 backdrop-blur-2xl border border-white/60 rounded-3xl p-7 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.15),0_1px_0_rgba(255,255,255,0.8)_inset] overflow-hidden">
           {/* Subtle water surface reflection highlight */}
           <div className="absolute -top-24 -left-24 w-56 h-56 bg-white/40 rounded-full blur-2xl pointer-events-none" />
 
@@ -188,20 +197,20 @@ export function LoginForm() {
             <p className="text-[11px] font-black text-[#2B1E14] text-center uppercase tracking-wider">
               Quick 1-Click Demo Login
             </p>
-            <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-2.5">
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={() => {
                   setEmail("doctor@clinic.com");
                   setPassword("doctor123");
                 }}
-                className="p-2.5 sm:p-3 rounded-2xl bg-white/45 hover:bg-white/70 backdrop-blur-md border border-white/70 text-[#1A120B] text-xs font-black transition flex flex-col items-center gap-1 shadow-sm group min-w-0"
+                className="p-3 rounded-2xl bg-white/45 hover:bg-white/70 backdrop-blur-md border border-white/70 text-[#1A120B] text-xs font-black transition flex flex-col items-center gap-1 shadow-sm group"
               >
                 <div className="flex items-center gap-1.5 text-[#8A6338]">
-                  <Stethoscope className="w-4 h-4 shrink-0" />
+                  <Stethoscope className="w-4 h-4" />
                   <span className="font-black text-[#1A120B]">Doctor Login</span>
                 </div>
-                <span className="text-[11px] text-[#2B1E14] font-bold font-mono truncate max-w-full">doctor@clinic.com</span>
+                <span className="text-[11px] text-[#2B1E14] font-bold font-mono">doctor@clinic.com</span>
               </button>
 
               <button
@@ -210,13 +219,13 @@ export function LoginForm() {
                   setEmail("operator@clinic.com");
                   setPassword("operator123");
                 }}
-                className="p-2.5 sm:p-3 rounded-2xl bg-white/45 hover:bg-white/70 backdrop-blur-md border border-white/70 text-[#1A120B] text-xs font-black transition flex flex-col items-center gap-1 shadow-sm group min-w-0"
+                className="p-3 rounded-2xl bg-white/45 hover:bg-white/70 backdrop-blur-md border border-white/70 text-[#1A120B] text-xs font-black transition flex flex-col items-center gap-1 shadow-sm group"
               >
                 <div className="flex items-center gap-1.5 text-[#8A6338]">
-                  <UserCheck className="w-4 h-4 shrink-0" />
+                  <UserCheck className="w-4 h-4" />
                   <span className="font-black text-[#1A120B]">Receptionist</span>
                 </div>
-                <span className="text-[11px] text-[#2B1E14] font-bold font-mono truncate max-w-full">operator@clinic.com</span>
+                <span className="text-[11px] text-[#2B1E14] font-bold font-mono">operator@clinic.com</span>
               </button>
             </div>
             <p className="text-[11px] text-[#2B1E14] text-center font-bold">

@@ -684,3 +684,49 @@ body {
     border-radius: 12px !important;
   }
 }
+
+/* 17. Absolute Immunity for Login Screen from Global Theme Bleed */
+.dark .login-page-card {
+  background-color: #FBF9F5 !important;
+  color: #1E1915 !important;
+}
+.dark .login-page-card input:not([type="checkbox"]):not([type="radio"]) {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  color: #1A120B !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+.dark .login-page-card input:focus {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-color: #8A6338 !important;
+  box-shadow: 0 0 0 2px rgba(138, 99, 56, 0.2) !important;
+  color: #1A120B !important;
+}
+.dark .login-page-card input::placeholder {
+  color: #6E5D4F !important;
+}
+.dark .login-page-card button.bg-\[\#1E1915\] {
+  background: #1E1915 !important;
+  color: #FAF7F2 !important;
+  border-color: #2B1E14 !important;
+  box-shadow: 0 10px 15px -3px rgba(30, 25, 21, 0.25) !important;
+}
+.dark .login-page-card button.bg-\[\#1E1915\]:hover {
+  background: #382C22 !important;
+}
+.dark .login-page-card button.bg-\[\#1E1915\] span {
+  color: #FAF7F2 !important;
+}
+.dark .login-page-card .bg-white\/25 {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+.dark .login-page-card .bg-white\/45 {
+  background-color: rgba(255, 255, 255, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.7) !important;
+  color: #1A120B !important;
+}
+.dark .login-page-card .bg-white\/45:hover {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+}
+
