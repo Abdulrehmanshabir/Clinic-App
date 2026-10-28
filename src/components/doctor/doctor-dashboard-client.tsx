@@ -730,10 +730,7 @@ export function DoctorDashboardClient({
               { id: "all", label: "All Patients" },
               { id: "active", label: "Active Queue" },
               { id: "procedure", label: `Procedure (${procedureCount})` },
-              { id: "complete_procedure", label: `Done Proc (${completeProcedureCount})` },
               { id: "online", label: `Online (${onlinePatientCount})` },
-              { id: "online_complete", label: `Online Done (${onlinePatientCompleteCount})` },
-              { id: "call_bookings", label: `Call (${callBookingsCount})` },
               { id: "completed", label: "Completed" },
               { id: "no_show", label: "Not Present" },
             ].map((f) => (
