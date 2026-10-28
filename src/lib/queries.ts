@@ -112,7 +112,8 @@ export async function getTodayAppointments(clinicDate: string): Promise<Appointm
         completed_at,
         doctor_notes,
         treatment_notes,
-        follow_up_date
+        follow_up_date,
+        updated_at
       )
     `)
     .eq("appointment_date", clinicDate)

@@ -26,7 +26,6 @@ import {
   Printer,
   MapPin,
   Eye,
-  FileEdit,
   ChevronDown,
   Globe,
 } from "lucide-react";
@@ -59,6 +58,7 @@ export function OperatorDashboardClient({
   const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
   const [filter, setFilter] = useState<string>("all");
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const [viewedNoteStamps, setViewedNoteStamps] = useState<Record<string, string>>({});
 
   // Doctor Break state for Receptionist view
   const [doctorBreak, setDoctorBreakState] = useState<DoctorBreakInfo | null>(initialDoctorBreak || null);
@@ -66,6 +66,35 @@ export function OperatorDashboardClient({
   React.useEffect(() => {
     setDoctorBreakState(initialDoctorBreak || null);
   }, [initialDoctorBreak]);
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem("operator_viewed_notes");
+      if (stored) setViewedNoteStamps(JSON.parse(stored));
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const notesStamp = (app: Appointment) =>
+    app.consultation?.updated_at || app.consultation?.doctor_notes || "";
+
+  const hasUnreadNotes = (app: Appointment) => {
+    if (!app.consultation?.doctor_notes?.trim()) return false;
+    return viewedNoteStamps[app.id] !== notesStamp(app);
+  };
+
+  const markNotesViewed = (app: Appointment) => {
+    setViewedNoteStamps((prev) => {
+      const next = { ...prev, [app.id]: notesStamp(app) };
+      try {
+        localStorage.setItem("operator_viewed_notes", JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
 
   // Success Card states
   const [createdWalkInToken, setCreatedWalkInToken] = useState<{
@@ -607,20 +636,25 @@ export function OperatorDashboardClient({
 
                       {/* If in consultation */}
                       {app.status === "in_consultation" && (
-                        <div className="inline-flex items-center gap-1.5">
+                        <div className="inline-flex flex-wrap items-center justify-center gap-1.5">
                           <span className="text-xs font-bold text-[#7E22CE] px-3 py-1.5 rounded-xl bg-[#FAF5FF] border border-[#E9D5FF] inline-flex items-center gap-1.5">
                             <Stethoscope className="w-3.5 h-3.5" /> Inside Dr Room
                           </span>
                           <button
                             type="button"
                             onClick={() => {
+                              markNotesViewed(app);
                               setSelectedAppointmentForNotes(app);
                               setIsNotesModalOpen(true);
                             }}
-                            className="p-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] transition shadow-2xs cursor-pointer"
-                            title="Notes"
+                            className="relative px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                            title="View Doctor Notes"
                           >
-                            <FileEdit className="w-4 h-4 text-[#A8835A]" />
+                            <Eye className="w-3.5 h-3.5 text-[#A8835A]" />
+                            <span>View Notes</span>
+                            {hasUnreadNotes(app) && (
+                              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#DC2626] ring-2 ring-[#FFFFFF] dark:ring-[#0E1626]" />
+                            )}
                           </button>
                         </div>
                       )}
@@ -630,14 +664,18 @@ export function OperatorDashboardClient({
                         <button
                           type="button"
                           onClick={() => {
+                            markNotesViewed(app);
                             setSelectedAppointmentForNotes(app);
                             setIsNotesModalOpen(true);
                           }}
-                          className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                          className="relative px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1.5 shadow-2xs cursor-pointer"
                           title="View Doctor Notes & Follow-Up Date"
                         >
                           <Eye className="w-3.5 h-3.5 text-[#A8835A]" />
                           <span>View Notes</span>
+                          {hasUnreadNotes(app) && (
+                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#DC2626] ring-2 ring-[#FFFFFF] dark:ring-[#0E1626]" />
+                          )}
                         </button>
                       )}
                     </td>

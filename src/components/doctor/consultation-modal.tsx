@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { consultationSchema } from "@/lib/validations";
-import { completeConsultation } from "@/lib/actions";
+import { completeConsultation, saveConsultationNotes } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { type Appointment } from "@/types/database";
 import {
@@ -38,12 +38,14 @@ export function ConsultationModal({
 }: ConsultationModalProps) {
   const { success, error } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
 
   const {
     register,
     handleSubmit,
     reset,
     watch,
+    getValues,
     formState: { errors },
   } = useForm<ConsultationFormData>({
     resolver: zodResolver(consultationSchema),
@@ -92,6 +94,32 @@ export function ConsultationModal({
       error("Error", "An unexpected error occurred while completing consultation");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    if (readOnly) return;
+
+    const data = getValues();
+    setIsSavingNotes(true);
+    try {
+      const res = await saveConsultationNotes({
+        appointment_id: appointment.id,
+        doctor_notes: data.doctor_notes || "",
+        follow_up_date: data.follow_up_date || undefined,
+      });
+
+      if (res.success) {
+        success("Notes Saved", "Doctor notes saved; patient remains in consultation");
+        if (onSuccess) onSuccess();
+        onClose();
+      } else {
+        error("Action Failed", res.error || "Could not save notes");
+      }
+    } catch {
+      error("Error", "An unexpected error occurred while saving notes");
+    } finally {
+      setIsSavingNotes(false);
     }
   };
 
@@ -177,30 +205,51 @@ export function ConsultationModal({
             <button
               type="button"
               onClick={onClose}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isSavingNotes}
               className="px-5 py-2.5 rounded-2xl bg-transparent hover:bg-[#F4EFE6] dark:hover:bg-[#1A2234] text-[#8C6843] dark:text-[#A89887] hover:text-[#1A120B] dark:hover:text-[#FAF7F2] border border-[#E8DFD1] dark:border-[#243248] text-xs font-bold transition shadow-2xs cursor-pointer"
             >
               Close
             </button>
 
             {!readOnly && (
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-6 py-2.5 rounded-2xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-md transition flex items-center gap-2 border border-[#2B1E14] cursor-pointer disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Saving...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-[#15803D]" />
-                    <span>Save & Complete</span>
-                  </>
-                )}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={handleSaveNotes}
+                  disabled={isSubmitting || isSavingNotes}
+                  className="px-5 py-2.5 rounded-2xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition flex items-center gap-2 shadow-2xs cursor-pointer disabled:opacity-50"
+                >
+                  {isSavingNotes ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-4 h-4 text-[#A8835A]" />
+                      <span>Save Notes</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting || isSavingNotes}
+                  className="px-6 py-2.5 rounded-2xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-md transition flex items-center gap-2 border border-[#2B1E14] cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-[#15803D]" />
+                      <span>Save & Complete</span>
+                    </>
+                  )}
+                </button>
+              </>
             )}
           </div>
         </form>

@@ -12,7 +12,6 @@ import {
   startConsultation,
   completeConsultationDirect,
   updateAppointmentStatus,
-  checkInCallAppointment,
   setDoctorBreak,
   endDoctorBreak,
 } from "@/lib/actions";
@@ -33,9 +32,7 @@ import {
   CheckCheck,
   UserX,
   XCircle,
-  RotateCcw,
   Phone,
-  LogIn,
   Coffee,
   Loader2,
   Globe,
@@ -62,6 +59,7 @@ export function DoctorDashboardClient({
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
+  const [isNotesReadOnly, setIsNotesReadOnly] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
@@ -146,26 +144,6 @@ export function DoctorDashboardClient({
     ).length;
   }, [appointments]);
 
-  const handleCheckInCallPatient = async (appointmentId: string, patientName?: string) => {
-    setLoadingAction(appointmentId);
-    try {
-      const res = await checkInCallAppointment(appointmentId);
-      if (res.success && res.data) {
-        success(
-          "Patient Checked-In! 🎟️",
-          `${patientName || "Patient"} arrived! Issued Token: ${res.data.token_number} (Added to Queue)`
-        );
-        router.refresh();
-      } else {
-        error("Check-In Failed", res.error || "Could not check in patient");
-      }
-    } catch {
-      error("Error", "An unexpected error occurred");
-    } finally {
-      setLoadingAction(null);
-    }
-  };
-
   const handleStartConsultation = async (appointment: Appointment) => {
     setLoadingAction(appointment.id);
     setAppointments((prev) =>
@@ -208,43 +186,6 @@ export function DoctorDashboardClient({
         router.refresh();
       } else {
         error("Action Failed", res.error || "Could not complete consultation");
-        router.refresh();
-      }
-    } catch {
-      error("Error", "An unexpected error occurred");
-      router.refresh();
-    } finally {
-      setLoadingAction(null);
-    }
-  };
-
-  const handleDirectCompleteAndNext = async (currentApp: Appointment, nextApp: Appointment) => {
-    setLoadingAction(currentApp.id);
-    setAppointments((prev) =>
-      prev.map((a) => {
-        if (a.id === currentApp.id) return { ...a, status: "completed" };
-        if (a.id === nextApp.id) return { ...a, status: "in_consultation" };
-        return a;
-      })
-    );
-
-    try {
-      const compRes = await completeConsultationDirect(currentApp.id);
-      if (!compRes.success) {
-        error("Error", compRes.error || "Could not complete current consultation");
-        router.refresh();
-        return;
-      }
-
-      const startRes = await startConsultation(nextApp.id);
-      if (startRes.success) {
-        success(
-          "Next Patient Called",
-          `Completed ${currentApp.patient?.full_name} (${currentApp.token?.token_number}) → Now Consulting: ${nextApp.patient?.full_name} (${nextApp.token?.token_number})`
-        );
-        router.refresh();
-      } else {
-        error("Warning", "Completed current patient, but could not automatically start next patient");
         router.refresh();
       }
     } catch {
@@ -315,26 +256,6 @@ export function DoctorDashboardClient({
       router.refresh();
     } finally {
       setCancellingId(null);
-    }
-  };
-
-  const handleReQueue = async (appointmentId: string, patientName?: string) => {
-    setLoadingAction(appointmentId);
-    setAppointments((prev) =>
-      prev.map((a) => (a.id === appointmentId ? { ...a, status: "waiting" } : a))
-    );
-
-    try {
-      const res = await updateAppointmentStatus(appointmentId, "waiting");
-      if (res.success) {
-        success("Patient Re-Queued", `${patientName || "Patient"} returned to waiting line`);
-        router.refresh();
-      } else {
-        error("Action Failed", res.error);
-        router.refresh();
-      }
-    } finally {
-      setLoadingAction(null);
     }
   };
 
@@ -596,6 +517,7 @@ export function DoctorDashboardClient({
               <button
                 type="button"
                 onClick={() => {
+                  setIsNotesReadOnly(false);
                   setSelectedAppointment(activeConsultation);
                   setIsConsultationOpen(true);
                 }}
@@ -912,118 +834,20 @@ export function DoctorDashboardClient({
                     </td>
 
                     {/* Actions */}
-                    <td className="px-6 py-4 text-center space-x-2">
-                      {/* Call Booking not yet checked in -> Show Check-In & Give Token button */}
-                      {!app.token && app.status !== "no_show" && app.status !== "completed" && (
-                        <button
-                          type="button"
-                          onClick={() => handleCheckInCallPatient(app.id, app.patient?.full_name)}
-                          disabled={loadingAction === app.id}
-                          className="px-3.5 py-1.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-sm transition inline-flex items-center gap-1.5 border border-[#2B1E14]"
-                        >
-                          <LogIn className="w-3.5 h-3.5 text-[#D8C5AD]" />
-                          Arrived (Give Token)
-                        </button>
-                      )}
-
-                      {app.token && (app.status === "waiting" || app.status === "called") && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => handleMarkAbsent(app.id, app.patient?.full_name)}
-                            disabled={loadingAction === app.id}
-                            className="px-3 py-1.5 rounded-xl bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#B91C1C] border border-[#FECACA] text-xs font-bold transition inline-flex items-center gap-1 shadow-2xs"
-                            title="Patient is not present"
-                          >
-                            <UserX className="w-3.5 h-3.5" />
-                            Skip / Absent
-                          </button>
-                          {app.status === "waiting" && (
-                            <button
-                              type="button"
-                              onClick={() => handleCallPatient(app.id)}
-                              disabled={loadingAction === app.id}
-                              className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1 shadow-2xs"
-                            >
-                              Call
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleStartConsultation(app)}
-                            disabled={loadingAction === app.id}
-                            className="px-3.5 py-1.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] text-xs font-bold transition inline-flex items-center gap-1.5 border border-[#2B1E14] shadow-sm"
-                          >
-                            <Play className="w-3.5 h-3.5 fill-current text-[#D8C5AD]" />
-                            Start
-                          </button>
-                        </>
-                      )}
-
-                      {app.status === "no_show" && (
-                        <button
-                          type="button"
-                          onClick={() => handleReQueue(app.id, app.patient?.full_name)}
-                          disabled={loadingAction === app.id}
-                          className="px-3 py-1.5 rounded-xl bg-[#FFF9EE] hover:bg-[#FEF3D6] text-[#B45309] border border-[#FDE68A] text-xs font-bold transition inline-flex items-center gap-1 shadow-2xs"
-                          title="Patient arrived later"
-                        >
-                          <RotateCcw className="w-3.5 h-3.5" />
-                          Re-Queue
-                        </button>
-                      )}
-
-                      {app.status === "in_consultation" && (
-                        <div className="inline-flex items-center gap-1.5">
-                          {nextPatientInLine && nextPatientInLine.id !== app.id ? (
-                            <button
-                              type="button"
-                              onClick={() => handleDirectCompleteAndNext(app, nextPatientInLine)}
-                              disabled={loadingAction === app.id}
-                              className="px-3.5 py-1.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] text-xs font-bold transition inline-flex items-center gap-1.5 border border-[#2B1E14] shadow-sm"
-                            >
-                              <CheckCheck className="w-3.5 h-3.5 text-[#D8C5AD]" />
-                              Complete & Next
-                            </button>
-                          ) : null}
-
-                          <button
-                            type="button"
-                            onClick={() => handleDirectComplete(app.id, app.patient?.full_name)}
-                            disabled={loadingAction === app.id}
-                            className="px-3 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1 shadow-2xs"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#15803D]" />
-                            Complete
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedAppointment(app);
-                              setIsConsultationOpen(true);
-                            }}
-                            className="p-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] transition shadow-2xs"
-                            title="Notes"
-                          >
-                            <FileEdit className="w-4 h-4 text-[#A8835A]" />
-                          </button>
-                        </div>
-                      )}
-
-                      {app.status === "completed" && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedAppointment(app);
-                            setIsConsultationOpen(true);
-                          }}
-                          className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1.5 shadow-2xs"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-[#A8835A]" />
-                          View Notes
-                        </button>
-                      )}
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsNotesReadOnly(true);
+                          setSelectedAppointment(app);
+                          setIsConsultationOpen(true);
+                        }}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1.5 shadow-2xs"
+                        title="View Notes"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-[#A8835A]" />
+                        View Notes
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -1041,6 +865,7 @@ export function DoctorDashboardClient({
         onClose={() => setIsConsultationOpen(false)}
         onSuccess={() => router.refresh()}
         onCompleteAndCallNext={handleCompleteAndCallNextFromModal}
+        readOnly={isNotesReadOnly}
       />
 
       {/* Doctor Break Selection Modal */}

@@ -757,6 +757,7 @@ export async function saveConsultationNotes(formData: unknown) {
   });
 
   revalidatePath("/doctor");
+  revalidatePath("/operator");
   revalidatePath("/history");
   revalidatePath("/reports");
   return { success: true, data: consultation };
