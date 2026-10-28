@@ -179,6 +179,11 @@ body {
   color: #64748B !important;
 }
 
+.dark input.placeholder-white::placeholder,
+.dark textarea.placeholder-white::placeholder {
+  color: #FFFFFF !important;
+}
+
 .dark input:focus,
 .dark select:focus,
 .dark textarea:focus {
