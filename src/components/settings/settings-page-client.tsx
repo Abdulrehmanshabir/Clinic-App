@@ -145,7 +145,7 @@ export function SettingsPageClient({ initialServices }: SettingsPageClientProps)
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A120B] tracking-tight">
-              Clinical Settings: Procedures & Pricing
+              Procedure Setting: Procedures &amp; Pricing
             </h2>
           </div>
           <p className="text-xs text-[#8C7A6B] font-bold mt-1">

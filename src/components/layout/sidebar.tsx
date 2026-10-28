@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   CalendarDays,
   UserCog,
-  Sparkles,
   Settings,
 } from "lucide-react";
 import { type UserRole } from "@/types/database";
@@ -49,13 +48,7 @@ const navItems: NavItem[] = [
     roles: ["doctor"],
   },
   {
-    label: "Procedures",
-    href: "/procedures",
-    icon: Sparkles,
-    roles: ["doctor"],
-  },
-  {
-    label: "Clinic Settings",
+    label: "Procedure Setting",
     href: "/settings",
     icon: Settings,
     roles: ["doctor"],

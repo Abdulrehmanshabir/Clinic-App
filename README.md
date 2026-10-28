@@ -80,6 +80,7 @@ Execute the SQL migration scripts in order in your Supabase SQL Editor:
 2. `supabase/migrations/002_functions_and_triggers.sql` (Atomic daily token generator, patient numbering `P-000001`, user sync)
 3. `supabase/migrations/003_rls_policies.sql` (Row-Level Security and Realtime publication)
 4. `supabase/migrations/004_seed_data.sql` (Initial clinical aesthetic services & clinic configuration)
+5. `supabase/migrations/005_add_is_online.sql` (Online patient flag for call bookings)
 
 ### 4. Install Dependencies & Build
 ```bash

@@ -79,6 +79,7 @@ export interface Appointment {
   service_id?: string | null;
   appointment_type: AppointmentType;
   status: AppointmentStatus;
+  is_online?: boolean | null;
   notes?: string | null;
   created_by?: string | null;
   created_at: string;

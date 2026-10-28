@@ -202,276 +202,613 @@ body {
 }
 
 /* ==============================================================================
-   12. STATCARDS: BESPOKE DARK MODE COLORS (User-Requested Color Coding)
-   - Today Total: Warm Luxury Gold / Bronze
-   - Active Waiting: Alert Crimson Red / Rose (User requested: "jesy waitng red")
-   - Call Bookings: Luminous Sky Blue
+   12. STATCARDS: FULL SOLID COLOR CARDS (Vibrant, Modern, High-Contrast)
+   - Today Total: Energetic Radiant Orange (Requested: Today Total Patient Orange)
+   - Active Waiting: Alert Vibrant Red (Requested: Active Waiting Red)
+   - Call Bookings: Luminous Sapphire Sky Blue
    - Completed: Medical Soothing Emerald Green
+   - All text & numbers styled in pure, high-contrast crisp white typography
+   - Icons housed in translucent frosted glass badges with white SVG
    ============================================================================== */
-/* 1. Today Total Patients (Bronze / Warm Gold - 2px Bold Outline) */
+
+/* 1. Today Total Patients (Full Vibrant Energetic Orange) */
 .stat-card-bronze,
-.stat-card-default {
-  border: 2px solid #8C6843 !important;
+.stat-card-default,
+.stat-card-orange {
+  background: linear-gradient(135deg, #F97316 0%, #C2410C 100%) !important;
+  background-color: #EA580C !important;
+  border: 1.5px solid #9A3412 !important;
+  color: #FFFFFF !important;
 }
 .stat-card-bronze .stat-card-title,
-.stat-card-default .stat-card-title {
-  color: #8C6843 !important;
+.stat-card-default .stat-card-title,
+.stat-card-orange .stat-card-title {
+  color: #FFFFFF !important;
   font-weight: 800 !important;
+  opacity: 0.95 !important;
 }
 .stat-card-bronze .stat-card-value,
-.stat-card-default .stat-card-value {
-  color: #8C6843 !important;
+.stat-card-default .stat-card-value,
+.stat-card-orange .stat-card-value {
+  color: #FFFFFF !important;
   font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 .stat-icon-bronze,
-.stat-icon-default {
-  background-color: #F3E8DB !important;
-  border: 1.5px solid #8C6843 !important;
-  color: #8C6843 !important;
+.stat-icon-default,
+.stat-icon-orange {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #FFFFFF !important;
 }
 .stat-icon-bronze svg,
-.stat-icon-default svg {
-  color: #8C6843 !important;
-  stroke: #8C6843 !important;
+.stat-icon-default svg,
+.stat-icon-orange svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
 .stat-card-active-bronze,
-.stat-card-active-default {
-  border: 2px solid #8C6843 !important;
-  box-shadow: 0 0 0 2px #8C6843, 0 8px 24px -4px rgba(140, 104, 67, 0.35) !important;
+.stat-card-active-default,
+.stat-card-active-orange {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(234, 88, 12, 0.6) !important;
+  transform: translateY(-2px) !important;
 }
 
 .dark .stat-card-bronze,
-.dark .stat-card-default {
-  background-color: #171E2B !important;
-  border: 2px solid #D4AF37 !important;
-  color: #F8FAFC !important;
+.dark .stat-card-default,
+.dark .stat-card-orange {
+  background: linear-gradient(135deg, #EA580C 0%, #9A3412 100%) !important;
+  background-color: #C2410C !important;
+  border: 1.5px solid #FB923C !important;
+  color: #FFFFFF !important;
 }
 .dark .stat-card-bronze .stat-card-title,
-.dark .stat-card-default .stat-card-title {
-  color: #E5C158 !important;
+.dark .stat-card-default .stat-card-title,
+.dark .stat-card-orange .stat-card-title {
+  color: #FFFFFF !important;
   font-weight: 800 !important;
+  opacity: 0.95 !important;
 }
 .dark .stat-card-bronze .stat-card-value,
-.dark .stat-card-default .stat-card-value {
+.dark .stat-card-default .stat-card-value,
+.dark .stat-card-orange .stat-card-value {
   color: #FFFFFF !important;
   font-weight: 900 !important;
 }
 .dark .stat-icon-bronze,
-.dark .stat-icon-default {
-  background-color: rgba(197, 160, 89, 0.18) !important;
-  border: 1.5px solid #D4AF37 !important;
-  color: #F3E5AB !important;
+.dark .stat-icon-default,
+.dark .stat-icon-orange {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  color: #FFFFFF !important;
 }
 .dark .stat-icon-bronze svg,
-.dark .stat-icon-default svg {
-  color: #F3E5AB !important;
-  stroke: #F3E5AB !important;
+.dark .stat-icon-default svg,
+.dark .stat-icon-orange svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
 .dark .stat-card-active-bronze,
-.dark .stat-card-active-default {
-  border: 2px solid #D4AF37 !important;
-  box-shadow: 0 0 0 2px #D4AF37, 0 8px 24px -4px rgba(197, 160, 89, 0.5) !important;
+.dark .stat-card-active-default,
+.dark .stat-card-active-orange {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(251, 146, 60, 0.6) !important;
+  transform: translateY(-2px) !important;
 }
 
-/* 2. Active Waiting (True Solid Vibrant Red - 2px Bold Outline) */
+/* 2. Active Waiting (Full Alert Vibrant Crimson Red) */
 .stat-card-rose,
-.stat-card-amber {
-  border: 2px solid #DC2626 !important;
+.stat-card-amber,
+.stat-card-red {
+  background: linear-gradient(135deg, #EF4444 0%, #B91C1C 100%) !important;
+  background-color: #DC2626 !important;
+  border: 1.5px solid #991B1B !important;
+  color: #FFFFFF !important;
 }
 .stat-card-rose .stat-card-title,
-.stat-card-amber .stat-card-title {
-  color: #DC2626 !important;
+.stat-card-amber .stat-card-title,
+.stat-card-red .stat-card-title {
+  color: #FFFFFF !important;
   font-weight: 800 !important;
+  opacity: 0.95 !important;
 }
 .stat-card-rose .stat-card-value,
-.stat-card-amber .stat-card-value {
-  color: #DC2626 !important;
+.stat-card-amber .stat-card-value,
+.stat-card-red .stat-card-value {
+  color: #FFFFFF !important;
   font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 .stat-icon-rose,
-.stat-icon-amber {
-  background-color: #FEE2E2 !important;
-  border: 1.5px solid #DC2626 !important;
-  color: #DC2626 !important;
+.stat-icon-amber,
+.stat-icon-red {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #FFFFFF !important;
 }
 .stat-icon-rose svg,
-.stat-icon-amber svg {
-  color: #DC2626 !important;
-  stroke: #DC2626 !important;
+.stat-icon-amber svg,
+.stat-icon-red svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
 .stat-card-active-rose,
-.stat-card-active-amber {
-  border: 2px solid #DC2626 !important;
-  box-shadow: 0 0 0 2px #DC2626, 0 8px 24px -4px rgba(220, 38, 38, 0.35) !important;
+.stat-card-active-amber,
+.stat-card-active-red {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(220, 38, 38, 0.6) !important;
+  transform: translateY(-2px) !important;
 }
 
 .dark .stat-card-rose,
-.dark .stat-card-amber {
-  background-color: #171E2B !important;
-  border: 2px solid #EF4444 !important;
-  color: #EF4444 !important;
+.dark .stat-card-amber,
+.dark .stat-card-red {
+  background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%) !important;
+  background-color: #B91C1C !important;
+  border: 1.5px solid #F87171 !important;
+  color: #FFFFFF !important;
 }
 .dark .stat-card-rose .stat-card-title,
-.dark .stat-card-amber .stat-card-title {
-  color: #EF4444 !important;
+.dark .stat-card-amber .stat-card-title,
+.dark .stat-card-red .stat-card-title {
+  color: #FFFFFF !important;
   font-weight: 800 !important;
+  opacity: 0.95 !important;
 }
 .dark .stat-card-rose .stat-card-value,
-.dark .stat-card-amber .stat-card-value {
+.dark .stat-card-amber .stat-card-value,
+.dark .stat-card-red .stat-card-value {
   color: #FFFFFF !important;
   font-weight: 900 !important;
-  text-shadow: none !important;
+}
+.dark .stat-icon-rose,
+.dark .stat-icon-amber,
+.dark .stat-icon-red {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  color: #FFFFFF !important;
+}
+.dark .stat-icon-rose svg,
+.dark .stat-icon-amber svg,
+.dark .stat-icon-red svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+.dark .stat-card-active-rose,
+.dark .stat-card-active-amber,
+.dark .stat-card-active-red {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(239, 68, 68, 0.6) !important;
+  transform: translateY(-2px) !important;
 }
 .dark .stat-icon-rose,
 .dark .stat-icon-amber {
-  background-color: rgba(239, 68, 68, 0.18) !important;
-  border: 1.5px solid #EF4444 !important;
-  color: #EF4444 !important;
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  color: #FFFFFF !important;
 }
 .dark .stat-icon-rose svg,
 .dark .stat-icon-amber svg {
-  color: #EF4444 !important;
-  stroke: #EF4444 !important;
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
 .dark .stat-card-active-rose,
 .dark .stat-card-active-amber {
-  border: 2px solid #EF4444 !important;
-  box-shadow: 0 0 0 2px #EF4444, 0 8px 24px -4px rgba(239, 68, 68, 0.5) !important;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(239, 68, 68, 0.6) !important;
+  transform: translateY(-2px) !important;
 }
 
-/* 3. Call Bookings (Luminous Sapphire Sky - 2px Bold Outline) */
-.stat-card-sky,
-.stat-card-indigo {
-  border: 2px solid #0284C7 !important;
+/* 3. Call Bookings (Full Luminous Sapphire Sky Blue) */
+.stat-card-sky {
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%) !important;
+  background-color: #0284C7 !important;
+  border: 1.5px solid #075985 !important;
+  color: #FFFFFF !important;
 }
-.stat-card-sky .stat-card-title,
-.stat-card-indigo .stat-card-title {
-  color: #0284C7 !important;
+.stat-card-sky .stat-card-title {
+  color: #FFFFFF !important;
   font-weight: 800 !important;
+  opacity: 0.95 !important;
 }
-.stat-card-sky .stat-card-value,
-.stat-card-indigo .stat-card-value {
-  color: #0284C7 !important;
+.stat-card-sky .stat-card-value {
+  color: #FFFFFF !important;
   font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
-.stat-icon-sky,
-.stat-icon-indigo {
-  background-color: #E0F2FE !important;
-  border: 1.5px solid #0284C7 !important;
-  color: #0284C7 !important;
+.stat-icon-sky {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #FFFFFF !important;
 }
-.stat-icon-sky svg,
-.stat-icon-indigo svg {
-  color: #0284C7 !important;
-  stroke: #0284C7 !important;
+.stat-icon-sky svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
-.stat-card-active-sky,
-.stat-card-active-indigo {
-  border: 2px solid #0284C7 !important;
-  box-shadow: 0 0 0 2px #0284C7, 0 8px 24px -4px rgba(2, 132, 199, 0.35) !important;
+.stat-card-active-sky {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(2, 132, 199, 0.6) !important;
+  transform: translateY(-2px) !important;
 }
 
-.dark .stat-card-sky,
-.dark .stat-card-indigo {
-  background-color: #171E2B !important;
-  border: 2px solid #38BDF8 !important;
-  color: #F8FAFC !important;
+.dark .stat-card-sky {
+  background: linear-gradient(135deg, #0284C7 0%, #075985 100%) !important;
+  background-color: #0369A1 !important;
+  border: 1.5px solid #38BDF8 !important;
+  color: #FFFFFF !important;
 }
-.dark .stat-card-sky .stat-card-title,
-.dark .stat-card-indigo .stat-card-title {
-  color: #38BDF8 !important;
+.dark .stat-card-sky .stat-card-title {
+  color: #FFFFFF !important;
   font-weight: 800 !important;
+  opacity: 0.95 !important;
 }
-.dark .stat-card-sky .stat-card-value,
-.dark .stat-card-indigo .stat-card-value {
+.dark .stat-card-sky .stat-card-value {
   color: #FFFFFF !important;
   font-weight: 900 !important;
 }
-.dark .stat-icon-sky,
-.dark .stat-icon-indigo {
-  background-color: rgba(56, 189, 248, 0.18) !important;
-  border: 1.5px solid #38BDF8 !important;
-  color: #BAE6FD !important;
+.dark .stat-icon-sky {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  color: #FFFFFF !important;
 }
-.dark .stat-icon-sky svg,
-.dark .stat-icon-indigo svg {
-  color: #BAE6FD !important;
-  stroke: #BAE6FD !important;
+.dark .stat-icon-sky svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
-.dark .stat-card-active-sky,
-.dark .stat-card-active-indigo {
-  border: 2px solid #38BDF8 !important;
-  box-shadow: 0 0 0 2px #38BDF8, 0 8px 24px -4px rgba(56, 189, 248, 0.5) !important;
+.dark .stat-card-active-sky {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(56, 189, 248, 0.6) !important;
+  transform: translateY(-2px) !important;
 }
 
-/* 4. Completed (Medical Mint Emerald - 2px Bold Outline) */
+/* 4. Completed (Full Rich Medical Emerald Green) */
 .stat-card-emerald {
-  border: 2px solid #15803D !important;
+  background: linear-gradient(135deg, #16A34A 0%, #15803D 100%) !important;
+  background-color: #15803D !important;
+  border: 1.5px solid #14532D !important;
+  color: #FFFFFF !important;
 }
 .stat-card-emerald .stat-card-title {
-  color: #15803D !important;
+  color: #FFFFFF !important;
   font-weight: 800 !important;
+  opacity: 0.95 !important;
 }
 .stat-card-emerald .stat-card-value {
-  color: #15803D !important;
+  color: #FFFFFF !important;
   font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 .stat-icon-emerald {
-  background-color: #E6F4EA !important;
-  border: 1.5px solid #15803D !important;
-  color: #15803D !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #FFFFFF !important;
 }
 .stat-icon-emerald svg {
-  color: #15803D !important;
-  stroke: #15803D !important;
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
 .stat-card-active-emerald {
-  border: 2px solid #15803D !important;
-  box-shadow: 0 0 0 2px #15803D, 0 8px 24px -4px rgba(21, 128, 61, 0.35) !important;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(21, 128, 61, 0.6) !important;
+  transform: translateY(-2px) !important;
 }
 
 .dark .stat-card-emerald {
-  background-color: #171E2B !important;
-  border: 2px solid #34D399 !important;
-  color: #F8FAFC !important;
+  background: linear-gradient(135deg, #15803D 0%, #14532D 100%) !important;
+  background-color: #166534 !important;
+  border: 1.5px solid #34D399 !important;
+  color: #FFFFFF !important;
 }
 .dark .stat-card-emerald .stat-card-title {
-  color: #34D399 !important;
+  color: #FFFFFF !important;
   font-weight: 800 !important;
+  opacity: 0.95 !important;
 }
 .dark .stat-card-emerald .stat-card-value {
   color: #FFFFFF !important;
   font-weight: 900 !important;
 }
 .dark .stat-icon-emerald {
-  background-color: rgba(52, 211, 153, 0.18) !important;
-  border: 1.5px solid #34D399 !important;
-  color: #A7F3D0 !important;
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  color: #FFFFFF !important;
 }
 .dark .stat-icon-emerald svg {
-  color: #A7F3D0 !important;
-  stroke: #A7F3D0 !important;
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
 .dark .stat-card-active-emerald {
-  border: 2px solid #34D399 !important;
-  box-shadow: 0 0 0 2px #34D399, 0 8px 24px -4px rgba(52, 211, 153, 0.5) !important;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(52, 211, 153, 0.6) !important;
+  transform: translateY(-2px) !important;
 }
 
-/* Smooth Premium Hover Elevation for all 4 StatCards */
+/* 5. Procedure (Full Royal Purple / Violet) */
+.stat-card-purple,
+.stat-card-violet {
+  background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%) !important;
+  background-color: #7C3AED !important;
+  border: 1.5px solid #5B21B6 !important;
+  color: #FFFFFF !important;
+}
+.stat-card-purple .stat-card-title,
+.stat-card-violet .stat-card-title {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  opacity: 0.95 !important;
+}
+.stat-card-purple .stat-card-value,
+.stat-card-violet .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+.stat-icon-purple,
+.stat-icon-violet {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #FFFFFF !important;
+}
+.stat-icon-purple svg,
+.stat-icon-violet svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+.stat-card-active-purple,
+.stat-card-active-violet {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(124, 58, 237, 0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+.dark .stat-card-purple,
+.dark .stat-card-violet {
+  background: linear-gradient(135deg, #7C3AED 0%, #4C1D95 100%) !important;
+  background-color: #6D28D9 !important;
+  border: 1.5px solid #A78BFA !important;
+  color: #FFFFFF !important;
+}
+.dark .stat-card-purple .stat-card-title,
+.dark .stat-card-violet .stat-card-title {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  opacity: 0.95 !important;
+}
+.dark .stat-card-purple .stat-card-value,
+.dark .stat-card-violet .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+}
+.dark .stat-icon-purple,
+.dark .stat-icon-violet {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  color: #FFFFFF !important;
+}
+.dark .stat-icon-purple svg,
+.dark .stat-icon-violet svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+.dark .stat-card-active-purple,
+.dark .stat-card-active-violet {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(167, 139, 250, 0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 6. Complete Procedure (Full Rich Medical Teal) */
+.stat-card-teal {
+  background: linear-gradient(135deg, #14B8A6 0%, #0F766E 100%) !important;
+  background-color: #0D9488 !important;
+  border: 1.5px solid #115E59 !important;
+  color: #FFFFFF !important;
+}
+.stat-card-teal .stat-card-title {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  opacity: 0.95 !important;
+}
+.stat-card-teal .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+.stat-icon-teal {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #FFFFFF !important;
+}
+.stat-icon-teal svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+.stat-card-active-teal {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(13, 148, 136, 0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+.dark .stat-card-teal {
+  background: linear-gradient(135deg, #0D9488 0%, #134E4A 100%) !important;
+  background-color: #0F766E !important;
+  border: 1.5px solid #2DD4BF !important;
+  color: #FFFFFF !important;
+}
+.dark .stat-card-teal .stat-card-title {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  opacity: 0.95 !important;
+}
+.dark .stat-card-teal .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+}
+.dark .stat-icon-teal {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  color: #FFFFFF !important;
+}
+.dark .stat-icon-teal svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+.dark .stat-card-active-teal {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(45, 212, 191, 0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 7. Online Patient (Full Luminous Digital Indigo) */
+.stat-card-indigo {
+  background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%) !important;
+  background-color: #4F46E5 !important;
+  border: 1.5px solid #3730A3 !important;
+  color: #FFFFFF !important;
+}
+.stat-card-indigo .stat-card-title {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  opacity: 0.95 !important;
+}
+.stat-card-indigo .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+.stat-icon-indigo {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #FFFFFF !important;
+}
+.stat-icon-indigo svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+.stat-card-active-indigo {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(79, 70, 229, 0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+.dark .stat-card-indigo {
+  background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%) !important;
+  background-color: #4338CA !important;
+  border: 1.5px solid #818CF8 !important;
+  color: #FFFFFF !important;
+}
+.dark .stat-card-indigo .stat-card-title {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  opacity: 0.95 !important;
+}
+.dark .stat-card-indigo .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+}
+.dark .stat-icon-indigo {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  color: #FFFFFF !important;
+}
+.dark .stat-icon-indigo svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+.dark .stat-card-active-indigo {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(129, 140, 248, 0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 8. Online Patient Complete (Full Vibrant Forest Jade Green) */
+.stat-card-jade {
+  background: linear-gradient(135deg, #10B981 0%, #047857 100%) !important;
+  background-color: #059669 !important;
+  border: 1.5px solid #065F46 !important;
+  color: #FFFFFF !important;
+}
+.stat-card-jade .stat-card-title {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  opacity: 0.95 !important;
+}
+.stat-card-jade .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+.stat-icon-jade {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #FFFFFF !important;
+}
+.stat-icon-jade svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+.stat-card-active-jade {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(5, 150, 105, 0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+.dark .stat-card-jade {
+  background: linear-gradient(135deg, #059669 0%, #064E3B 100%) !important;
+  background-color: #047857 !important;
+  border: 1.5px solid #34D399 !important;
+  color: #FFFFFF !important;
+}
+.dark .stat-card-jade .stat-card-title {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  opacity: 0.95 !important;
+}
+.dark .stat-card-jade .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+}
+.dark .stat-icon-jade {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  color: #FFFFFF !important;
+}
+.dark .stat-icon-jade svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+.dark .stat-card-active-jade {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(52, 211, 153, 0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Smooth Premium Hover Elevation for all StatCards */
 .stat-card-bronze:hover,
-.stat-card-default:hover {
-  border-color: #8C6843 !important;
-}
+.stat-card-default:hover,
 .stat-card-rose:hover,
-.stat-card-amber:hover {
-  border-color: #DC2626 !important;
-}
+.stat-card-amber:hover,
 .stat-card-sky:hover,
-.stat-card-indigo:hover {
-  border-color: #0284C7 !important;
-}
-.stat-card-emerald:hover {
-  border-color: #15803D !important;
+.stat-card-indigo:hover,
+.stat-card-emerald:hover,
+.stat-card-orange:hover,
+.stat-card-red:hover,
+.stat-card-purple:hover,
+.stat-card-violet:hover,
+.stat-card-teal:hover,
+.stat-card-jade:hover {
+  transform: translateY(-3px) scale(1.01) !important;
+  filter: brightness(1.07) !important;
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.3) !important;
 }
 
 .dark .stat-card-bronze:hover,
@@ -480,25 +817,16 @@ body {
 .dark .stat-card-amber:hover,
 .dark .stat-card-sky:hover,
 .dark .stat-card-indigo:hover,
-.dark .stat-card-emerald:hover {
-  background-color: #1C2535 !important;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
-}
-.dark .stat-card-bronze:hover,
-.dark .stat-card-default:hover {
-  border-color: #D4AF37 !important;
-}
-.dark .stat-card-rose:hover,
-.dark .stat-card-amber:hover {
-  border-color: #EF4444 !important;
-}
-.dark .stat-card-sky:hover,
-.dark .stat-card-indigo:hover {
-  border-color: #38BDF8 !important;
-}
-.dark .stat-card-emerald:hover {
-  border-color: #34D399 !important;
+.dark .stat-card-emerald:hover,
+.dark .stat-card-orange:hover,
+.dark .stat-card-red:hover,
+.dark .stat-card-purple:hover,
+.dark .stat-card-violet:hover,
+.dark .stat-card-teal:hover,
+.dark .stat-card-jade:hover {
+  transform: translateY(-3px) scale(1.01) !important;
+  filter: brightness(1.1) !important;
+  box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* 13. Status Badges in Dark Blue Mode */

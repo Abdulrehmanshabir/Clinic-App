@@ -28,8 +28,9 @@ import {
   Eye,
   FileEdit,
   ChevronDown,
+  Globe,
 } from "lucide-react";
-import { formatClinicTime } from "@/lib/utils";
+import { formatClinicTime, isOnlineAppointment } from "@/lib/utils";
 
 interface OperatorDashboardClientProps {
   initialAppointments: Appointment[];
@@ -80,6 +81,7 @@ export function OperatorDashboardClient({
     phone: string;
     time: string;
     date: string;
+    is_online: boolean;
   } | null>(null);
 
   // Form states for walk-in token
@@ -94,172 +96,17 @@ export function OperatorDashboardClient({
   const [callServiceId, setCallServiceId] = useState("");
   const [callDate, setCallDate] = useState(clinicDate);
   const [callTime, setCallTime] = useState("18:00");
-  const [callHour, setCallHour] = useState("06");
-  const [callMinute, setCallMinute] = useState("00");
-  const [callPeriod, setCallPeriod] = useState<"AM" | "PM">("PM");
+  const [callIsOnline, setCallIsOnline] = useState(false);
   const [callNotes, setCallNotes] = useState("");
   const [isSubmittingCall, setIsSubmittingCall] = useState(false);
 
+  // Live services from DB — no hardcoded ordering, updates instantly when procedure is renamed/added
   const canonicalServices = React.useMemo(() => {
-    const targetOrder = [
-      "Laser Hair",
-      "Cauter/CRYO",
-      "Microneedling/PRP",
-      "Laser Co2/Q",
-      "Injections (Filler, Botox, Whitening)",
-      "Hydrafacial",
-      "Other Procedures",
-    ];
-    const ordered: Service[] = [];
-    for (const name of targetOrder) {
-      const match = (services || []).find((s) => s.name === name);
-      if (match) ordered.push(match);
-    }
-    for (const s of services || []) {
-      if (s.is_active !== false && !ordered.find((x) => x.id === s.id)) {
-        ordered.push(s);
-      }
-    }
-    return ordered;
+    return (services || []).filter((s) => s.is_active !== false);
   }, [services]);
 
   const selectedWalkInService = canonicalServices.find((s) => s.id === walkInServiceId);
   const selectedCallService = canonicalServices.find((s) => s.id === callServiceId);
-
-  const hourInputRef = React.useRef<HTMLInputElement>(null);
-  const minInputRef = React.useRef<HTMLInputElement>(null);
-
-  const updateCallTimeParts = (h: string, m: string, p: "AM" | "PM") => {
-    let hourNum = parseInt(h, 10);
-    if (isNaN(hourNum)) hourNum = 12;
-    if (p === "AM") {
-      if (hourNum === 12) hourNum = 0;
-    } else {
-      if (hourNum !== 12) hourNum += 12;
-    }
-    const formatted = `${String(hourNum).padStart(2, "0")}:${m || "00"}`;
-    setCallTime(formatted);
-  };
-
-  const handleHourInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, "");
-    if (!val) {
-      setCallHour("");
-      return;
-    }
-    const num = parseInt(val, 10);
-    if (num > 12) {
-      const clamped = "12";
-      setCallHour(clamped);
-      updateCallTimeParts(clamped, callMinute || "00", callPeriod);
-      minInputRef.current?.focus();
-      return;
-    }
-    if (val.length === 2 || num >= 2) {
-      const formatted = String(num).padStart(2, "0");
-      setCallHour(formatted);
-      updateCallTimeParts(formatted, callMinute || "00", callPeriod);
-      minInputRef.current?.focus();
-    } else {
-      setCallHour(val);
-      updateCallTimeParts(String(num).padStart(2, "0"), callMinute || "00", callPeriod);
-    }
-  };
-
-  const handleHourBlur = () => {
-    let num = parseInt(callHour, 10);
-    if (isNaN(num) || num < 1) num = 12;
-    if (num > 12) num = 12;
-    const formatted = String(num).padStart(2, "0");
-    setCallHour(formatted);
-    updateCallTimeParts(formatted, callMinute || "00", callPeriod);
-  };
-
-  const handleHourKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "ArrowUp") {
-      e.preventDefault();
-      let num = parseInt(callHour, 10) || 12;
-      num = num >= 12 ? 1 : num + 1;
-      const formatted = String(num).padStart(2, "0");
-      setCallHour(formatted);
-      updateCallTimeParts(formatted, callMinute || "00", callPeriod);
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      let num = parseInt(callHour, 10) || 12;
-      num = num <= 1 ? 12 : num - 1;
-      const formatted = String(num).padStart(2, "0");
-      setCallHour(formatted);
-      updateCallTimeParts(formatted, callMinute || "00", callPeriod);
-    } else if (e.key.toLowerCase() === "a") {
-      e.preventDefault();
-      handlePeriodChange("AM");
-    } else if (e.key.toLowerCase() === "p") {
-      e.preventDefault();
-      handlePeriodChange("PM");
-    }
-  };
-
-  const handleMinuteInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, "");
-    if (!val) {
-      setCallMinute("");
-      return;
-    }
-    const num = parseInt(val, 10);
-    if (num > 59) {
-      setCallMinute("59");
-      updateCallTimeParts(callHour || "12", "59", callPeriod);
-      return;
-    }
-    if (val.length === 2) {
-      const formatted = String(num).padStart(2, "0");
-      setCallMinute(formatted);
-      updateCallTimeParts(callHour || "12", formatted, callPeriod);
-    } else {
-      setCallMinute(val);
-      updateCallTimeParts(callHour || "12", String(num).padStart(2, "0"), callPeriod);
-    }
-  };
-
-  const handleMinuteBlur = () => {
-    let num = parseInt(callMinute, 10);
-    if (isNaN(num) || num < 0) num = 0;
-    if (num > 59) num = 59;
-    const formatted = String(num).padStart(2, "0");
-    setCallMinute(formatted);
-    updateCallTimeParts(callHour || "12", formatted, callPeriod);
-  };
-
-  const handleMinuteKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "ArrowUp") {
-      e.preventDefault();
-      let num = parseInt(callMinute, 10) || 0;
-      num = num >= 59 ? 0 : num + 1;
-      const formatted = String(num).padStart(2, "0");
-      setCallMinute(formatted);
-      updateCallTimeParts(callHour || "12", formatted, callPeriod);
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      let num = parseInt(callMinute, 10) || 0;
-      num = num <= 0 ? 59 : num - 1;
-      const formatted = String(num).padStart(2, "0");
-      setCallMinute(formatted);
-      updateCallTimeParts(callHour || "12", formatted, callPeriod);
-    } else if (e.key === "Backspace" && !callMinute) {
-      hourInputRef.current?.focus();
-    } else if (e.key.toLowerCase() === "a") {
-      e.preventDefault();
-      handlePeriodChange("AM");
-    } else if (e.key.toLowerCase() === "p") {
-      e.preventDefault();
-      handlePeriodChange("PM");
-    }
-  };
-
-  const handlePeriodChange = (newPeriod: "AM" | "PM") => {
-    setCallPeriod(newPeriod);
-    updateCallTimeParts(callHour || "12", callMinute || "00", newPeriod);
-  };
 
   // Sync state with server props
   React.useEffect(() => {
@@ -380,6 +227,7 @@ export function OperatorDashboardClient({
         appointment_time: callTime,
         notes: callNotes.trim() || undefined,
         service_id: callServiceId || undefined,
+        is_online: callIsOnline,
       });
 
       if (res.success && res.data) {
@@ -388,6 +236,7 @@ export function OperatorDashboardClient({
           phone: callPhone.trim(),
           time: callTime,
           date: callDate || clinicDate,
+          is_online: callIsOnline,
         });
         success(
           "Call Appointment Reserved! 📞",
@@ -397,10 +246,8 @@ export function OperatorDashboardClient({
         setCallPhone("");
         setCallServiceId("");
         setCallDate(clinicDate);
-        setCallHour("06");
-        setCallMinute("00");
-        setCallPeriod("PM");
         setCallTime("18:00");
+        setCallIsOnline(false);
         setCallNotes("");
         router.refresh();
       } else {
@@ -644,6 +491,11 @@ export function OperatorDashboardClient({
                       {app.token ? (
                         <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E8DFD1] inline-block shadow-2xs">
                           {app.token.token_number}
+                        </span>
+                      ) : isOnlineAppointment(app) ? (
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] text-base font-bold font-mono">
+                          <Globe className="w-4 h-4" />
+                          Online
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD] text-base font-bold font-mono">
@@ -1072,6 +924,16 @@ export function OperatorDashboardClient({
                   <span className="font-black font-mono text-sm sm:text-base text-[#1A120B]">{createdCallReservation.phone}</span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
+                  <span className="text-xs sm:text-sm text-[#1A120B] font-black">Patient Mode:</span>
+                  <span
+                    className={`font-black text-sm sm:text-base ${
+                      createdCallReservation.is_online ? "text-[#047857]" : "text-[#1A120B]"
+                    }`}
+                  >
+                    {createdCallReservation.is_online ? "Online Patient" : "In-Clinic Visit"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center gap-2">
                   <span className="text-xs sm:text-sm text-[#1A120B] font-black">Reserved Slot:</span>
                   <span className="text-sm sm:text-base text-[#1A120B] font-mono font-black">{formatClinicTime(createdCallReservation.time)}</span>
                 </div>
@@ -1157,6 +1019,29 @@ export function OperatorDashboardClient({
                   />
                 </div>
 
+                {/* Patient Mode: Online vs In-Clinic */}
+                <div>
+                  <label className="block text-base sm:text-lg font-black text-[#1A120B] mb-1.5 ml-3">
+                    Patient Mode
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={callIsOnline ? "online" : "offline"}
+                      onChange={(e) => setCallIsOnline(e.target.value === "online")}
+                      className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FAF7F2] dark:bg-[#1A2234] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-xs sm:text-sm font-bold transition shadow-2xs appearance-none cursor-pointer"
+                    >
+                      <option value="offline">In-Clinic Visit (Offline)</option>
+                      <option value="online">Online Patient (Video / Photo)</option>
+                    </select>
+                    <Globe className="w-4 h-4 text-[#8C6843] dark:text-[#E5C158] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                  {callIsOnline && (
+                    <p className="text-[11px] sm:text-xs text-[#047857] dark:text-[#34D399] font-bold mt-1 ml-1">
+                      This patient will appear in the Doctor&apos;s Online section.
+                    </p>
+                  )}
+                </div>
+
                 {/* Procedure / Treatment Selection */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5 ml-3 mr-1">
@@ -1202,7 +1087,7 @@ export function OperatorDashboardClient({
                     />
                   </div>
 
-                  {/* Appointment Time (Aesthetic 1 to 12 Picker) */}
+                  {/* Appointment Time (Native 12-hour picker — typing + AM/PM always visible) */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5 ml-3 mr-1">
                       <label className="block text-base sm:text-lg font-black text-[#1A120B]">
@@ -1213,86 +1098,21 @@ export function OperatorDashboardClient({
                       </span>
                     </div>
 
-                    {/* Header Clock Style Container (Facebook / Creator Studio Style) */}
-                    <div className="w-full h-13 px-3.5 py-2 bg-[#F4EFE6] rounded-2xl border-2 border-[#BCA58C] flex items-center justify-between shadow-xs">
-                      {/* Left: Clock Icon & Label (Exact Header Style) */}
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4.5 h-4.5 text-[#A8835A] shrink-0" />
-                        <span className="text-xs font-black uppercase tracking-wider text-[#8C7A6B]">
-                          Time
-                        </span>
-                      </div>
-
-                      {/* Center: Digital Interactive Time Inputs (Type & Keyboard only, perfectly centered) */}
-                      <div className="flex items-center gap-1.5 font-mono">
-                        {/* Hour Box (Type 01-12, perfectly centered) */}
-                        <div className="relative">
-                          <input
-                            ref={hourInputRef}
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={2}
-                            value={callHour}
-                            onFocus={(e) => e.target.select()}
-                            onChange={handleHourInput}
-                            onKeyDown={handleHourKeyDown}
-                            onBlur={handleHourBlur}
-                            placeholder="06"
-                            className="w-12 h-10 text-center p-0 font-mono font-black text-xl text-[#1A120B] bg-[#FFFFFF] rounded-xl border-2 border-[#D8C5AD] focus:outline-none focus:border-[#8C6843] focus:ring-2 focus:ring-[#8C6843]/20 shadow-2xs transition select-all"
-                            title="Type hour (1-12)"
-                          />
-                        </div>
-
-                        {/* Flashing/Bold Colon Separator */}
-                        <span className="font-mono font-black text-2xl text-[#8C6843] select-none leading-none px-0.5">
-                          :
-                        </span>
-
-                        {/* Minute Box (Type 00-59, perfectly centered) */}
-                        <div className="relative">
-                          <input
-                            ref={minInputRef}
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={2}
-                            value={callMinute}
-                            onFocus={(e) => e.target.select()}
-                            onChange={handleMinuteInput}
-                            onKeyDown={handleMinuteKeyDown}
-                            onBlur={handleMinuteBlur}
-                            placeholder="00"
-                            className="w-12 h-10 text-center p-0 font-mono font-black text-xl text-[#1A120B] bg-[#FFFFFF] rounded-xl border-2 border-[#D8C5AD] focus:outline-none focus:border-[#8C6843] focus:ring-2 focus:ring-[#8C6843]/20 shadow-2xs transition select-all"
-                            title="Type minute (00-59)"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Right: AM / PM Segmented Control */}
-                      <div className="flex rounded-xl bg-[#EAE1D3] p-0.5 border border-[#D8C5AD] shadow-2xs shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handlePeriodChange("AM")}
-                          className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
-                            callPeriod === "AM"
-                              ? "bg-[#1E1915] text-[#FAF7F2] shadow-xs"
-                              : "text-[#6B5E51] hover:text-[#1A120B]"
-                          }`}
-                        >
-                          AM
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handlePeriodChange("PM")}
-                          className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
-                            callPeriod === "PM"
-                              ? "bg-[#1E1915] text-[#FAF7F2] shadow-xs"
-                              : "text-[#6B5E51] hover:text-[#1A120B]"
-                          }`}
-                        >
-                          PM
-                        </button>
-                      </div>
+                    <div className="relative">
+                      <Clock className="w-5 h-5 text-[#A8835A] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+                      <input
+                        type="time"
+                        required
+                        step={60}
+                        value={callTime}
+                        onChange={(e) => setCallTime(e.target.value)}
+                        className="w-full h-12 pl-12 pr-4 py-2 rounded-2xl bg-[#FFFFFF] dark:bg-[#0E1626] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] text-xl font-mono font-black text-center focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:ring-2 focus:ring-[#8C6843]/20 shadow-xs [color-scheme:light] dark:[color-scheme:dark]"
+                        title="Select or type time (e.g. 10:00 AM)"
+                      />
                     </div>
+                    <p className="text-[11px] sm:text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold mt-1 ml-1">
+                      Type the time directly or use the clock picker, then select AM or PM.
+                    </p>
                   </div>
                 </div>
               </div>

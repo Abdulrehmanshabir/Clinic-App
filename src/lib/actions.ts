@@ -426,6 +426,7 @@ export async function bookCallAppointment(formData: {
   appointment_time: string;
   notes?: string;
   service_id?: string;
+  is_online?: boolean;
 }) {
   if (!formData.full_name || formData.full_name.trim().length === 0) {
     return { success: false, error: "Patient name is required" };
@@ -468,7 +469,22 @@ export async function bookCallAppointment(formData: {
     patientId = newPat.id;
   }
 
-  // 2. Insert Appointment as 'scheduled' without token yet
+  // 2. Detect whether the is_online column is available yet (safe before migration)
+  const wantsOnline = Boolean(formData.is_online);
+  let supportsOnlineFlag = false;
+  if (wantsOnline) {
+    const { error: onlineProbeError } = await supabase
+      .from("appointments")
+      .select("is_online")
+      .limit(1);
+    supportsOnlineFlag = !onlineProbeError;
+  }
+
+  const baseNotes = formData.notes?.trim() || "Phone Call Appointment";
+  const notesToSave =
+    wantsOnline && !supportsOnlineFlag ? `[ONLINE] ${baseNotes}` : baseNotes;
+
+  // 3. Insert Appointment as 'scheduled' without token yet
   const { data: appointment, error: appErr } = await supabase
     .from("appointments")
     .insert({
@@ -477,7 +493,8 @@ export async function bookCallAppointment(formData: {
       appointment_time: formData.appointment_time,
       appointment_type: "scheduled",
       status: "waiting",
-      notes: formData.notes?.trim() || "Phone Call Appointment",
+      notes: notesToSave,
+      ...(wantsOnline && supportsOnlineFlag ? { is_online: true } : {}),
       ...(formData.service_id ? { service_id: formData.service_id } : {}),
     })
     .select(`
@@ -510,6 +527,7 @@ export async function bookCallAppointment(formData: {
     phone: rawPhone,
     time: formData.appointment_time,
     date: dateToUse,
+    is_online: wantsOnline,
   });
 
   revalidatePath("/doctor");
@@ -869,6 +887,10 @@ export async function createOrUpdateService(formData: unknown, serviceId?: strin
     if (error) return { success: false, error: error.message };
     await logAudit("UPDATE_SERVICE", "services", serviceId, { name: result.data.name });
     revalidatePath("/services");
+    revalidatePath("/settings");
+    revalidatePath("/doctor");
+    revalidatePath("/operator");
+    revalidatePath("/", "layout");
     return { success: true, data };
   } else {
     const { data, error } = await supabase
@@ -880,6 +902,10 @@ export async function createOrUpdateService(formData: unknown, serviceId?: strin
     if (error) return { success: false, error: error.message };
     await logAudit("CREATE_SERVICE", "services", data.id, { name: result.data.name });
     revalidatePath("/services");
+    revalidatePath("/settings");
+    revalidatePath("/doctor");
+    revalidatePath("/operator");
+    revalidatePath("/", "layout");
     return { success: true, data };
   }
 }
@@ -1265,6 +1291,8 @@ export async function createProcedure(name: string, price: number) {
     revalidatePath("/procedures");
     revalidatePath("/doctor");
     revalidatePath("/operator");
+    revalidatePath("/appointments");
+    revalidatePath("/", "layout");
     return { success: true, data };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Could not create procedure";
@@ -1296,6 +1324,8 @@ export async function updateProcedure(serviceId: string, name: string, price: nu
     revalidatePath("/procedures");
     revalidatePath("/doctor");
     revalidatePath("/operator");
+    revalidatePath("/appointments");
+    revalidatePath("/", "layout");
     return { success: true, data };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Could not update procedure";
@@ -1324,6 +1354,8 @@ export async function deleteProcedure(serviceId: string) {
     revalidatePath("/procedures");
     revalidatePath("/doctor");
     revalidatePath("/operator");
+    revalidatePath("/appointments");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Failed to remove procedure";

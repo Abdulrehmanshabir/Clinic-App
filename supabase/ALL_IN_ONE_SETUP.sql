@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS public.appointments (
     service_id UUID REFERENCES public.services(id) ON DELETE SET NULL,
     appointment_type TEXT NOT NULL DEFAULT 'walk_in' CHECK (appointment_type IN ('scheduled', 'walk_in')),
     status TEXT NOT NULL DEFAULT 'waiting' CHECK (status IN ('waiting', 'called', 'in_consultation', 'completed', 'cancelled', 'no_show')),
+    is_online BOOLEAN NOT NULL DEFAULT false,
     notes TEXT,
     created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
@@ -134,6 +135,7 @@ CREATE INDEX IF NOT EXISTS idx_patients_phone ON public.patients(phone);
 CREATE INDEX IF NOT EXISTS idx_patients_patient_number ON public.patients(patient_number);
 CREATE INDEX IF NOT EXISTS idx_appointments_date ON public.appointments(appointment_date);
 CREATE INDEX IF NOT EXISTS idx_appointments_status ON public.appointments(status);
+CREATE INDEX IF NOT EXISTS idx_appointments_is_online ON public.appointments(is_online);
 CREATE INDEX IF NOT EXISTS idx_tokens_date ON public.tokens(token_date);
 
 -- ==============================================================================

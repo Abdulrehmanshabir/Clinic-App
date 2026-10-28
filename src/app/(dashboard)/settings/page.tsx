@@ -4,8 +4,11 @@ import { getCurrentProfile } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { type Service } from "@/types/database";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
-  title: "Clinical Settings & Procedures | Lumière Skin Clinic",
+  title: "Procedure Setting | Lumière Skin Clinic",
 };
 
 export default async function SettingsPage() {

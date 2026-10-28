@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Appointment } from "@/types/database";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -30,6 +31,13 @@ export function formatClinicTime(timeStr: string | null | undefined): string {
     return `${strHours}:${minutes} ${ampm}`;
   }
   return timeStr;
+}
+
+export function isOnlineAppointment(
+  app: Pick<Appointment, "is_online" | "notes"> | null | undefined
+): boolean {
+  if (!app) return false;
+  return app.is_online === true || (app.notes?.includes("[ONLINE]") ?? false);
 }
 
 export function getTodayDateString(): string {

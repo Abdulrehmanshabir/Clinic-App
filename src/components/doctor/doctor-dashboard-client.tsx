@@ -37,8 +37,9 @@ import {
   LogIn,
   Coffee,
   Loader2,
+  Globe,
 } from "lucide-react";
-import { formatClinicTime } from "@/lib/utils";
+import { formatClinicTime, isOnlineAppointment } from "@/lib/utils";
 
 interface DoctorDashboardClientProps {
   initialAppointments: Appointment[];
@@ -118,6 +119,28 @@ export function DoctorDashboardClient({
   const callBookingsCount = useMemo(() => {
     return appointments.filter(
       (a) => a.appointment_type === "scheduled" && a.token == null && a.status !== "completed" && a.status !== "no_show"
+    ).length;
+  }, [appointments]);
+
+  // Procedure counts
+  const procedureCount = useMemo(() => {
+    return appointments.filter((a) => a.service != null || a.service_id != null).length;
+  }, [appointments]);
+
+  const completeProcedureCount = useMemo(() => {
+    return appointments.filter(
+      (a) => (a.service != null || a.service_id != null) && a.status === "completed"
+    ).length;
+  }, [appointments]);
+
+  // Online patient counts — only appointments explicitly marked as online by the operator
+  const onlinePatientCount = useMemo(() => {
+    return appointments.filter((a) => isOnlineAppointment(a)).length;
+  }, [appointments]);
+
+  const onlinePatientCompleteCount = useMemo(() => {
+    return appointments.filter(
+      (a) => isOnlineAppointment(a) && a.status === "completed"
     ).length;
   }, [appointments]);
 
@@ -345,6 +368,18 @@ export function DoctorDashboardClient({
       if (activeFilter === "call_bookings") {
         return a.appointment_type === "scheduled" && a.token == null && a.status !== "no_show" && a.status !== "completed";
       }
+      if (activeFilter === "procedure") {
+        return a.service != null || a.service_id != null;
+      }
+      if (activeFilter === "complete_procedure") {
+        return (a.service != null || a.service_id != null) && a.status === "completed";
+      }
+      if (activeFilter === "online") {
+        return isOnlineAppointment(a);
+      }
+      if (activeFilter === "online_complete") {
+        return isOnlineAppointment(a) && a.status === "completed";
+      }
       if (activeFilter === "completed") return a.status === "completed";
       if (activeFilter === "no_show") return a.status === "no_show";
       return true;
@@ -427,8 +462,9 @@ export function DoctorDashboardClient({
         />
       )}
 
-      {/* KPI Stats Grid */}
+      {/* KPI Stats Grid - 8 Full Color Boxes */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
+        {/* Row 1: Core Queue Metrics */}
         <StatCard
           title="Today Total Patients"
           value={summary.total}
@@ -460,6 +496,40 @@ export function DoctorDashboardClient({
           variant="emerald"
           active={activeFilter === "completed"}
           onClick={() => setActiveFilter("completed")}
+        />
+
+        {/* Row 2: Procedures & Online Metrics (User Request) */}
+        <StatCard
+          title="Procedure"
+          value={procedureCount}
+          icon={Sparkles}
+          variant="purple"
+          active={activeFilter === "procedure"}
+          onClick={() => setActiveFilter("procedure")}
+        />
+        <StatCard
+          title="Complete Procedure"
+          value={completeProcedureCount}
+          icon={CheckCheck}
+          variant="teal"
+          active={activeFilter === "complete_procedure"}
+          onClick={() => setActiveFilter("complete_procedure")}
+        />
+        <StatCard
+          title="Online Patient"
+          value={onlinePatientCount}
+          icon={Globe}
+          variant="indigo"
+          active={activeFilter === "online"}
+          onClick={() => setActiveFilter("online")}
+        />
+        <StatCard
+          title="Online Patient Complete"
+          value={onlinePatientCompleteCount}
+          icon={UserCheck}
+          variant="jade"
+          active={activeFilter === "online_complete"}
+          onClick={() => setActiveFilter("online_complete")}
         />
       </div>
 
@@ -620,7 +690,7 @@ export function DoctorDashboardClient({
         )}
       </div>
 
-      {/* Clinical Procedures & Patient Demand Section (User Request: 7 categories in exact sequence with price & patients) */}
+      {/* Clinical Procedures & Patient Demand Section */}
       <ProceduresSection
         appointments={appointments}
         services={services}
@@ -632,7 +702,23 @@ export function DoctorDashboardClient({
         <div className="px-5 sm:px-7 py-5 border-b border-[#E8DFD1] bg-[#FAF7F2] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <h3 className="text-base sm:text-lg font-serif font-bold text-[#1A120B] dark:text-[#FAF7F2]">
-              All Today&apos;s Patients
+              {activeFilter === "procedure"
+                ? "Procedure Patients"
+                : activeFilter === "complete_procedure"
+                ? "Completed Procedures"
+                : activeFilter === "online"
+                ? "Online Patients"
+                : activeFilter === "online_complete"
+                ? "Completed Online Patients"
+                : activeFilter === "active"
+                ? "Active Queue Patients"
+                : activeFilter === "call_bookings"
+                ? "Call Bookings"
+                : activeFilter === "completed"
+                ? "Completed Consultations"
+                : activeFilter === "no_show"
+                ? "Absent / Not Present"
+                : "All Today's Patients"}
             </h3>
             <span className="text-xs sm:text-sm font-bold text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs whitespace-nowrap inline-flex items-center justify-center">
               {filteredAppointments.length} Records
@@ -643,14 +729,18 @@ export function DoctorDashboardClient({
             {[
               { id: "all", label: "All Patients" },
               { id: "active", label: "Active Queue" },
-              { id: "call_bookings", label: `Call Bookings (${callBookingsCount})` },
-              { id: "no_show", label: "Not Present" },
+              { id: "procedure", label: `Procedure (${procedureCount})` },
+              { id: "complete_procedure", label: `Done Proc (${completeProcedureCount})` },
+              { id: "online", label: `Online (${onlinePatientCount})` },
+              { id: "online_complete", label: `Online Done (${onlinePatientCompleteCount})` },
+              { id: "call_bookings", label: `Call (${callBookingsCount})` },
               { id: "completed", label: "Completed" },
+              { id: "no_show", label: "Not Present" },
             ].map((f) => (
               <button
                 key={f.id}
                 onClick={() => setActiveFilter(f.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap transition-all duration-150 ${
+                className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap transition-all duration-150 ${
                   activeFilter === f.id
                     ? "bg-[#1E1915] text-[#FAF7F2] shadow-sm shadow-[#1E1915]/10"
                     : "text-[#1A120B] hover:text-[#1E1915] hover:bg-[#EFE6D8]/80"
@@ -694,6 +784,8 @@ export function DoctorDashboardClient({
                         ? "bg-[#FAF5FF]"
                         : app.status === "no_show"
                         ? "bg-[#FEF2F2]/50"
+                        : isOnlineAppointment(app) && !app.token
+                        ? "bg-[#ECFDF5]/40"
                         : app.appointment_type === "scheduled" && !app.token
                         ? "bg-[#F0F9FF]/40"
                         : ""
@@ -704,6 +796,11 @@ export function DoctorDashboardClient({
                       {app.token ? (
                         <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E8DFD1] inline-block shadow-2xs">
                           {app.token.token_number}
+                        </span>
+                      ) : isOnlineAppointment(app) ? (
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] text-base font-bold font-mono">
+                          <Globe className="w-4 h-4" />
+                          Online
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD] text-base font-bold font-mono">
