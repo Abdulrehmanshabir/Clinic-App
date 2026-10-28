@@ -799,7 +799,7 @@ export function OperatorDashboardClient({
 
                 {/* Patient Name Input */}
                 <div className="border-t border-dashed border-[#D8C5AD] pt-3">
-                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  <label className="inline-flex items-center text-sm sm:text-base font-bold text-white bg-[#8C6843] px-3 py-0.5 rounded-full mb-1.5 ml-3 shadow-2xs">
                     Patient Name
                   </label>
                   <input
@@ -814,7 +814,7 @@ export function OperatorDashboardClient({
 
                 {/* Phone Number Input */}
                 <div>
-                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  <label className="inline-flex items-center text-sm sm:text-base font-bold text-white bg-[#8C6843] px-3 py-0.5 rounded-full mb-1.5 ml-3 shadow-2xs">
                     Phone Number
                   </label>
                   <input
@@ -980,10 +980,6 @@ export function OperatorDashboardClient({
                 {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
               </p>
               <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{callDate || clinicDate}</p>
-              <div className="inline-flex items-center gap-1.5 mt-1.5 px-3 py-0.5 rounded-full bg-[#FAF3EA] border border-[#D8C5AD] text-[#6B4E31] text-[11px] font-black uppercase tracking-wider">
-                <PhoneCall className="w-3 h-3 text-[#A8835A]" />
-                <span>Book Phone Appointment</span>
-              </div>
             </div>
 
             {/* Form Body: Matching Walk-in Card Style */}
@@ -991,7 +987,7 @@ export function OperatorDashboardClient({
               <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
                 {/* Patient Name Input */}
                 <div>
-                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  <label className="inline-flex items-center text-sm sm:text-base font-bold text-white bg-[#8C6843] px-3 py-0.5 rounded-full mb-1.5 ml-3 shadow-2xs">
                     Patient Name
                   </label>
                   <input
@@ -1006,7 +1002,7 @@ export function OperatorDashboardClient({
 
                 {/* Phone Number Input */}
                 <div>
-                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  <label className="inline-flex items-center text-sm sm:text-base font-bold text-white bg-[#8C6843] px-3 py-0.5 rounded-full mb-1.5 ml-3 shadow-2xs">
                     Phone Number
                   </label>
                   <input
