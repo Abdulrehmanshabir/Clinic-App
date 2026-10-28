@@ -691,7 +691,7 @@ export async function completeConsultation(formData: unknown) {
         appointment_id: result.data.appointment_id,
         doctor_id: user.id,
         completed_at: new Date().toISOString(),
-        doctor_notes: result.data.doctor_notes || "Consultation completed by Doctor",
+        doctor_notes: result.data.doctor_notes?.trim() || null,
         treatment_notes: result.data.treatment_notes || null,
         follow_up_date: result.data.follow_up_date || null,
       },
@@ -741,7 +741,7 @@ export async function saveConsultationNotes(formData: unknown) {
       {
         appointment_id: result.data.appointment_id,
         doctor_id: user.id,
-        doctor_notes: result.data.doctor_notes || null,
+        doctor_notes: result.data.doctor_notes?.trim() || null,
         follow_up_date: result.data.follow_up_date || null,
         updated_at: new Date().toISOString(),
       },
@@ -771,18 +771,25 @@ export async function completeConsultationDirect(appointmentId: string, notes?: 
 
   if (!user) return { success: false, error: "Unauthorized" };
 
-  // 1. Upsert Consultation record
+  // 1. Upsert Consultation record (preserve existing doctor notes unless new ones are provided)
+  const payload: {
+    appointment_id: string;
+    doctor_id: string;
+    completed_at: string;
+    doctor_notes?: string | null;
+  } = {
+    appointment_id: appointmentId,
+    doctor_id: user.id,
+    completed_at: new Date().toISOString(),
+  };
+
+  if (notes !== undefined) {
+    payload.doctor_notes = notes.trim() || null;
+  }
+
   const { data: consultation, error: consErr } = await supabase
     .from("consultations")
-    .upsert(
-      {
-        appointment_id: appointmentId,
-        doctor_id: user.id,
-        completed_at: new Date().toISOString(),
-        doctor_notes: notes || "Consultation completed by Doctor",
-      },
-      { onConflict: "appointment_id" }
-    )
+    .upsert(payload, { onConflict: "appointment_id" })
     .select()
     .maybeSingle();
 

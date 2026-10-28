@@ -76,12 +76,12 @@ export function OperatorDashboardClient({
     }
   }, []);
 
-  const notesStamp = (app: Appointment) =>
-    app.consultation?.updated_at || app.consultation?.doctor_notes || "";
+  const notesStamp = (app: Appointment) => app.consultation?.doctor_notes?.trim() || "";
 
   const hasUnreadNotes = (app: Appointment) => {
-    if (!app.consultation?.doctor_notes?.trim()) return false;
-    return viewedNoteStamps[app.id] !== notesStamp(app);
+    const note = notesStamp(app);
+    if (!note || note === "Consultation completed by Doctor") return false;
+    return viewedNoteStamps[app.id] !== note;
   };
 
   const markNotesViewed = (app: Appointment) => {
