@@ -916,15 +916,15 @@ export function OperatorDashboardClient({
 
               <div className="border-t border-dashed border-[#D8C5AD] mt-3 pt-3 space-y-2.5 text-xs">
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-xs sm:text-sm text-[#1A120B] font-black">Patient Name:</span>
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Name:</span>
                   <span className="font-black text-[#1A120B] text-base sm:text-lg font-serif">{createdCallReservation.patient_name}</span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-xs sm:text-sm text-[#1A120B] font-black">Phone Number:</span>
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Phone Number:</span>
                   <span className="font-black font-mono text-sm sm:text-base text-[#1A120B]">{createdCallReservation.phone}</span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-xs sm:text-sm text-[#1A120B] font-black">Patient Mode:</span>
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Mode:</span>
                   <span
                     className={`font-black text-sm sm:text-base ${
                       createdCallReservation.is_online ? "text-[#047857]" : "text-[#1A120B]"
@@ -934,12 +934,10 @@ export function OperatorDashboardClient({
                   </span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-xs sm:text-sm text-[#1A120B] font-black">Reserved Slot:</span>
-                  <span className="text-sm sm:text-base text-[#1A120B] font-mono font-black">{formatClinicTime(createdCallReservation.time)}</span>
-                </div>
-                <div className="flex justify-between items-center gap-2">
-                  <span className="text-xs sm:text-sm text-[#1A120B] font-black">Reserved Date:</span>
-                  <span className="text-sm sm:text-base text-[#1A120B] font-mono font-black">{createdCallReservation.date}</span>
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Reserved Date &amp; Time:</span>
+                  <span className="text-sm sm:text-base text-[#1A120B] font-mono font-black">
+                    {createdCallReservation.date} • {formatClinicTime(createdCallReservation.time)}
+                  </span>
                 </div>
               </div>
 
@@ -991,7 +989,7 @@ export function OperatorDashboardClient({
               <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
                 {/* Patient Name Input */}
                 <div>
-                  <label className="block text-base sm:text-lg font-black text-[#1A120B] mb-1.5 ml-3">
+                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Patient Name
                   </label>
                   <input
@@ -1006,7 +1004,7 @@ export function OperatorDashboardClient({
 
                 {/* Phone Number Input */}
                 <div>
-                  <label className="block text-base sm:text-lg font-black text-[#1A120B] mb-1.5 ml-3">
+                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Phone Number
                   </label>
                   <input
@@ -1021,7 +1019,7 @@ export function OperatorDashboardClient({
 
                 {/* Patient Mode: Online vs In-Clinic */}
                 <div>
-                  <label className="block text-base sm:text-lg font-black text-[#1A120B] mb-1.5 ml-3">
+                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Patient Mode
                   </label>
                   <div className="relative">
@@ -1071,49 +1069,37 @@ export function OperatorDashboardClient({
                   </div>
                 </div>
 
-                {/* Reserved Date & Time */}
-                <div className="pt-2.5 border-t border-dashed border-[#D8C5AD] space-y-3">
-                  {/* Appointment Date */}
-                  <div>
-                    <label className="block text-base sm:text-lg font-black text-[#1A120B] mb-1.5 ml-3">
-                      Appointment Date
+                {/* Appointment Date & Time (single combined field) */}
+                <div className="pt-2.5 border-t border-dashed border-[#D8C5AD]">
+                  <div className="flex items-center justify-between mb-1.5 ml-3 mr-1">
+                    <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158]">
+                      Appointment Date &amp; Time
                     </label>
+                    <span className="font-mono font-black text-xs sm:text-sm text-[#1A120B] bg-[#F4EFE6] px-2.5 py-0.5 rounded-lg border border-[#D8C5AD] shadow-2xs">
+                      {formatClinicTime(callTime)}
+                    </span>
+                  </div>
+
+                  <div className="relative">
+                    <Calendar className="w-5 h-5 text-[#A8835A] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                     <input
-                      type="date"
+                      type="datetime-local"
                       required
-                      value={callDate}
-                      onChange={(e) => setCallDate(e.target.value)}
-                      className="w-full h-10 px-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-bold font-mono transition shadow-2xs"
+                      value={`${callDate}T${callTime}`}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (!value) return;
+                        const [datePart, timePart] = value.split("T");
+                        if (datePart) setCallDate(datePart);
+                        if (timePart) setCallTime(timePart.slice(0, 5));
+                      }}
+                      className="w-full h-12 pl-12 pr-4 py-2 rounded-2xl bg-[#FFFFFF] dark:bg-[#0E1626] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] text-sm sm:text-base font-mono font-black focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:ring-2 focus:ring-[#8C6843]/20 shadow-xs [color-scheme:light] dark:[color-scheme:dark]"
+                      title="Select or type appointment date and time"
                     />
                   </div>
-
-                  {/* Appointment Time (Native 12-hour picker — typing + AM/PM always visible) */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5 ml-3 mr-1">
-                      <label className="block text-base sm:text-lg font-black text-[#1A120B]">
-                        Appointment Time
-                      </label>
-                      <span className="font-mono font-black text-xs sm:text-sm text-[#1A120B] bg-[#F4EFE6] px-2.5 py-0.5 rounded-lg border border-[#D8C5AD] shadow-2xs">
-                        {formatClinicTime(callTime)}
-                      </span>
-                    </div>
-
-                    <div className="relative">
-                      <Clock className="w-5 h-5 text-[#A8835A] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
-                      <input
-                        type="time"
-                        required
-                        step={60}
-                        value={callTime}
-                        onChange={(e) => setCallTime(e.target.value)}
-                        className="w-full h-12 pl-12 pr-4 py-2 rounded-2xl bg-[#FFFFFF] dark:bg-[#0E1626] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] text-xl font-mono font-black text-center focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:ring-2 focus:ring-[#8C6843]/20 shadow-xs [color-scheme:light] dark:[color-scheme:dark]"
-                        title="Select or type time (e.g. 10:00 AM)"
-                      />
-                    </div>
-                    <p className="text-[11px] sm:text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold mt-1 ml-1">
-                      Type the time directly or use the clock picker, then select AM or PM.
-                    </p>
-                  </div>
+                  <p className="text-[11px] sm:text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold mt-1 ml-1">
+                    Select or type the date and time, then choose AM or PM.
+                  </p>
                 </div>
               </div>
 
