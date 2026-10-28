@@ -685,7 +685,7 @@ export function OperatorDashboardClient({
               </div>
 
               <div className="text-center my-2.5">
-                <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#A8835A] block mb-0.5">
+                <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] dark:text-[#E5C158] block mb-0.5">
                   Your Token Number
                 </span>
                 <span className="text-3xl sm:text-4xl font-mono font-black text-[#1A120B] tracking-widest block py-0.5">
@@ -695,17 +695,17 @@ export function OperatorDashboardClient({
 
               <div className="border-t border-dashed border-[#D8C5AD] pt-3 space-y-2.5">
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-xs sm:text-sm text-[#1A120B] font-black">Patient Name:</span>
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Name:</span>
                   <span className="font-black text-[#1A120B] text-base sm:text-lg font-serif">{createdWalkInToken.patient_name}</span>
                 </div>
                 {createdWalkInToken.phone && (
                   <div className="flex justify-between items-center gap-2">
-                    <span className="text-xs sm:text-sm text-[#1A120B] font-black">Phone Number:</span>
+                    <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Phone Number:</span>
                     <span className="font-black font-mono text-sm sm:text-base text-[#1A120B]">{createdWalkInToken.phone}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-xs sm:text-sm text-[#1A120B] font-black">Slot Time:</span>
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Slot Time:</span>
                   <span className="text-sm sm:text-base text-[#1A120B] font-mono font-black">{formatClinicTime(createdWalkInToken.time)}</span>
                 </div>
               </div>
@@ -789,7 +789,7 @@ export function OperatorDashboardClient({
               <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
                 {/* Next In Line Token (Matching Slip Number Display) */}
                 <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border border-dashed border-[#D8C5AD]">
-                  <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#A8835A] block mb-0.5">
+                  <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] dark:text-[#E5C158] block mb-0.5">
                     Next In Line Token
                   </span>
                   <span className="text-3xl sm:text-4xl font-mono font-black text-[#1A120B] tracking-widest block py-0.5">
@@ -799,7 +799,7 @@ export function OperatorDashboardClient({
 
                 {/* Patient Name Input */}
                 <div className="border-t border-dashed border-[#D8C5AD] pt-3">
-                  <label className="block text-base sm:text-lg font-black text-[#1A120B] mb-1.5 ml-3">
+                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Patient Name
                   </label>
                   <input
@@ -814,7 +814,7 @@ export function OperatorDashboardClient({
 
                 {/* Phone Number Input */}
                 <div>
-                  <label className="block text-base sm:text-lg font-black text-[#1A120B] mb-1.5 ml-3">
+                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Phone Number
                   </label>
                   <input
@@ -909,6 +909,7 @@ export function OperatorDashboardClient({
                 <p className="text-sm text-[#5C4D3E] font-bold mt-0.5">
                   {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
                 </p>
+                <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{createdCallReservation.date}</p>
                 <div className="inline-block mt-1 px-3 py-0.5 rounded-full bg-[#E0F2FE] text-[#0369A1] text-[11px] font-black border border-[#BAE6FD]">
                   Status: Awaiting Physical Arrival
                 </div>
@@ -971,13 +972,14 @@ export function OperatorDashboardClient({
             </button>
 
             {/* Header: Aesthetic Clinic Branding (Matching Walk-in Card Header) */}
-            <div className="text-center border-b border-dashed border-[#D8C5AD] pb-3">
-              <h5 className="font-serif font-black text-base sm:text-lg tracking-wider text-[#1A120B] uppercase">
+            <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
+              <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
                 {clinicSettings?.clinic_name || "Glow Derm"}
               </h5>
-              <p className="text-xs sm:text-sm text-[#5C4D3E] font-bold mt-0.5">
+              <p className="text-sm text-[#5C4D3E] font-bold mt-0.5">
                 {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
               </p>
+              <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{callDate || clinicDate}</p>
               <div className="inline-flex items-center gap-1.5 mt-1.5 px-3 py-0.5 rounded-full bg-[#FAF3EA] border border-[#D8C5AD] text-[#6B4E31] text-[11px] font-black uppercase tracking-wider">
                 <PhoneCall className="w-3 h-3 text-[#A8835A]" />
                 <span>Book Phone Appointment</span>
@@ -998,7 +1000,7 @@ export function OperatorDashboardClient({
                     placeholder="Enter patient name"
                     value={callName}
                     onChange={(e) => setCallName(e.target.value)}
-                    className="w-full h-10 px-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-[#8C7A6B] focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                    className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-[#8C7A6B] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                   />
                 </div>
 
@@ -1013,7 +1015,7 @@ export function OperatorDashboardClient({
                     placeholder="Enter phone number"
                     value={callPhone}
                     onChange={(e) => setCallPhone(e.target.value)}
-                    className="w-full h-10 px-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-[#8C7A6B] focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
+                    className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-[#8C7A6B] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
                   />
                 </div>
 
@@ -1026,7 +1028,7 @@ export function OperatorDashboardClient({
                     <select
                       value={callIsOnline ? "online" : "offline"}
                       onChange={(e) => setCallIsOnline(e.target.value === "online")}
-                      className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FAF7F2] dark:bg-[#1A2234] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-xs sm:text-sm font-bold transition shadow-2xs appearance-none cursor-pointer"
+                      className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs appearance-none cursor-pointer"
                     >
                       <option value="offline">In-Clinic Visit (Offline)</option>
                       <option value="online">Online Patient (Video / Photo)</option>
@@ -1056,7 +1058,7 @@ export function OperatorDashboardClient({
                     <select
                       value={callServiceId}
                       onChange={(e) => setCallServiceId(e.target.value)}
-                      className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FAF7F2] dark:bg-[#1A2234] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-xs sm:text-sm font-bold transition shadow-2xs appearance-none cursor-pointer"
+                      className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs appearance-none cursor-pointer"
                     >
                       <option value="">Select Procedure (Optional)</option>
                       {canonicalServices.map((svc) => (
@@ -1093,7 +1095,7 @@ export function OperatorDashboardClient({
                         if (datePart) setCallDate(datePart);
                         if (timePart) setCallTime(timePart.slice(0, 5));
                       }}
-                      className="w-full h-12 pl-12 pr-4 py-2 rounded-2xl bg-[#FFFFFF] dark:bg-[#0E1626] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] text-sm sm:text-base font-mono font-black focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:ring-2 focus:ring-[#8C6843]/20 shadow-xs [color-scheme:light] dark:[color-scheme:dark]"
+                      className="w-full h-11 pl-12 pr-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] text-sm sm:text-base font-mono font-black focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 shadow-2xs [color-scheme:light] dark:[color-scheme:dark]"
                       title="Select or type appointment date and time"
                     />
                   </div>
