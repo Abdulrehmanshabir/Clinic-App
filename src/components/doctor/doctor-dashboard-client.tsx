@@ -32,6 +32,7 @@ import {
   UserCheck,
   CheckCheck,
   UserX,
+  XCircle,
   RotateCcw,
   Phone,
   LogIn,
@@ -63,6 +64,7 @@ export function DoctorDashboardClient({
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   // Doctor Break states
   const [doctorBreak, setDoctorBreakState] = useState<DoctorBreakInfo | null>(initialDoctorBreak || null);
@@ -290,6 +292,29 @@ export function DoctorDashboardClient({
       }
     } finally {
       setLoadingAction(null);
+    }
+  };
+
+  const handleCancelConsultation = async (appointmentId: string, patientName?: string) => {
+    setCancellingId(appointmentId);
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === appointmentId ? { ...a, status: "waiting" } : a))
+    );
+
+    try {
+      const res = await updateAppointmentStatus(appointmentId, "waiting");
+      if (res.success) {
+        success("Consultation Cancelled", `${patientName || "Patient"} returned to the waiting queue`);
+        router.refresh();
+      } else {
+        error("Action Failed", res.error);
+        router.refresh();
+      }
+    } catch {
+      error("Error", "An unexpected error occurred");
+      router.refresh();
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -581,24 +606,46 @@ export function DoctorDashboardClient({
                 <span>Notes</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => handleDirectComplete(activeConsultation.id, activeConsultation.patient?.full_name)}
-                disabled={loadingAction === activeConsultation.id}
-                className="flex-1 sm:flex-initial px-5 py-2.5 rounded-2xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5 border border-[#2B1E14] cursor-pointer disabled:opacity-50"
-              >
-                {loadingAction === activeConsultation.id ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Completing...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-[#15803D]" />
-                    <span>Complete Consultation</span>
-                  </>
-                )}
-              </button>
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => handleCancelConsultation(activeConsultation.id, activeConsultation.patient?.full_name)}
+                  disabled={cancellingId === activeConsultation.id || loadingAction === activeConsultation.id}
+                  className="flex-1 sm:flex-initial px-4 py-2.5 rounded-2xl bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#B91C1C] border border-[#FECACA] text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer disabled:opacity-50"
+                  title="Cancel consultation and return patient to waiting"
+                >
+                  {cancellingId === activeConsultation.id ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Cancelling...</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-4 h-4" />
+                      <span>Cancel</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDirectComplete(activeConsultation.id, activeConsultation.patient?.full_name)}
+                  disabled={loadingAction === activeConsultation.id || cancellingId === activeConsultation.id}
+                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-2xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5 border border-[#2B1E14] cursor-pointer disabled:opacity-50"
+                >
+                  {loadingAction === activeConsultation.id ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Completing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-[#15803D]" />
+                      <span>Complete Consultation</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         ) : (
