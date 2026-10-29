@@ -13,6 +13,24 @@ import {
 } from "@/lib/validations";
 import { type AppointmentStatus } from "@/types/database";
 import { getTodayDateString } from "@/lib/utils";
+import { isHeadDoctorEmail } from "@/lib/roles";
+
+async function getActingStaffProfile() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, email, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  return profile as { id: string; email: string; role: string } | null;
+}
 
 // Helper to record audit log
 async function logAudit(
@@ -930,6 +948,11 @@ export async function createOperatorUser(formData: unknown) {
   }
 
   try {
+    const acting = await getActingStaffProfile();
+    if (!acting || acting.role !== "doctor") {
+      return { success: false, error: "Only doctors can manage staff accounts." };
+    }
+
     const adminSupabase = createAdminClient();
 
     const assignedRole = (result.data.role as "doctor" | "operator") || "operator";
@@ -971,7 +994,24 @@ export async function createOperatorUser(formData: unknown) {
 }
 
 export async function toggleOperatorStatus(profileId: string, isActive: boolean) {
+  const acting = await getActingStaffProfile();
+  if (!acting || acting.role !== "doctor") {
+    return { success: false, error: "Only doctors can manage staff accounts." };
+  }
+  if (acting.id === profileId) {
+    return { success: false, error: "You cannot change your own staff status." };
+  }
+
   const supabase = await createClient();
+  const { data: target } = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("id", profileId)
+    .maybeSingle();
+
+  if (isHeadDoctorEmail(target?.email)) {
+    return { success: false, error: "The head doctor account cannot be modified." };
+  }
 
   const { data, error } = await supabase
     .from("profiles")
@@ -989,7 +1029,24 @@ export async function toggleOperatorStatus(profileId: string, isActive: boolean)
 
 export async function deleteOperatorUser(profileId: string) {
   try {
+    const acting = await getActingStaffProfile();
+    if (!acting || acting.role !== "doctor") {
+      return { success: false, error: "Only doctors can manage staff accounts." };
+    }
+    if (acting.id === profileId) {
+      return { success: false, error: "You cannot delete your own account." };
+    }
+
     const adminSupabase = createAdminClient();
+    const { data: target } = await adminSupabase
+      .from("profiles")
+      .select("email")
+      .eq("id", profileId)
+      .maybeSingle();
+
+    if (isHeadDoctorEmail(target?.email)) {
+      return { success: false, error: "The head doctor account cannot be deleted." };
+    }
 
     // 1. Delete from profiles table
     const { error: profileError } = await adminSupabase

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { OperatorsPageClient } from "@/components/operators/operators-page-client";
 import { getCurrentProfile } from "@/lib/queries";
+import { isHeadDoctorEmail } from "@/lib/roles";
 import { redirect } from "next/navigation";
 import { type Profile } from "@/types/database";
 
@@ -20,5 +21,9 @@ export default async function OperatorsPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  return <OperatorsPageClient initialOperators={(operators as Profile[]) || []} />;
+  const staff = ((operators as Profile[]) || []).filter(
+    (member) => !isHeadDoctorEmail(member.email)
+  );
+
+  return <OperatorsPageClient initialOperators={staff} />;
 }
