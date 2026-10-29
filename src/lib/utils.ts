@@ -47,10 +47,24 @@ export function isProcedureAppointment(
   return app.service_id != null || app.service != null;
 }
 
-export function getTodayDateString(): string {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
+export const CLINIC_TIME_ZONE =
+  process.env.NEXT_PUBLIC_CLINIC_TIMEZONE || "Asia/Karachi";
+
+export function getClinicDateString(date: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: CLINIC_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+
   return `${year}-${month}-${day}`;
+}
+
+export function getTodayDateString(): string {
+  return getClinicDateString();
 }

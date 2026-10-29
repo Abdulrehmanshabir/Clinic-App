@@ -12,6 +12,7 @@ import {
   clinicSettingsSchema,
 } from "@/lib/validations";
 import { type AppointmentStatus } from "@/types/database";
+import { getTodayDateString } from "@/lib/utils";
 
 // Helper to record audit log
 async function logAudit(
@@ -281,7 +282,7 @@ export async function quickBookToken(formData: {
   }
 
   const supabase = await createClient();
-  const today = formData.appointment_date || new Date().toISOString().split("T")[0];
+  const today = formData.appointment_date || getTodayDateString();
 
   // 1. Find or create patient record (name & phone only)
   let patientId: string | null = null;
@@ -436,7 +437,7 @@ export async function bookCallAppointment(formData: {
   }
 
   const supabase = await createClient();
-  const dateToUse = formData.appointment_date || new Date().toISOString().split("T")[0];
+  const dateToUse = formData.appointment_date || getTodayDateString();
   const rawPhone = formData.phone?.trim() || "";
 
   // 1. Find or create patient record (skip lookup when no phone is provided)
@@ -552,7 +553,7 @@ export async function checkInCallAppointment(appointmentId: string) {
     return { success: false, error: fetchErr?.message || "Appointment not found" };
   }
 
-  const today = app.appointment_date || new Date().toISOString().split("T")[0];
+  const today = app.appointment_date || getTodayDateString();
 
   // 2. Count existing tokens today for sequential token assignment
   const { count: tokenCount } = await supabase

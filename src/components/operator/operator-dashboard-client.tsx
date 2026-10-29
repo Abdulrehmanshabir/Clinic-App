@@ -146,6 +146,11 @@ export function OperatorDashboardClient({
     setAppointments(initialAppointments);
   }, [initialAppointments]);
 
+  // Keep the call booking date aligned with the clinic date when it rolls over
+  React.useEffect(() => {
+    setCallDate(clinicDate);
+  }, [clinicDate]);
+
   // Unlock audio after the operator's first interaction so the doctor's call bell can play
   React.useEffect(() => {
     const unlock = () => unlockAudio();

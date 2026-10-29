@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { type Appointment, type QueueSummary, type ClinicDay } from "@/types/database";
-import { formatClinicDate, formatClinicTime } from "@/lib/utils";
+import { formatClinicDate, formatClinicTime, getClinicDateString } from "@/lib/utils";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { closeClinicDay, reopenClinicDay } from "@/lib/actions";
@@ -50,7 +50,7 @@ export function HistoryPageClient({
     if (range === "yesterday") {
       d.setDate(d.getDate() - 1);
     }
-    const formatted = d.toISOString().split("T")[0];
+    const formatted = getClinicDateString(d);
     handleDateChange(formatted);
   };
 
