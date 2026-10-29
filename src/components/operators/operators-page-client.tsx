@@ -144,8 +144,8 @@ export function OperatorsPageClient({ initialOperators }: OperatorsPageClientPro
                 <tr>
                   <td colSpan={5} className="px-6 py-14 text-center text-[#8C7A6B]">
                     <div className="max-w-sm mx-auto space-y-1.5 py-2">
-                      <p className="font-bold text-lg text-[#1A120B]">No operators found</p>
-                      <p className="text-sm text-[#8C7A6B]">Click &quot;+ Create Operator&quot; to provision front desk access.</p>
+                      <p className="font-bold text-lg text-[#1A120B]">No staff accounts found</p>
+                      <p className="text-sm text-[#8C7A6B]">Click &quot;+ Create Operator&quot; to provision staff access.</p>
                     </div>
                   </td>
                 </tr>
@@ -269,12 +269,13 @@ export function OperatorsPageClient({ initialOperators }: OperatorsPageClientPro
             <label className="block text-xs font-bold uppercase tracking-wider text-[#4A3522] mb-1.5">
               Staff Role <span className="text-[#B91C1C]">*</span>
             </label>
-            <input
+            <select
               {...register("role")}
-              type="text"
-              placeholder="Enter Role (e.g. Operator or Doctor)"
-              className="w-full px-4 py-3 rounded-2xl bg-[#FFFFFF] border-2 border-[#D8C5AD] focus:border-[#8C6843] text-[#1A120B] placeholder-[#A89887] text-sm font-semibold outline-none transition shadow-xs"
-            />
+              className="w-full px-4 py-3 rounded-2xl bg-[#FFFFFF] border-2 border-[#D8C5AD] focus:border-[#8C6843] text-[#1A120B] text-sm font-semibold outline-none transition shadow-xs cursor-pointer"
+            >
+              <option value="operator">Operator — Reception / Front Desk</option>
+              <option value="doctor">Doctor — Clinical Console</option>
+            </select>
             {errors.role && <p className="text-xs text-[#B91C1C] mt-1 font-bold">{errors.role.message}</p>}
           </div>
 

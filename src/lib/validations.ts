@@ -50,7 +50,7 @@ export const operatorSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().optional().or(z.literal("")),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.string().min(1, "Role is required"),
+  role: z.enum(["doctor", "operator"]),
   is_active: z.boolean(),
 });
 

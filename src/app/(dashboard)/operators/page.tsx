@@ -18,7 +18,6 @@ export default async function OperatorsPage() {
   const { data: operators } = await supabase
     .from("profiles")
     .select("*")
-    .eq("role", "operator")
     .order("created_at", { ascending: false });
 
   return <OperatorsPageClient initialOperators={(operators as Profile[]) || []} />;
