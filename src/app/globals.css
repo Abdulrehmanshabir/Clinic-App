@@ -258,13 +258,6 @@ textarea.placeholder-soft::placeholder {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.stat-card-active-bronze,
-.stat-card-active-default,
-.stat-card-active-orange {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(234, 88, 12, 0.6) !important;
-  transform: translateY(-2px) !important;
-}
 
 .dark .stat-card-bronze,
 .dark .stat-card-default,
@@ -299,13 +292,6 @@ textarea.placeholder-soft::placeholder {
 .dark .stat-icon-orange svg {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
-}
-.dark .stat-card-active-bronze,
-.dark .stat-card-active-default,
-.dark .stat-card-active-orange {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(251, 146, 60, 0.6) !important;
-  transform: translateY(-2px) !important;
 }
 
 /* 2. Active Waiting (Full Alert Vibrant Crimson Red) */
@@ -345,13 +331,6 @@ textarea.placeholder-soft::placeholder {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.stat-card-active-rose,
-.stat-card-active-amber,
-.stat-card-active-red {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(220, 38, 38, 0.6) !important;
-  transform: translateY(-2px) !important;
-}
 
 .dark .stat-card-rose,
 .dark .stat-card-amber,
@@ -387,13 +366,6 @@ textarea.placeholder-soft::placeholder {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.dark .stat-card-active-rose,
-.dark .stat-card-active-amber,
-.dark .stat-card-active-red {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(239, 68, 68, 0.6) !important;
-  transform: translateY(-2px) !important;
-}
 .dark .stat-icon-rose,
 .dark .stat-icon-amber {
   background-color: rgba(255, 255, 255, 0.22) !important;
@@ -404,12 +376,6 @@ textarea.placeholder-soft::placeholder {
 .dark .stat-icon-amber svg {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
-}
-.dark .stat-card-active-rose,
-.dark .stat-card-active-amber {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(239, 68, 68, 0.6) !important;
-  transform: translateY(-2px) !important;
 }
 
 /* 3. Call Bookings (Full Luminous Sapphire Sky Blue) */
@@ -439,11 +405,6 @@ textarea.placeholder-soft::placeholder {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.stat-card-active-sky {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(2, 132, 199, 0.6) !important;
-  transform: translateY(-2px) !important;
-}
 
 .dark .stat-card-sky {
   background: linear-gradient(135deg, #0284C7 0%, #075985 100%) !important;
@@ -468,11 +429,6 @@ textarea.placeholder-soft::placeholder {
 .dark .stat-icon-sky svg {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
-}
-.dark .stat-card-active-sky {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(56, 189, 248, 0.6) !important;
-  transform: translateY(-2px) !important;
 }
 
 /* 4. Completed (Full Rich Medical Emerald Green) */
@@ -502,11 +458,6 @@ textarea.placeholder-soft::placeholder {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.stat-card-active-emerald {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(21, 128, 61, 0.6) !important;
-  transform: translateY(-2px) !important;
-}
 
 .dark .stat-card-emerald {
   background: linear-gradient(135deg, #15803D 0%, #14532D 100%) !important;
@@ -531,11 +482,6 @@ textarea.placeholder-soft::placeholder {
 .dark .stat-icon-emerald svg {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
-}
-.dark .stat-card-active-emerald {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(52, 211, 153, 0.6) !important;
-  transform: translateY(-2px) !important;
 }
 
 /* 5. Procedure (Full Royal Purple / Violet) */
@@ -570,12 +516,6 @@ textarea.placeholder-soft::placeholder {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.stat-card-active-purple,
-.stat-card-active-violet {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(124, 58, 237, 0.6) !important;
-  transform: translateY(-2px) !important;
-}
 
 .dark .stat-card-purple,
 .dark .stat-card-violet {
@@ -606,12 +546,6 @@ textarea.placeholder-soft::placeholder {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.dark .stat-card-active-purple,
-.dark .stat-card-active-violet {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(167, 139, 250, 0.6) !important;
-  transform: translateY(-2px) !important;
-}
 
 /* 6. Complete Procedure (Full Rich Medical Teal) */
 .stat-card-teal {
@@ -640,11 +574,6 @@ textarea.placeholder-soft::placeholder {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.stat-card-active-teal {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(13, 148, 136, 0.6) !important;
-  transform: translateY(-2px) !important;
-}
 
 .dark .stat-card-teal {
   background: linear-gradient(135deg, #0D9488 0%, #134E4A 100%) !important;
@@ -669,11 +598,6 @@ textarea.placeholder-soft::placeholder {
 .dark .stat-icon-teal svg {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
-}
-.dark .stat-card-active-teal {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(45, 212, 191, 0.6) !important;
-  transform: translateY(-2px) !important;
 }
 
 /* 7. Online Patient (Full Luminous Digital Indigo) */
@@ -703,11 +627,6 @@ textarea.placeholder-soft::placeholder {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.stat-card-active-indigo {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(79, 70, 229, 0.6) !important;
-  transform: translateY(-2px) !important;
-}
 
 .dark .stat-card-indigo {
   background: linear-gradient(135deg, #4F46E5 0%, #312E81 100%) !important;
@@ -732,11 +651,6 @@ textarea.placeholder-soft::placeholder {
 .dark .stat-icon-indigo svg {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
-}
-.dark .stat-card-active-indigo {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(129, 140, 248, 0.6) !important;
-  transform: translateY(-2px) !important;
 }
 
 /* 8. Online Patient Complete (Full Vibrant Forest Jade Green) */
@@ -766,11 +680,6 @@ textarea.placeholder-soft::placeholder {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
-.stat-card-active-jade {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(5, 150, 105, 0.6) !important;
-  transform: translateY(-2px) !important;
-}
 
 .dark .stat-card-jade {
   background: linear-gradient(135deg, #059669 0%, #064E3B 100%) !important;
@@ -795,11 +704,6 @@ textarea.placeholder-soft::placeholder {
 .dark .stat-icon-jade svg {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
-}
-.dark .stat-card-active-jade {
-  border: 2px solid #FFFFFF !important;
-  box-shadow: 0 0 0 3px #FFFFFF, 0 10px 25px -4px rgba(52, 211, 153, 0.6) !important;
-  transform: translateY(-2px) !important;
 }
 
 /* Smooth Premium Hover Elevation for all StatCards */

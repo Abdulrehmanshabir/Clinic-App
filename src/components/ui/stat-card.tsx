@@ -103,10 +103,10 @@ export function StatCard({
       className={`relative p-5 rounded-2xl border-2 transition-all duration-200 aesthetic-card-shadow ${
         currentStyles
       } ${onClick ? "cursor-pointer select-none aesthetic-card-hover" : ""} ${
-        active 
+        active
           ? isStone
-            ? "ring-2 ring-[#111111] border-[#111111] shadow-lg shadow-[#111111]/20"
-            : `ring-2 ring-white border-white shadow-xl stat-card-active-${variant}` 
+            ? "shadow-lg shadow-[#111111]/20 scale-[1.02]"
+            : "shadow-xl scale-[1.02]"
           : ""
       }`}
     >
