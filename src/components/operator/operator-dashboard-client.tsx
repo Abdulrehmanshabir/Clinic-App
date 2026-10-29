@@ -32,6 +32,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { formatClinicTime, isOnlineAppointment, isProcedureAppointment } from "@/lib/utils";
+import { playCallBell, unlockAudio } from "@/lib/sound";
 
 interface OperatorDashboardClientProps {
   initialAppointments: Appointment[];
@@ -61,6 +62,7 @@ export function OperatorDashboardClient({
   const [filter, setFilter] = useState<string>("all");
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [viewedNoteStamps, setViewedNoteStamps] = useState<Record<string, string>>({});
+  const previousStatusesRef = React.useRef<Record<string, { status: string; updated_at: string }> | null>(null);
 
   // Doctor Break state for Receptionist view
   const [doctorBreak, setDoctorBreakState] = useState<DoctorBreakInfo | null>(initialDoctorBreak || null);
@@ -143,6 +145,40 @@ export function OperatorDashboardClient({
   React.useEffect(() => {
     setAppointments(initialAppointments);
   }, [initialAppointments]);
+
+  // Unlock audio after the operator's first interaction so the doctor's call bell can play
+  React.useEffect(() => {
+    const unlock = () => unlockAudio();
+    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("keydown", unlock, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, []);
+
+  // Ring the bell at reception whenever the doctor calls a patient
+  React.useEffect(() => {
+    const previous = previousStatusesRef.current;
+    const next: Record<string, { status: string; updated_at: string }> = {};
+    let calledNow = false;
+
+    for (const app of appointments) {
+      next[app.id] = { status: app.status, updated_at: app.updated_at };
+      const prev = previous?.[app.id];
+
+      if (
+        prev &&
+        app.status === "called" &&
+        (prev.status !== "called" || prev.updated_at !== app.updated_at)
+      ) {
+        calledNow = true;
+      }
+    }
+
+    previousStatusesRef.current = next;
+    if (calledNow) playCallBell();
+  }, [appointments]);
 
   // Supabase Realtime synchronization
   useRealtimeAppointments({
