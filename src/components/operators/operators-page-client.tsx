@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { type Profile } from "@/types/database";
+import { type ClinicSettings, type Profile } from "@/types/database";
 import { createOperatorUser, toggleOperatorStatus, deleteOperatorUser } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { Modal } from "@/components/ui/modal";
-import { UserCog, UserPlus, CheckCircle2, XCircle, Loader2, Trash2 } from "lucide-react";
+import { UserCog, UserPlus, CheckCircle2, XCircle, Loader2, Trash2, ChevronDown } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { operatorSchema } from "@/lib/validations";
@@ -16,9 +16,15 @@ type OperatorFormData = z.infer<typeof operatorSchema>;
 
 interface OperatorsPageClientProps {
   initialOperators: Profile[];
+  clinicSettings?: ClinicSettings | null;
+  clinicDate: string;
 }
 
-export function OperatorsPageClient({ initialOperators }: OperatorsPageClientProps) {
+export function OperatorsPageClient({
+  initialOperators,
+  clinicSettings,
+  clinicDate,
+}: OperatorsPageClientProps) {
   const router = useRouter();
   const { success, error } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -221,86 +227,147 @@ export function OperatorsPageClient({ initialOperators }: OperatorsPageClientPro
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Add New Staff Member"
-        subtitle="Create login credentials and assign staff role permissions"
+        hideDefaultHeader={true}
         maxWidth="md"
       >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#4A3522] mb-1.5">
-              Full Name <span className="text-[#B91C1C]">*</span>
-            </label>
-            <input
-              {...register("full_name")}
-              type="text"
-              placeholder="Enter Name"
-              className="w-full px-4 py-3 rounded-2xl bg-[#FFFFFF] border-2 border-[#D8C5AD] focus:border-[#8C6843] text-[#1A120B] placeholder-[#A89887] text-sm font-semibold outline-none transition shadow-xs"
-            />
-            {errors.full_name && (
-              <p className="text-xs text-[#B91C1C] mt-1 font-bold">{errors.full_name.message}</p>
-            )}
+        <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
+          {/* Close Button */}
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            className="absolute right-3.5 top-3.5 p-1 rounded-lg text-[#8C7A6B] hover:text-[#1A120B] hover:bg-[#EAE1D3] transition"
+          >
+            <span className="text-sm font-bold leading-none">✕</span>
+          </button>
+
+          {/* Header: Clinic Branding */}
+          <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
+            <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
+              {clinicSettings?.clinic_name || "Glow Derm"}
+            </h5>
+            <p className="text-sm text-[#5C4D3E] font-bold mt-0.5">
+              Staff Account Setup
+            </p>
+            <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">
+              {clinicDate}
+            </p>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#4A3522] mb-1.5">
-              Staff Email <span className="text-[#B91C1C]">*</span>
-            </label>
-            <input
-              {...register("email")}
-              type="email"
-              placeholder="Enter Email"
-              className="w-full px-4 py-3 rounded-2xl bg-[#FFFFFF] border-2 border-[#D8C5AD] focus:border-[#8C6843] text-[#1A120B] placeholder-[#A89887] text-sm font-mono font-semibold outline-none transition shadow-xs"
-            />
-            {errors.email && <p className="text-xs text-[#B91C1C] mt-1 font-bold">{errors.email.message}</p>}
-          </div>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
+              {/* Staff Access Banner */}
+              <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border border-dashed border-[#D8C5AD]">
+                <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] block mb-0.5">
+                  New Staff Access
+                </span>
+                <span className="text-sm font-bold text-[#5C4D3E]">
+                  Create login credentials and role
+                </span>
+              </div>
 
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#4A3522] mb-1.5">
-              Password <span className="text-[#B91C1C]">*</span>
-            </label>
-            <input
-              {...register("password")}
-              type="password"
-              placeholder="Enter Password"
-              className="w-full px-4 py-3 rounded-2xl bg-[#FFFFFF] border-2 border-[#D8C5AD] focus:border-[#8C6843] text-[#1A120B] placeholder-[#A89887] text-sm font-semibold outline-none transition shadow-xs"
-            />
-            {errors.password && (
-              <p className="text-xs text-[#B91C1C] mt-1 font-bold">{errors.password.message}</p>
-            )}
-          </div>
+              <div className="border-t border-dashed border-[#D8C5AD] pt-3">
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  Full Name
+                </label>
+                <input
+                  {...register("full_name")}
+                  type="text"
+                  placeholder="Enter full name"
+                  className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                />
+                {errors.full_name && (
+                  <p className="text-xs text-[#B91C1C] mt-1 ml-1 font-bold">
+                    {errors.full_name.message}
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#4A3522] mb-1.5">
-              Staff Role <span className="text-[#B91C1C]">*</span>
-            </label>
-            <select
-              {...register("role")}
-              className="w-full px-4 py-3 rounded-2xl bg-[#FFFFFF] border-2 border-[#D8C5AD] focus:border-[#8C6843] text-[#1A120B] text-sm font-semibold outline-none transition shadow-xs cursor-pointer"
-            >
-              <option value="operator">Operator — Reception / Front Desk</option>
-              <option value="doctor">Doctor — Clinical Console</option>
-            </select>
-            {errors.role && <p className="text-xs text-[#B91C1C] mt-1 font-bold">{errors.role.message}</p>}
-          </div>
+              <div>
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  Staff Email
+                </label>
+                <input
+                  {...register("email")}
+                  type="email"
+                  placeholder="Enter staff email"
+                  className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
+                />
+                {errors.email && (
+                  <p className="text-xs text-[#B91C1C] mt-1 ml-1 font-bold">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-[#E8DFD1]">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="px-5 py-2.5 rounded-2xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#6B5E51] text-xs font-bold transition border border-[#E9DFD1]"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2.5 rounded-2xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-md shadow-[#1E1915]/15 transition flex items-center gap-2 border border-[#2B1E14]"
-            >
-              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D8C5AD]" />}
-              <span>Create Account</span>
-            </button>
-          </div>
-        </form>
+              <div>
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  Password
+                </label>
+                <input
+                  {...register("password")}
+                  type="password"
+                  placeholder="Enter password"
+                  className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                />
+                <p className="text-[11px] sm:text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold mt-1 ml-1">
+                  Minimum 6 characters
+                </p>
+                {errors.password && (
+                  <p className="text-xs text-[#B91C1C] mt-1 ml-1 font-bold">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  Staff Role
+                </label>
+                <div className="relative">
+                  <select
+                    {...register("role")}
+                    className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs appearance-none cursor-pointer"
+                  >
+                    <option value="operator">Operator — Reception / Front Desk</option>
+                    <option value="doctor">Doctor — Clinical Console</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-[#8C6843] dark:text-[#E5C158] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+                <p className="text-[11px] sm:text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold mt-1 ml-1">
+                  Doctor gets the clinical console; Operator gets the reception desk.
+                </p>
+                {errors.role && (
+                  <p className="text-xs text-[#B91C1C] mt-1 ml-1 font-bold">
+                    {errors.role.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Footer: Cancel & Create Account */}
+            <div className="mt-4 pt-3.5 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="px-6 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs sm:text-sm font-bold transition border border-[#D8C5AD]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-2.5 disabled:opacity-50 border border-[#2B1E14]"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-[#D8C5AD]" />
+                ) : (
+                  <UserPlus className="w-4 h-4 text-[#D8C5AD]" />
+                )}
+                <span>{loading ? "Creating..." : "Create Account"}</span>
+              </button>
+            </div>
+          </form>
+        </div>
       </Modal>
     </div>
   );
