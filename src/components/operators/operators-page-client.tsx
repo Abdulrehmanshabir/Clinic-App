@@ -70,7 +70,11 @@ export function OperatorsPageClient({ initialOperators }: OperatorsPageClientPro
   };
 
   const handleDelete = async (profileId: string, staffName: string) => {
-    if (!window.confirm(`Are you sure you want to permanently delete "${staffName}"? This action cannot be undone.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete "${staffName}"? Their consultations and appointments will be moved to the head doctor. This action cannot be undone.`
+      )
+    ) {
       return;
     }
 

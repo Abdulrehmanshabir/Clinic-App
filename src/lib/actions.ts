@@ -13,7 +13,7 @@ import {
 } from "@/lib/validations";
 import { type AppointmentStatus } from "@/types/database";
 import { getTodayDateString } from "@/lib/utils";
-import { isHeadDoctorEmail } from "@/lib/roles";
+import { HEAD_DOCTOR_EMAIL, isHeadDoctorEmail } from "@/lib/roles";
 
 async function getActingStaffProfile() {
   const supabase = await createClient();
@@ -1044,25 +1044,55 @@ export async function deleteOperatorUser(profileId: string) {
       .eq("id", profileId)
       .maybeSingle();
 
-    if (isHeadDoctorEmail(target?.email)) {
+    if (!target) {
+      return { success: false, error: "Staff account not found." };
+    }
+
+    if (isHeadDoctorEmail(target.email)) {
       return { success: false, error: "The head doctor account cannot be deleted." };
     }
 
-    // 1. Delete from profiles table
-    const { error: profileError } = await adminSupabase
+    const { data: headDoctor } = await adminSupabase
       .from("profiles")
-      .delete()
-      .eq("id", profileId);
+      .select("id")
+      .ilike("email", HEAD_DOCTOR_EMAIL)
+      .maybeSingle();
 
-    if (profileError) {
-      return { success: false, error: profileError.message };
+    if (!headDoctor) {
+      return { success: false, error: "Head doctor account not found. Cannot transfer data." };
     }
 
-    // 2. Delete user from auth
-    try {
-      await adminSupabase.auth.admin.deleteUser(profileId);
-    } catch {
-      // Auth user might already be deleted or missing
+    // Move clinical history to the head doctor before deleting the account
+    const { error: consultationError } = await adminSupabase
+      .from("consultations")
+      .update({ doctor_id: headDoctor.id })
+      .eq("doctor_id", profileId);
+
+    if (consultationError) {
+      return { success: false, error: consultationError.message };
+    }
+
+    const { error: appointmentError } = await adminSupabase
+      .from("appointments")
+      .update({ doctor_id: headDoctor.id })
+      .eq("doctor_id", profileId);
+
+    if (appointmentError) {
+      return { success: false, error: appointmentError.message };
+    }
+
+    // Delete auth user (profile is removed by the auth.users cascade)
+    const { error: authError } = await adminSupabase.auth.admin.deleteUser(profileId);
+
+    if (authError) {
+      const { error: profileError } = await adminSupabase
+        .from("profiles")
+        .delete()
+        .eq("id", profileId);
+
+      if (profileError) {
+        return { success: false, error: authError.message };
+      }
     }
 
     await logAudit("DELETE_OPERATOR", "profiles", profileId, { profileId });
