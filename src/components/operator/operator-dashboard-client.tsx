@@ -31,7 +31,7 @@ import {
   CheckCheck,
   UserCheck,
 } from "lucide-react";
-import { formatClinicTime, isOnlineAppointment, isProcedureAppointment } from "@/lib/utils";
+import { formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { playCallBell, unlockAudio } from "@/lib/sound";
 
 interface OperatorDashboardClientProps {
@@ -419,7 +419,7 @@ export function OperatorDashboardClient({
   };
 
   const filteredList = React.useMemo(() => {
-    return appointments.filter((a) => {
+    const filtered = appointments.filter((a) => {
       if (filter === "active") return (a.status === "waiting" || a.status === "called" || a.status === "in_consultation") && a.token != null;
       if (filter === "call_bookings") return a.appointment_type === "scheduled" && a.token == null && a.status !== "no_show" && a.status !== "completed";
       if (filter === "procedure") return isProcedureAppointment(a);
@@ -432,6 +432,7 @@ export function OperatorDashboardClient({
       if (filter === "no_show") return a.status === "no_show";
       return true;
     });
+    return sortAppointmentsForDashboard(filtered);
   }, [appointments, filter]);
 
   return (

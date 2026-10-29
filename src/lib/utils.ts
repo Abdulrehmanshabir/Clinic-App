@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { Appointment } from "@/types/database";
+import type { Appointment, AppointmentStatus } from "@/types/database";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -45,6 +45,55 @@ export function isProcedureAppointment(
 ): boolean {
   if (!app) return false;
   return app.service_id != null || app.service != null;
+}
+
+const APPOINTMENT_STATUS_PRIORITY: Record<AppointmentStatus, number> = {
+  in_consultation: 0,
+  called: 1,
+  waiting: 2,
+  completed: 3,
+  cancelled: 4,
+  no_show: 5,
+};
+
+function toTimestamp(value: string | null | undefined): number {
+  if (!value) return 0;
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}
+
+export function sortAppointmentsForDashboard(
+  appointments: Appointment[]
+): Appointment[] {
+  return [...appointments].sort((a, b) => {
+    const priorityDiff =
+      APPOINTMENT_STATUS_PRIORITY[a.status] -
+      APPOINTMENT_STATUS_PRIORITY[b.status];
+    if (priorityDiff !== 0) return priorityDiff;
+
+    if (a.status === "completed") {
+      const completedDiff =
+        toTimestamp(b.consultation?.completed_at ?? b.updated_at) -
+        toTimestamp(a.consultation?.completed_at ?? a.updated_at);
+      if (completedDiff !== 0) return completedDiff;
+    }
+
+    if (a.status === "cancelled" || a.status === "no_show") {
+      const updatedDiff =
+        toTimestamp(b.updated_at) - toTimestamp(a.updated_at);
+      if (updatedDiff !== 0) return updatedDiff;
+    }
+
+    const queueDiff =
+      (a.token?.queue_position ?? Number.MAX_SAFE_INTEGER) -
+      (b.token?.queue_position ?? Number.MAX_SAFE_INTEGER);
+    if (queueDiff !== 0) return queueDiff;
+
+    return (
+      a.appointment_time.localeCompare(b.appointment_time) ||
+      a.created_at.localeCompare(b.created_at)
+    );
+  });
 }
 
 export const CLINIC_TIME_ZONE =

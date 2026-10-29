@@ -37,7 +37,7 @@ import {
   Loader2,
   Globe,
 } from "lucide-react";
-import { formatClinicTime, isOnlineAppointment, isProcedureAppointment } from "@/lib/utils";
+import { formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 
 interface DoctorDashboardClientProps {
   initialAppointments: Appointment[];
@@ -313,7 +313,7 @@ export function DoctorDashboardClient({
 
   // Filter queue list based on selected view
   const filteredAppointments = useMemo(() => {
-    return appointments.filter((a) => {
+    const filtered = appointments.filter((a) => {
       if (activeFilter === "active") {
         return (a.status === "in_consultation" || a.status === "waiting" || a.status === "called") && a.token != null;
       }
@@ -338,6 +338,7 @@ export function DoctorDashboardClient({
       if (activeFilter === "no_show") return a.status === "no_show";
       return true;
     });
+    return sortAppointmentsForDashboard(filtered);
   }, [appointments, activeFilter]);
 
   // Break Management Handlers
