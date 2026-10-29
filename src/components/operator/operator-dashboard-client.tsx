@@ -612,7 +612,7 @@ export function OperatorDashboardClient({
                           type="button"
                           onClick={() => handleMarkAbsent(app.id, app.patient?.full_name)}
                           disabled={loadingAction === app.id}
-                          className="px-3 py-1.5 rounded-xl bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#B91C1C] border border-[#FECACA] text-xs font-bold transition inline-flex items-center gap-1 shadow-2xs"
+                          className="px-3 py-1.5 rounded-xl bg-transparent hover:bg-[#F4EFE6] dark:hover:bg-[#1A2234] text-[#DC2626] dark:text-[#EF4444] border-2 border-[#DC2626] dark:border-[#EF4444] text-xs font-bold transition inline-flex items-center gap-1 shadow-2xs disabled:opacity-50"
                           title="Patient is not present"
                         >
                           <UserX className="w-3.5 h-3.5" />
