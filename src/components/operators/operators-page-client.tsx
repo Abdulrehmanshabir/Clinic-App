@@ -253,19 +253,9 @@ export function OperatorsPageClient({
             </p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
             <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
-              {/* Staff Access Banner */}
-              <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border border-dashed border-[#D8C5AD]">
-                <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] block mb-0.5">
-                  New Staff Access
-                </span>
-                <span className="text-sm font-bold text-[#5C4D3E]">
-                  Create login credentials and role
-                </span>
-              </div>
-
-              <div className="border-t border-dashed border-[#D8C5AD] pt-3">
+              <div>
                 <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                   Full Name
                 </label>
@@ -273,6 +263,7 @@ export function OperatorsPageClient({
                   {...register("full_name")}
                   type="text"
                   placeholder="Enter full name"
+                  autoComplete="off"
                   className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                 />
                 {errors.full_name && (
@@ -290,6 +281,12 @@ export function OperatorsPageClient({
                   {...register("email")}
                   type="email"
                   placeholder="Enter staff email"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
                   className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
                 />
                 {errors.email && (
@@ -307,6 +304,10 @@ export function OperatorsPageClient({
                   {...register("password")}
                   type="password"
                   placeholder="Enter password"
+                  autoComplete="new-password"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
                   className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                 />
                 <p className="text-[11px] sm:text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold mt-1 ml-1">
