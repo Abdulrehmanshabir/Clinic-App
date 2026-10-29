@@ -37,7 +37,7 @@ import {
   Loader2,
   Globe,
 } from "lucide-react";
-import { formatClinicTime, isOnlineAppointment } from "@/lib/utils";
+import { formatClinicTime, isOnlineAppointment, isProcedureAppointment } from "@/lib/utils";
 
 interface DoctorDashboardClientProps {
   initialAppointments: Appointment[];
@@ -141,6 +141,12 @@ export function DoctorDashboardClient({
   const onlinePatientCompleteCount = useMemo(() => {
     return appointments.filter(
       (a) => isOnlineAppointment(a) && a.status === "completed"
+    ).length;
+  }, [appointments]);
+
+  const simpleCompletedCount = useMemo(() => {
+    return appointments.filter(
+      (a) => a.status === "completed" && !isOnlineAppointment(a) && !isProcedureAppointment(a)
     ).length;
   }, [appointments]);
 
@@ -326,7 +332,9 @@ export function DoctorDashboardClient({
       if (activeFilter === "online_complete") {
         return isOnlineAppointment(a) && a.status === "completed";
       }
-      if (activeFilter === "completed") return a.status === "completed";
+      if (activeFilter === "completed") {
+        return a.status === "completed" && !isOnlineAppointment(a) && !isProcedureAppointment(a);
+      }
       if (activeFilter === "no_show") return a.status === "no_show";
       return true;
     });
@@ -437,7 +445,7 @@ export function DoctorDashboardClient({
         />
         <StatCard
           title="Completed"
-          value={summary.completed}
+          value={simpleCompletedCount}
           icon={CheckCircle2}
           variant="emerald"
           active={activeFilter === "completed"}

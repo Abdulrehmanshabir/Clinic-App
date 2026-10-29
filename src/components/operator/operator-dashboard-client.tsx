@@ -28,8 +28,11 @@ import {
   Eye,
   ChevronDown,
   Globe,
+  Sparkles,
+  CheckCheck,
+  UserCheck,
 } from "lucide-react";
-import { formatClinicTime, isOnlineAppointment } from "@/lib/utils";
+import { formatClinicTime, isOnlineAppointment, isProcedureAppointment } from "@/lib/utils";
 
 interface OperatorDashboardClientProps {
   initialAppointments: Appointment[];
@@ -183,6 +186,34 @@ export function OperatorDashboardClient({
   const callBookingsCount = React.useMemo(() => {
     return appointments.filter(
       (a) => a.appointment_type === "scheduled" && a.token == null && a.status !== "completed" && a.status !== "no_show"
+    ).length;
+  }, [appointments]);
+
+  // Procedure counts
+  const procedureCount = React.useMemo(() => {
+    return appointments.filter((a) => isProcedureAppointment(a)).length;
+  }, [appointments]);
+
+  const completeProcedureCount = React.useMemo(() => {
+    return appointments.filter(
+      (a) => isProcedureAppointment(a) && a.status === "completed"
+    ).length;
+  }, [appointments]);
+
+  // Online patient counts — only appointments explicitly marked as online by the operator
+  const onlinePatientCount = React.useMemo(() => {
+    return appointments.filter((a) => isOnlineAppointment(a)).length;
+  }, [appointments]);
+
+  const onlinePatientCompleteCount = React.useMemo(() => {
+    return appointments.filter(
+      (a) => isOnlineAppointment(a) && a.status === "completed"
+    ).length;
+  }, [appointments]);
+
+  const simpleCompletedCount = React.useMemo(() => {
+    return appointments.filter(
+      (a) => a.status === "completed" && !isOnlineAppointment(a) && !isProcedureAppointment(a)
     ).length;
   }, [appointments]);
 
@@ -356,7 +387,13 @@ export function OperatorDashboardClient({
     return appointments.filter((a) => {
       if (filter === "active") return (a.status === "waiting" || a.status === "called" || a.status === "in_consultation") && a.token != null;
       if (filter === "call_bookings") return a.appointment_type === "scheduled" && a.token == null && a.status !== "no_show" && a.status !== "completed";
-      if (filter === "completed") return a.status === "completed";
+      if (filter === "procedure") return isProcedureAppointment(a);
+      if (filter === "complete_procedure") return isProcedureAppointment(a) && a.status === "completed";
+      if (filter === "online") return isOnlineAppointment(a);
+      if (filter === "online_complete") return isOnlineAppointment(a) && a.status === "completed";
+      if (filter === "completed") {
+        return a.status === "completed" && !isOnlineAppointment(a) && !isProcedureAppointment(a);
+      }
       if (filter === "no_show") return a.status === "no_show";
       return true;
     });
@@ -435,11 +472,45 @@ export function OperatorDashboardClient({
         />
         <StatCard
           title="Completed"
-          value={summary.completed}
+          value={simpleCompletedCount}
           icon={CheckCircle2}
           variant="emerald"
           active={filter === "completed"}
           onClick={() => setFilter("completed")}
+        />
+
+        {/* Row 2: Procedures & Online Metrics */}
+        <StatCard
+          title="Procedure"
+          value={procedureCount}
+          icon={Sparkles}
+          variant="purple"
+          active={filter === "procedure"}
+          onClick={() => setFilter("procedure")}
+        />
+        <StatCard
+          title="Complete Procedure"
+          value={completeProcedureCount}
+          icon={CheckCheck}
+          variant="teal"
+          active={filter === "complete_procedure"}
+          onClick={() => setFilter("complete_procedure")}
+        />
+        <StatCard
+          title="Online Patient"
+          value={onlinePatientCount}
+          icon={Globe}
+          variant="indigo"
+          active={filter === "online"}
+          onClick={() => setFilter("online")}
+        />
+        <StatCard
+          title="Online Patient Complete"
+          value={onlinePatientCompleteCount}
+          icon={UserCheck}
+          variant="jade"
+          active={filter === "online_complete"}
+          onClick={() => setFilter("online_complete")}
         />
       </div>
 
@@ -448,7 +519,23 @@ export function OperatorDashboardClient({
         <div className="px-7 py-5 border-b border-[#E8DFD1] bg-[#FAF7F2] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <h3 className="text-base sm:text-lg font-serif font-bold text-[#1A120B] dark:text-[#FAF7F2]">
-              All Today&apos;s Patients
+              {filter === "procedure"
+                ? "Procedure Patients"
+                : filter === "complete_procedure"
+                ? "Completed Procedures"
+                : filter === "online"
+                ? "Online Patients"
+                : filter === "online_complete"
+                ? "Completed Online Patients"
+                : filter === "active"
+                ? "Active Queue Patients"
+                : filter === "call_bookings"
+                ? "Call Bookings"
+                : filter === "completed"
+                ? "Completed Consultations"
+                : filter === "no_show"
+                ? "Absent / Not Present"
+                : "All Today's Patients"}
             </h3>
             <span className="text-xs sm:text-sm font-bold text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs whitespace-nowrap inline-flex items-center justify-center">
               {filteredList.length} Records
@@ -460,8 +547,10 @@ export function OperatorDashboardClient({
               { id: "all", label: "All Patients" },
               { id: "active", label: "Active Queue" },
               { id: "call_bookings", label: `Call Bookings (${callBookingsCount})` },
-              { id: "no_show", label: "Not Present" },
+              { id: "procedure", label: `Procedure (${procedureCount})` },
+              { id: "online", label: `Online (${onlinePatientCount})` },
               { id: "completed", label: "Completed" },
+              { id: "no_show", label: "Not Present" },
             ].map((f) => (
               <button
                 key={f.id}

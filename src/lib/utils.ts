@@ -40,6 +40,13 @@ export function isOnlineAppointment(
   return app.is_online === true || (app.notes?.includes("[ONLINE]") ?? false);
 }
 
+export function isProcedureAppointment(
+  app: Pick<Appointment, "service_id" | "service"> | null | undefined
+): boolean {
+  if (!app) return false;
+  return app.service_id != null || app.service != null;
+}
+
 export function getTodayDateString(): string {
   const today = new Date();
   const year = today.getFullYear();
