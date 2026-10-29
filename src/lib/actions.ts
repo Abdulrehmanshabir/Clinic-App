@@ -421,7 +421,7 @@ export async function quickBookToken(formData: {
 
 export async function bookCallAppointment(formData: {
   full_name: string;
-  phone: string;
+  phone?: string;
   appointment_date?: string;
   appointment_time: string;
   notes?: string;
@@ -431,28 +431,29 @@ export async function bookCallAppointment(formData: {
   if (!formData.full_name || formData.full_name.trim().length === 0) {
     return { success: false, error: "Patient name is required" };
   }
-  if (!formData.phone || formData.phone.trim().length === 0) {
-    return { success: false, error: "Phone number is required for call bookings" };
-  }
   if (!formData.appointment_time || formData.appointment_time.trim().length === 0) {
     return { success: false, error: "Appointment time is required" };
   }
 
   const supabase = await createClient();
   const dateToUse = formData.appointment_date || new Date().toISOString().split("T")[0];
-  const rawPhone = formData.phone.trim();
+  const rawPhone = formData.phone?.trim() || "";
 
-  // 1. Find or create patient record
+  // 1. Find or create patient record (skip lookup when no phone is provided)
   let patientId: string | null = null;
-  const { data: existing } = await supabase
-    .from("patients")
-    .select("id")
-    .eq("phone", rawPhone)
-    .maybeSingle();
+  if (rawPhone) {
+    const { data: existing } = await supabase
+      .from("patients")
+      .select("id")
+      .eq("phone", rawPhone)
+      .maybeSingle();
 
-  if (existing) {
-    patientId = existing.id;
-  } else {
+    if (existing) {
+      patientId = existing.id;
+    }
+  }
+
+  if (!patientId) {
     const { data: newPat, error: patErr } = await supabase
       .from("patients")
       .insert({

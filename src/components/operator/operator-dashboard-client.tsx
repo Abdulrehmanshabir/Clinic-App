@@ -272,11 +272,6 @@ export function OperatorDashboardClient({
       error("Name Required", "Please enter patient name");
       return;
     }
-    if (!callPhone.trim()) {
-      error("Phone Required", "Please enter phone number for call bookings");
-      return;
-    }
-
     setIsSubmittingCall(true);
     try {
       const res = await bookCallAppointment({
@@ -1128,12 +1123,11 @@ export function OperatorDashboardClient({
                 {/* Phone Number Input */}
                 <div>
                   <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
-                    Phone Number
+                    Phone Number <span className="font-semibold text-xs opacity-70">(Optional)</span>
                   </label>
                   <input
                     type="tel"
-                    required
-                    placeholder="Enter phone number"
+                    placeholder="Enter phone number (optional)"
                     value={callPhone}
                     onChange={(e) => setCallPhone(e.target.value)}
                     className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
