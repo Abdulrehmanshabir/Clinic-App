@@ -49,7 +49,7 @@ export function Header({
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      await supabase.auth.signOut({ scope: "local" });
     } catch {
       // ignore
     }
