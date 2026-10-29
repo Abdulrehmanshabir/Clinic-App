@@ -653,7 +653,7 @@ export function DoctorDashboardClient({
                 className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-md shadow-[#1E1915]/15 transition flex items-center justify-center gap-2 border border-[#2B1E14]"
               >
                 <Play className="w-3.5 h-3.5 fill-current text-[#D8C5AD]" />
-                Start Consultation ({nextPatientInLine.patient?.full_name?.split(" ")[0] || "Patient"})
+                Start Consultation
               </button>
             </div>
           </div>
