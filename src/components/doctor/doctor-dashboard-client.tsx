@@ -533,7 +533,7 @@ export function DoctorDashboardClient({
                   type="button"
                   onClick={() => handleCancelConsultation(activeConsultation.id, activeConsultation.patient?.full_name)}
                   disabled={cancellingId === activeConsultation.id || loadingAction === activeConsultation.id}
-                  className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-[#FAF7F2] dark:bg-[#1A2230] hover:bg-[#FEF2F2] dark:hover:bg-[#2A1A24] text-[#DC2626] dark:text-[#FB7185] border-2 border-[#DC2626] dark:border-[#FB7185] text-xs font-black shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-[#FAF7F2] dark:bg-[#1A2230] hover:bg-[#FEF2F2] dark:hover:bg-[#2A1A24] text-[#DC2626] dark:text-[#EF4444] border-2 border-[#DC2626] dark:border-[#EF4444] text-xs font-black shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                   title="Cancel consultation and return patient to waiting"
                 >
                   {cancellingId === activeConsultation.id ? (
@@ -631,7 +631,7 @@ export function DoctorDashboardClient({
                 <button
                   onClick={() => handleMarkAbsent(nextPatientInLine.id, nextPatientInLine.patient?.full_name)}
                   disabled={loadingAction === nextPatientInLine.id}
-                  className="flex-1 sm:flex-initial px-4 py-2.5 rounded-2xl bg-transparent hover:bg-[#F4EFE6] dark:hover:bg-[#1A2234] text-[#DC2626] dark:text-[#FB7185] border-2 border-[#DC2626] dark:border-[#FB7185] text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50"
+                  className="flex-1 sm:flex-initial px-4 py-2.5 rounded-2xl bg-transparent hover:bg-[#F4EFE6] dark:hover:bg-[#1A2234] text-[#DC2626] dark:text-[#EF4444] border-2 border-[#DC2626] dark:border-[#EF4444] text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50"
                   title="Patient not present"
                 >
                   <UserX className="w-3.5 h-3.5" />
