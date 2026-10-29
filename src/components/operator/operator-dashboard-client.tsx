@@ -22,7 +22,6 @@ import {
   PhoneCall,
   Phone,
   Calendar,
-  LogIn,
   Printer,
   MapPin,
   Eye,
@@ -611,12 +610,12 @@ export function OperatorDashboardClient({
                           {app.token.token_number}
                         </span>
                       ) : isOnlineAppointment(app) ? (
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] text-base font-bold font-mono">
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] text-base font-bold font-mono whitespace-nowrap">
                           <Globe className="w-4 h-4" />
                           Online
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD] text-base font-bold font-mono">
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD] text-base font-bold font-mono whitespace-nowrap">
                           <PhoneCall className="w-4 h-4" />
                           Call Booking
                         </span>
@@ -688,9 +687,8 @@ export function OperatorDashboardClient({
                           type="button"
                           onClick={() => handleCheckInCallPatient(app.id, app.patient?.full_name)}
                           disabled={loadingAction === app.id}
-                          className="px-3.5 py-1.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-sm transition inline-flex items-center gap-1.5 border border-[#2B1E14]"
+                          className="px-3.5 py-1.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-sm transition inline-flex items-center justify-center border border-[#2B1E14] whitespace-nowrap"
                         >
-                          <LogIn className="w-3.5 h-3.5 text-[#D8C5AD]" />
                           Arrived (Give Token)
                         </button>
                       )}
