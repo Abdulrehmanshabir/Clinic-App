@@ -70,7 +70,7 @@ export function Header({
           <h1 className="text-base sm:text-2xl font-serif font-black tracking-tight text-[#1A120B] dark:text-[#FAF7F2] leading-none truncate">
             {clinicName}
           </h1>
-          <p className="text-[10px] sm:text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold tracking-wider uppercase mt-0.5 sm:mt-1 truncate max-w-[130px] xs:max-w-[190px] sm:max-w-none">
+          <p className="text-[10px] sm:text-xs text-[#8C6843] dark:text-[#E5C158] font-bold tracking-wider uppercase mt-0.5 sm:mt-1 truncate max-w-[130px] xs:max-w-[190px] sm:max-w-none">
             {tagline}
           </p>
         </div>

@@ -96,7 +96,7 @@ export function LoginForm() {
             <h1 className="text-lg sm:text-2xl font-serif font-black tracking-tight text-[#1A120B] leading-none">
               Glow Derm
             </h1>
-            <p className="text-xs sm:text-[13px] text-[#1A120B] font-black tracking-wider uppercase mt-1">
+            <p className="text-xs sm:text-[13px] text-[#8C6843] font-black tracking-wider uppercase mt-1">
               Expert Laser and Skin Clinic
             </p>
           </div>
