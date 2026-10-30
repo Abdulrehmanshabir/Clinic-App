@@ -106,10 +106,10 @@ export function OperatorsPageClient({
       {/* Header */}
       <div className="p-6 rounded-3xl bg-[#FCFAF6] border border-[#E8DFD1] aesthetic-card-shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A120B] tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A120B] dark:text-[#FFFFFF] tracking-tight">
             Staff & Operator Accounts
           </h2>
-          <p className="text-xs text-[#8C7A6B] mt-1 font-medium">
+          <p className="text-sm sm:text-base text-[#8C6843] dark:text-[#E5C158] font-bold mt-1">
             Manage front desk operator logins, grant reception queue permissions, and account access status.
           </p>
         </div>

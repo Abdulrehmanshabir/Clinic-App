@@ -58,11 +58,11 @@ export function ProceduresPageClient({
             >
               <ArrowLeft className="w-4.5 h-4.5" />
             </Link>
-            <h2 className="text-2xl sm:text-3xl font-serif font-black text-[#1A120B] dark:text-[#F8FAFC] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A120B] dark:text-[#FFFFFF] tracking-tight">
               Clinical Procedures & Treatments
             </h2>
           </div>
-          <p className="text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold mt-1.5 ml-12">
+          <p className="text-sm sm:text-base text-[#8C6843] dark:text-[#E5C158] font-bold mt-1 ml-12">
             Daily tracking of clinic procedures and patient visits.
           </p>
         </div>

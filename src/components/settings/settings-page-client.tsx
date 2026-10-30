@@ -145,11 +145,11 @@ export function SettingsPageClient({ initialServices }: SettingsPageClientProps)
       <div className="p-6 rounded-3xl bg-[#FCFAF6] border border-[#E8DFD1] aesthetic-card-shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A120B] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A120B] dark:text-[#FFFFFF] tracking-tight">
               Procedure Setting: Procedures &amp; Pricing
             </h2>
           </div>
-          <p className="text-xs text-[#8C7A6B] font-bold mt-1">
+          <p className="text-sm sm:text-base text-[#8C6843] dark:text-[#E5C158] font-bold mt-1">
             Configure clinic treatments and procedure fees across doctor and reception desks.
           </p>
         </div>
