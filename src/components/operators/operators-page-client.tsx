@@ -5,6 +5,7 @@ import { type ClinicSettings, type Profile } from "@/types/database";
 import { createOperatorUser, toggleOperatorStatus, deleteOperatorUser } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { Modal } from "@/components/ui/modal";
+import { ModalCloseButton } from "@/components/ui/modal-close-button";
 import { UserCog, UserPlus, CheckCircle2, XCircle, Loader2, Trash2, ChevronDown } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -231,14 +232,10 @@ export function OperatorsPageClient({
         maxWidth="md"
       >
         <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
-          {/* Close Button */}
-          <button
-            type="button"
+          <ModalCloseButton
             onClick={() => setIsModalOpen(false)}
-            className="absolute right-3.5 top-3.5 p-1 rounded-lg text-[#8C7A6B] hover:text-[#1A120B] hover:bg-[#EAE1D3] transition"
-          >
-            <span className="text-sm font-bold leading-none">✕</span>
-          </button>
+            className="absolute right-3.5 top-3.5"
+          />
 
           {/* Header: Clinic Branding */}
           <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">

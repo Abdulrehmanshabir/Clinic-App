@@ -1,5 +1,5 @@
 import React from "react";
-import { X } from "lucide-react";
+import { ModalCloseButton } from "@/components/ui/modal-close-button";
 
 interface ModalProps {
   isOpen: boolean;
@@ -41,12 +41,7 @@ export function Modal({
               <h3 className="text-base sm:text-lg font-serif font-bold text-[#1A120B] dark:text-[#FAF7F2] tracking-tight">{title}</h3>
               {subtitle && <p className="text-xs text-[#8C7A6B] dark:text-[#94A3B8] mt-0.5">{subtitle}</p>}
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl text-[#8C7A6B] dark:text-[#94A3B8] hover:text-[#1A120B] dark:hover:text-white hover:bg-[#EAE1D3] dark:hover:bg-[#1E293B] transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <ModalCloseButton onClick={onClose} />
           </div>
         )}
         <div className={`${hideDefaultHeader ? "p-0" : "p-4 sm:p-7"} overflow-y-auto flex-1 custom-scrollbar`}>{children}</div>

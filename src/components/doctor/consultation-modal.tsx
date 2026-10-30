@@ -12,8 +12,8 @@ import {
   Calendar,
   CheckCircle2,
   Loader2,
-  X,
 } from "lucide-react";
+import { ModalCloseButton } from "@/components/ui/modal-close-button";
 import { formatClinicDate, getTodayDateString } from "@/lib/utils";
 import { z } from "zod";
 
@@ -138,15 +138,11 @@ export function ConsultationModal({
             </span>
           </div>
 
-          <button
-            type="button"
+          <ModalCloseButton
             onClick={onClose}
             disabled={isSubmitting}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl flex items-center justify-center text-[#8C6843] hover:text-[#1A120B] dark:text-[#A89887] dark:hover:text-[#FFFFFF] hover:bg-[#F4EFE6] dark:hover:bg-[#1A2234] border border-[#E8DFD1] dark:border-[#2D3E58] transition cursor-pointer shrink-0"
-            title="Close"
-          >
-            <X className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+            className="shrink-0"
+          />
         </div>
 
         {/* Clinical Form: ONLY Notes & Follow-Up Date */}

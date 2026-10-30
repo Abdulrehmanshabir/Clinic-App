@@ -7,9 +7,9 @@ import {
   Clock,
   Loader2,
   Check,
-  X,
   MessageSquare,
 } from "lucide-react";
+import { ModalCloseButton } from "@/components/ui/modal-close-button";
 
 interface DoctorBreakModalProps {
   isOpen: boolean;
@@ -78,15 +78,7 @@ export function DoctorBreakModal({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isLoading}
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-[#8C7A6B] hover:text-[#1A120B] hover:bg-[#EAE1D3] dark:text-[#94A3B8] dark:hover:text-white dark:hover:bg-[#1A2438] transition-all cursor-pointer"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <ModalCloseButton onClick={onClose} disabled={isLoading} />
         </div>
 
         {/* Form Body - Aesthetic & Clean */}

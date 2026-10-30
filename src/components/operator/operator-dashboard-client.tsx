@@ -5,6 +5,7 @@ import { type Appointment, type QueueSummary, type Profile, type Service, type C
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Modal } from "@/components/ui/modal";
+import { ModalCloseButton } from "@/components/ui/modal-close-button";
 import { DoctorBreakBanner } from "@/components/doctor/doctor-break-banner";
 import { quickBookToken, bookCallAppointment, checkInCallAppointment, updateAppointmentStatus } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
@@ -822,7 +823,14 @@ export function OperatorDashboardClient({
         maxWidth="md"
       >
         {createdWalkInToken ? (
-          <div className="p-5 text-center py-4 space-y-3">
+          <div className="p-5 text-center py-4 space-y-3 relative">
+            <ModalCloseButton
+              onClick={() => {
+                setCreatedWalkInToken(null);
+                setIsWalkInModalOpen(false);
+              }}
+              className="absolute right-0 top-0"
+            />
             <div className="w-10 h-10 rounded-2xl bg-[#E6F4EA] text-[#15803D] mx-auto flex items-center justify-center border border-[#BBF7D0] shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
             </div>
@@ -926,14 +934,10 @@ export function OperatorDashboardClient({
           </div>
         ) : (
           <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
-            {/* Close Button */}
-            <button
-              type="button"
+            <ModalCloseButton
               onClick={() => setIsWalkInModalOpen(false)}
-              className="absolute right-3.5 top-3.5 p-1 rounded-lg text-[#8C7A6B] hover:text-[#1A120B] hover:bg-[#EAE1D3] transition"
-            >
-              <span className="text-sm font-bold leading-none">✕</span>
-            </button>
+              className="absolute right-3.5 top-3.5"
+            />
 
             {/* Header: Aesthetic Clinic Branding (Matching Slip Card Header) */}
             <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
@@ -1053,7 +1057,14 @@ export function OperatorDashboardClient({
         maxWidth="md"
       >
         {createdCallReservation ? (
-          <div className="p-5 text-center py-4 space-y-3">
+          <div className="p-5 text-center py-4 space-y-3 relative">
+            <ModalCloseButton
+              onClick={() => {
+                setCreatedCallReservation(null);
+                setIsCallModalOpen(false);
+              }}
+              className="absolute right-0 top-0"
+            />
             <div className="w-10 h-10 rounded-2xl bg-[#E0F2FE] text-[#0369A1] mx-auto flex items-center justify-center border border-[#BAE6FD] shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
             </div>
@@ -1124,14 +1135,10 @@ export function OperatorDashboardClient({
           </div>
         ) : (
           <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
-            {/* Close Button */}
-            <button
-              type="button"
+            <ModalCloseButton
               onClick={() => setIsCallModalOpen(false)}
-              className="absolute right-3.5 top-3.5 p-1 rounded-lg text-[#8C7A6B] hover:text-[#1A120B] hover:bg-[#EAE1D3] transition"
-            >
-              <span className="text-sm font-bold leading-none">✕</span>
-            </button>
+              className="absolute right-3.5 top-3.5"
+            />
 
             {/* Header: Aesthetic Clinic Branding (Matching Walk-in Card Header) */}
             <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
