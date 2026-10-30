@@ -39,7 +39,7 @@ export function Modal({
           <div className="flex items-center justify-between px-5 sm:px-7 py-4 sm:py-5 border-b border-[#E8DFD1] dark:border-[#243248] bg-[#F7F3EB]/60 dark:bg-[#151D2A]">
             <div>
               <h3 className="text-base sm:text-lg font-serif font-bold text-[#1A120B] dark:text-[#FAF7F2] tracking-tight">{title}</h3>
-              {subtitle && <p className="text-xs text-[#8C7A6B] dark:text-[#94A3B8] mt-0.5">{subtitle}</p>}
+              {subtitle && <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-1">{subtitle}</p>}
             </div>
             <ModalCloseButton onClick={onClose} />
           </div>

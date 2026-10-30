@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { type Service } from "@/types/database";
+import { type ClinicSettings, type Service } from "@/types/database";
 import { createProcedure, updateProcedure, deleteProcedure } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { Modal } from "@/components/ui/modal";
@@ -19,9 +19,15 @@ import { useRouter } from "next/navigation";
 
 interface SettingsPageClientProps {
   initialServices: Service[];
+  clinicSettings?: ClinicSettings | null;
+  clinicDate: string;
 }
 
-export function SettingsPageClient({ initialServices }: SettingsPageClientProps) {
+export function SettingsPageClient({
+  initialServices,
+  clinicSettings,
+  clinicDate,
+}: SettingsPageClientProps) {
   const router = useRouter();
   const { success, error } = useToast();
 
@@ -334,11 +340,14 @@ export function SettingsPageClient({ initialServices }: SettingsPageClientProps)
 
           {/* Header: Aesthetic Clinic Branding (Matching Slip / Walk-In Card Header) */}
           <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
-            <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
-              Add New Clinical Procedure
+            <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] dark:text-[#FAF7F2] uppercase">
+              {clinicSettings?.clinic_name || "Glow Derm"}
             </h5>
-            <p className="text-sm text-[#5C4D3E] font-bold mt-0.5">
-              Set treatment name and service fee
+            <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">
+              Add New Clinical Procedure
+            </p>
+            <p className="text-xs sm:text-sm text-[#1A120B] dark:text-[#FAF7F2] font-mono font-black mt-1">
+              {clinicDate}
             </p>
           </div>
 
@@ -346,8 +355,8 @@ export function SettingsPageClient({ initialServices }: SettingsPageClientProps)
           <form onSubmit={handleAddProcedure}>
             <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
               {/* Procedure Name Input */}
-              <div className="border-t border-dashed border-[#D8C5AD] pt-3">
-                <label className="block text-base sm:text-lg font-black text-[#1A120B] mb-1.5 ml-3">
+              <div>
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                   Procedure Name
                 </label>
                 <input
@@ -356,17 +365,17 @@ export function SettingsPageClient({ initialServices }: SettingsPageClientProps)
                   placeholder="Enter procedure name (e.g. Laser Hair)"
                   value={newProcName}
                   onChange={(e) => setNewProcName(e.target.value)}
-                  className="w-full h-10 px-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-[#8C7A6B] focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                  className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                 />
               </div>
 
               {/* Procedure Price Input */}
               <div>
-                <label className="block text-base sm:text-lg font-black text-[#1A120B] mb-1.5 ml-3">
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                   Procedure Price (Fee)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-black text-sm text-[#8C6843]">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-black text-sm text-[#8C6843] dark:text-[#E5C158]">
                     Rs
                   </span>
                   <input
@@ -377,25 +386,25 @@ export function SettingsPageClient({ initialServices }: SettingsPageClientProps)
                     placeholder="Enter fee (e.g. 5000)"
                     value={newProcPrice}
                     onChange={(e) => setNewProcPrice(e.target.value)}
-                    className="w-full h-10 pl-11 pr-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-[#8C7A6B] focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-mono font-bold transition shadow-2xs"
+                    className="w-full h-11 pl-11 pr-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-mono font-bold transition shadow-2xs"
                   />
                 </div>
               </div>
             </div>
 
             {/* Footer: Cancel & Add Procedure (Matching Walk-In Button Styles) */}
-            <div className="mt-4 pt-3.5 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-4">
+            <div className="mt-4 pt-3.5 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="px-6 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs font-bold transition border border-[#E9DFD1]"
+                className="px-6 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs sm:text-sm font-bold transition border border-[#D8C5AD]"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-7 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-md transition flex items-center gap-2.5 disabled:opacity-50 border border-[#2B1E14]"
+                className="px-6 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-2.5 disabled:opacity-50 border border-[#2B1E14]"
               >
                 <Plus className="w-4 h-4 text-[#D8C5AD]" />
                 <span>{isSubmitting ? "Adding..." : "Add Procedure"}</span>

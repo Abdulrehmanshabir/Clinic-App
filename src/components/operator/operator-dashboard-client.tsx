@@ -836,7 +836,7 @@ export function OperatorDashboardClient({
             </div>
             <div>
               <h4 className="text-xl font-serif font-black text-[#1A120B]">Patient Added to Doctor Queue</h4>
-              <p className="text-sm text-[#5C4D3E] font-bold mt-0.5">Official token slip generated successfully.</p>
+              <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">Official token slip generated successfully.</p>
             </div>
 
             {/* Printable Aesthetic Token Slip Card */}
@@ -848,7 +848,7 @@ export function OperatorDashboardClient({
                 <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
                   {clinicSettings?.clinic_name || "Glow Derm"}
                 </h5>
-                <p className="text-sm text-[#5C4D3E] font-bold mt-0.5">
+                <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">
                   {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
                 </p>
                 <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{clinicDate}</p>
@@ -944,7 +944,7 @@ export function OperatorDashboardClient({
               <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
                 {clinicSettings?.clinic_name || "Glow Derm"}
               </h5>
-              <p className="text-sm text-[#5C4D3E] font-bold mt-0.5">
+              <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">
                 {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
               </p>
               <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{clinicDate}</p>
@@ -1070,7 +1070,7 @@ export function OperatorDashboardClient({
             </div>
             <div>
               <h4 className="text-xl font-serif font-black text-[#1A120B]">Phone Slot Reserved</h4>
-              <p className="text-sm text-[#5C4D3E] font-bold mt-0.5">Appointment reserved successfully.</p>
+              <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">Appointment reserved successfully.</p>
             </div>
 
             {/* Aesthetic Confirmation Slip Card */}
@@ -1079,7 +1079,7 @@ export function OperatorDashboardClient({
                 <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
                   {clinicSettings?.clinic_name || "Glow Derm"}
                 </h5>
-                <p className="text-sm text-[#5C4D3E] font-bold mt-0.5">
+                <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">
                   {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
                 </p>
                 <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{createdCallReservation.date}</p>
@@ -1145,7 +1145,7 @@ export function OperatorDashboardClient({
               <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
                 {clinicSettings?.clinic_name || "Glow Derm"}
               </h5>
-              <p className="text-sm text-[#5C4D3E] font-bold mt-0.5">
+              <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">
                 {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
               </p>
               <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{callDate || clinicDate}</p>

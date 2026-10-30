@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { SettingsPageClient } from "@/components/settings/settings-page-client";
-import { getCurrentProfile } from "@/lib/queries";
+import { getClinicSettings, getCurrentProfile } from "@/lib/queries";
+import { getTodayDateString } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { type Service } from "@/types/database";
 
@@ -18,11 +19,20 @@ export default async function SettingsPage() {
   }
 
   const supabase = await createClient();
-  const { data: services } = await supabase
-    .from("services")
-    .select("*")
-    .eq("is_active", true)
-    .order("created_at", { ascending: true });
+  const [servicesResult, clinicSettings] = await Promise.all([
+    supabase
+      .from("services")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: true }),
+    getClinicSettings(),
+  ]);
 
-  return <SettingsPageClient initialServices={(services as Service[]) || []} />;
+  return (
+    <SettingsPageClient
+      initialServices={(servicesResult.data as Service[]) || []}
+      clinicSettings={clinicSettings}
+      clinicDate={getTodayDateString()}
+    />
+  );
 }
