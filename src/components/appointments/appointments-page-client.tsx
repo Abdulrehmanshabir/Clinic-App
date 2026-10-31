@@ -12,31 +12,33 @@ import {
   Search,
   Sun,
   Moon,
+  Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
 import { getTodayDateString } from "@/lib/utils";
 import { SHIFT_LABELS, getAppointmentShift } from "@/lib/session";
+import { fetchAppointmentsForDate, searchAppointments } from "@/lib/actions";
 
 interface AppointmentsPageClientProps {
   initialAppointments: Appointment[];
+  clinicDate: string;
   services?: Service[];
   doctors?: Profile[];
 }
 
 export function AppointmentsPageClient({
   initialAppointments,
+  clinicDate,
 }: AppointmentsPageClientProps) {
   const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
-  const [filterDate, setFilterDate] = useState<string>("");
+  const [filterDate, setFilterDate] = useState<string>(clinicDate);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterType, setFilterType] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Sync state when props change
-  React.useEffect(() => {
-    setAppointments(initialAppointments);
-  }, [initialAppointments]);
+  const isSearching = searchQuery.trim().length > 0;
 
   // Realtime multi-screen synchronization
   useRealtimeAppointments({
@@ -46,8 +48,48 @@ export function AppointmentsPageClient({
     },
   });
 
+  React.useEffect(() => {
+    let cancelled = false;
+
+    if (isSearching) {
+      const timer = setTimeout(async () => {
+        setIsLoading(true);
+        try {
+          const res = await searchAppointments(searchQuery);
+          if (!cancelled) setAppointments(res.success ? res.data : []);
+        } finally {
+          if (!cancelled) setIsLoading(false);
+        }
+      }, 350);
+
+      return () => {
+        cancelled = true;
+        clearTimeout(timer);
+      };
+    }
+
+    if (filterDate === clinicDate) {
+      setAppointments(initialAppointments);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    fetchAppointmentsForDate(filterDate)
+      .then((res) => {
+        if (!cancelled) setAppointments(res.success ? res.data : []);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isSearching, searchQuery, filterDate, clinicDate, initialAppointments]);
+
   const filteredAppointments = appointments.filter((app) => {
-    if (filterDate && app.appointment_date !== filterDate) return false;
+    if (!isSearching && filterDate && app.appointment_date !== filterDate) return false;
     if (filterType === "walk_in" && app.appointment_type !== "walk_in") return false;
     if (filterType === "scheduled" && app.appointment_type !== "scheduled") return false;
 
@@ -223,7 +265,7 @@ export function AppointmentsPageClient({
             Patient Visit Records
           </h2>
           <p className="text-sm sm:text-base text-[#8C6843] dark:text-[#E5C158] font-bold mt-1">
-            Complete record log of physical walk-in patients and phone call bookings.
+            Today&apos;s patient records are shown by default. Search to find previous patients.
           </p>
         </div>
 
@@ -234,11 +276,14 @@ export function AppointmentsPageClient({
             <Search className="w-4 h-4 text-[#8C6843] dark:text-[#34D399] shrink-0" />
             <input
               type="text"
-              placeholder="Search patient, phone, token..."
+              placeholder="Search today or previous patients..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-transparent text-xs font-serif font-bold text-[#1A120B] dark:text-[#FAF7F2] placeholder-[#8C7A6B] dark:placeholder-[#64748B] outline-none"
             />
+            {isLoading && (
+              <Loader2 className="w-4 h-4 animate-spin text-[#8C6843] dark:text-[#34D399] shrink-0" />
+            )}
             {searchQuery && (
               <button
                 type="button"
@@ -256,16 +301,22 @@ export function AppointmentsPageClient({
             <input
               type="date"
               value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery("");
+                setFilterDate(e.target.value || clinicDate);
+              }}
               className="bg-transparent text-xs text-[#1A120B] dark:text-[#FAF7F2] font-semibold outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
             />
-            {filterDate && (
+            {filterDate !== clinicDate && (
               <button
                 type="button"
-                onClick={() => setFilterDate("")}
+                onClick={() => {
+                  setSearchQuery("");
+                  setFilterDate(clinicDate);
+                }}
                 className="text-[10px] font-bold text-[#B91C1C] dark:text-[#F87171] hover:underline ml-1"
               >
-                Clear
+                Today
               </button>
             )}
           </div>

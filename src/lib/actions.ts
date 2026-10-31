@@ -23,6 +23,7 @@ import {
   isClinicShift,
 } from "@/lib/session";
 import { HEAD_DOCTOR_EMAIL, isHeadDoctorEmail } from "@/lib/roles";
+import { getTodayAppointments, searchAppointmentsAcrossDates } from "@/lib/queries";
 
 async function getActingStaffProfile() {
   const supabase = await createClient();
@@ -389,6 +390,24 @@ export async function createAppointment(formData: unknown) {
       token,
     },
   };
+}
+
+export async function fetchAppointmentsForDate(clinicDate: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(clinicDate || "")) {
+    return { success: false, error: "Invalid date", data: [] };
+  }
+
+  const data = await getTodayAppointments(clinicDate);
+  return { success: true, data };
+}
+
+export async function searchAppointments(query: string) {
+  if (!query || query.trim().length === 0) {
+    return { success: true, data: [] };
+  }
+
+  const data = await searchAppointmentsAcrossDates(query);
+  return { success: true, data };
 }
 
 export async function quickBookToken(formData: {

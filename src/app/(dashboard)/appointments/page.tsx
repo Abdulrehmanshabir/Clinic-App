@@ -1,57 +1,25 @@
-import { createClient } from "@/lib/supabase/server";
 import { AppointmentsPageClient } from "@/components/appointments/appointments-page-client";
-import { getActiveServices, getDoctorsList } from "@/lib/queries";
-import { type Appointment } from "@/types/database";
+import { getActiveServices, getDoctorsList, getTodayAppointments } from "@/lib/queries";
+import { getTodayDateString } from "@/lib/utils";
 
 export const metadata = {
   title: "Appointments | Glow & Derm Clinic",
 };
 
 export default async function AppointmentsPage() {
-  const supabase = await createClient();
+  const today = getTodayDateString();
 
   // Run all database calls concurrently in parallel for instant page loads
-  const [services, doctors, appointmentsResult] = await Promise.all([
+  const [services, doctors, appointments] = await Promise.all([
     getActiveServices(),
     getDoctorsList(),
-    supabase
-      .from("appointments")
-      .select(`
-        id,
-        appointment_date,
-        appointment_time,
-        appointment_type,
-        status,
-        patient:patients (
-          id,
-          patient_number,
-          full_name,
-          phone
-        ),
-        token:tokens (
-          id,
-          token_number,
-          queue_position
-        ),
-        service:services (
-          id,
-          name,
-          duration_minutes,
-          price
-        ),
-        doctor:profiles!appointments_doctor_id_fkey (
-          id,
-          full_name
-        )
-      `)
-      .order("appointment_date", { ascending: false })
-      .order("appointment_time", { ascending: true })
-      .limit(100),
+    getTodayAppointments(today),
   ]);
 
   return (
     <AppointmentsPageClient
-      initialAppointments={(appointmentsResult.data as unknown as Appointment[]) || []}
+      initialAppointments={appointments}
+      clinicDate={today}
       services={services}
       doctors={doctors}
     />

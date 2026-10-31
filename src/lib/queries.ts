@@ -74,47 +74,58 @@ export const getCurrentProfile = cache(async (): Promise<Profile> => {
   }
 });
 
+const APPOINTMENT_DETAILS_SELECT = `
+  *,
+  patient:patients (
+    id,
+    patient_number,
+    full_name,
+    phone,
+    gender,
+    age,
+    date_of_birth
+  ),
+  token:tokens (
+    id,
+    token_number,
+    token_date,
+    queue_position
+  ),
+  service:services (
+    id,
+    name,
+    duration_minutes,
+    price
+  ),
+  doctor:profiles!appointments_doctor_id_fkey (
+    id,
+    full_name
+  ),
+  consultation:consultations (
+    id,
+    started_at,
+    completed_at,
+    doctor_notes,
+    treatment_notes,
+    follow_up_date
+  )
+`;
+
+function sortAppointmentsByQueue(data: Appointment[]): Appointment[] {
+  return data.sort((a, b) => {
+    if (a.token?.queue_position && b.token?.queue_position) {
+      return a.token.queue_position - b.token.queue_position;
+    }
+    return a.appointment_time.localeCompare(b.appointment_time);
+  });
+}
+
 export async function getTodayAppointments(clinicDate: string): Promise<Appointment[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("appointments")
-    .select(`
-      *,
-      patient:patients (
-        id,
-        patient_number,
-        full_name,
-        phone,
-        gender,
-        age,
-        date_of_birth
-      ),
-      token:tokens (
-        id,
-        token_number,
-        token_date,
-        queue_position
-      ),
-      service:services (
-        id,
-        name,
-        duration_minutes,
-        price
-      ),
-      doctor:profiles!appointments_doctor_id_fkey (
-        id,
-        full_name
-      ),
-      consultation:consultations (
-        id,
-        started_at,
-        completed_at,
-        doctor_notes,
-        treatment_notes,
-        follow_up_date
-      )
-    `)
+    .select(APPOINTMENT_DETAILS_SELECT)
     .eq("appointment_date", clinicDate)
     .order("appointment_time", { ascending: true });
 
@@ -123,13 +134,69 @@ export async function getTodayAppointments(clinicDate: string): Promise<Appointm
     return [];
   }
 
-  // Sort by token queue_position if available, otherwise by time
-  return (data || []).sort((a, b) => {
-    if (a.token?.queue_position && b.token?.queue_position) {
-      return a.token.queue_position - b.token.queue_position;
-    }
-    return a.appointment_time.localeCompare(b.appointment_time);
-  });
+  return sortAppointmentsByQueue((data || []) as unknown as Appointment[]);
+}
+
+export async function searchAppointmentsAcrossDates(
+  query: string
+): Promise<Appointment[]> {
+  const term = query.trim();
+  const cleaned = term.replace(/[,()*"'\\]/g, " ").trim();
+  if (!cleaned) return [];
+
+  const supabase = await createClient();
+  const like = `%${cleaned}%`;
+
+  const [patientsResult, tokensResult] = await Promise.all([
+    supabase
+      .from("patients")
+      .select("id")
+      .or(
+        `full_name.ilike.${like},phone.ilike.${like},patient_number.ilike.${like}`
+      )
+      .limit(100),
+    supabase
+      .from("tokens")
+      .select("appointment_id")
+      .ilike("token_number", like)
+      .limit(100),
+  ]);
+
+  const patientIds = Array.from(
+    new Set((patientsResult.data || []).map((row) => row.id))
+  );
+  const appointmentIds = Array.from(
+    new Set((tokensResult.data || []).map((row) => row.appointment_id))
+  );
+
+  if (patientIds.length === 0 && appointmentIds.length === 0) return [];
+
+  const filters: string[] = [];
+  if (patientIds.length > 0) {
+    filters.push(`patient_id.in.(${patientIds.join(",")})`);
+  }
+  if (appointmentIds.length > 0) {
+    filters.push(`id.in.(${appointmentIds.join(",")})`);
+  }
+
+  const { data, error } = await supabase
+    .from("appointments")
+    .select(APPOINTMENT_DETAILS_SELECT)
+    .or(filters.join(","))
+    .order("appointment_date", { ascending: false })
+    .order("appointment_time", { ascending: false })
+    .limit(200);
+
+  if (error) {
+    console.error("Error searching appointments:", error);
+    return [];
+  }
+
+  return ((data || []) as unknown as Appointment[]).sort(
+    (a, b) =>
+      b.appointment_date.localeCompare(a.appointment_date) ||
+      b.appointment_time.localeCompare(a.appointment_time)
+  );
 }
 
 export async function getClinicDayStatus(clinicDate: string): Promise<ClinicDay | null> {
