@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { type Appointment, type QueueSummary, type Profile, type Service, type ClinicSettings, type DoctorBreakInfo } from "@/types/database";
+import { type ActiveSession, type Appointment, type ClinicShift, type QueueSummary, type Profile, type Service, type ClinicSettings, type DoctorBreakInfo } from "@/types/database";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Modal } from "@/components/ui/modal";
 import { ModalCloseButton } from "@/components/ui/modal-close-button";
 import { DoctorBreakBanner } from "@/components/doctor/doctor-break-banner";
-import { quickBookToken, bookCallAppointment, checkInCallAppointment, updateAppointmentStatus } from "@/lib/actions";
+import { quickBookToken, bookCallAppointment, checkInCallAppointment, updateAppointmentStatus, startSession } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
 import { useRouter } from "next/navigation";
@@ -31,8 +31,10 @@ import {
   Sparkles,
   CheckCheck,
   UserCheck,
+  Play,
 } from "lucide-react";
-import { formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
+import { formatClinicTime, getClinicTimeString, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
+import { SHIFT_LABELS, getAppointmentShift, getShiftTokenPrefix } from "@/lib/session";
 import { playCallBell, unlockAudio } from "@/lib/sound";
 
 interface OperatorDashboardClientProps {
@@ -44,6 +46,7 @@ interface OperatorDashboardClientProps {
   operatorProfile: Profile | null;
   clinicSettings?: ClinicSettings | null;
   initialDoctorBreak?: DoctorBreakInfo | null;
+  initialActiveSession?: ActiveSession | null;
 }
 
 export function OperatorDashboardClient({
@@ -51,6 +54,7 @@ export function OperatorDashboardClient({
   clinicDate,
   clinicSettings,
   initialDoctorBreak,
+  initialActiveSession = null,
   services = [],
 }: OperatorDashboardClientProps) {
   const router = useRouter();
@@ -68,9 +72,34 @@ export function OperatorDashboardClient({
   // Doctor Break state for Receptionist view
   const [doctorBreak, setDoctorBreakState] = useState<DoctorBreakInfo | null>(initialDoctorBreak || null);
 
+  // Clinic session (morning / evening shift) state
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(initialActiveSession || null);
+  const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
+  const [sessionShift, setSessionShift] = useState<ClinicShift>(initialActiveSession?.shift || "morning");
+  const [sessionDate, setSessionDate] = useState(clinicDate);
+  const [sessionTime, setSessionTime] = useState(initialActiveSession?.start_time || "");
+  const [isStartingSession, setIsStartingSession] = useState(false);
+
   React.useEffect(() => {
     setDoctorBreakState(initialDoctorBreak || null);
   }, [initialDoctorBreak]);
+
+  React.useEffect(() => {
+    setActiveSession(initialActiveSession || null);
+  }, [initialActiveSession]);
+
+  React.useEffect(() => {
+    setSessionDate(clinicDate);
+  }, [clinicDate]);
+
+  const canIssueToken = Boolean(activeSession && activeSession.date === clinicDate);
+
+  const scopedAppointments = React.useMemo(() => {
+    if (!activeSession) return appointments;
+    return appointments.filter(
+      (appointment) => getAppointmentShift(appointment) === activeSession.shift
+    );
+  }, [appointments, activeSession]);
 
   React.useEffect(() => {
     try {
@@ -203,8 +232,8 @@ export function OperatorDashboardClient({
     let cancelled = 0;
     let no_show = 0;
 
-    for (let i = 0; i < appointments.length; i++) {
-      const a = appointments[i];
+    for (let i = 0; i < scopedAppointments.length; i++) {
+      const a = scopedAppointments[i];
       if (a.status === "waiting" && a.token != null) waiting++;
       else if (a.status === "called" && a.token != null) called++;
       else if (a.status === "in_consultation") in_consultation++;
@@ -214,7 +243,7 @@ export function OperatorDashboardClient({
     }
 
     return {
-      total: appointments.length,
+      total: scopedAppointments.length,
       waiting,
       called,
       in_consultation,
@@ -222,51 +251,97 @@ export function OperatorDashboardClient({
       cancelled,
       no_show,
     };
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   const callBookingsCount = React.useMemo(() => {
-    return appointments.filter(
+    return scopedAppointments.filter(
       (a) => a.appointment_type === "scheduled" && a.token == null && a.status !== "completed" && a.status !== "no_show"
     ).length;
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   // Procedure counts
   const procedureCount = React.useMemo(() => {
-    return appointments.filter((a) => isProcedureAppointment(a)).length;
-  }, [appointments]);
+    return scopedAppointments.filter((a) => isProcedureAppointment(a)).length;
+  }, [scopedAppointments]);
 
   const completeProcedureCount = React.useMemo(() => {
-    return appointments.filter(
+    return scopedAppointments.filter(
       (a) => isProcedureAppointment(a) && a.status === "completed"
     ).length;
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   // Online patient counts — only appointments explicitly marked as online by the operator
   const onlinePatientCount = React.useMemo(() => {
-    return appointments.filter((a) => isOnlineAppointment(a)).length;
-  }, [appointments]);
+    return scopedAppointments.filter((a) => isOnlineAppointment(a)).length;
+  }, [scopedAppointments]);
 
   const onlinePatientCompleteCount = React.useMemo(() => {
-    return appointments.filter(
+    return scopedAppointments.filter(
       (a) => isOnlineAppointment(a) && a.status === "completed"
     ).length;
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   const simpleCompletedCount = React.useMemo(() => {
-    return appointments.filter(
+    return scopedAppointments.filter(
       (a) => a.status === "completed" && !isOnlineAppointment(a) && !isProcedureAppointment(a)
     ).length;
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   const nextEstimatedToken = React.useMemo(() => {
-    return `P-${String(
-      appointments.filter((a) => a.token != null).length + 1
+    if (!activeSession) return "Start Session";
+    const sessionTokenCount = scopedAppointments.filter(
+      (a) => a.token != null
+    ).length;
+    return `${getShiftTokenPrefix(activeSession.shift)}${String(
+      sessionTokenCount + 1
     ).padStart(3, "0")}`;
-  }, [appointments]);
+  }, [scopedAppointments, activeSession]);
+
+  // 0. Start a clinic session (morning / evening)
+  const handleStartSession = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sessionDate) {
+      error("Date Required", "Please select the session date");
+      return;
+    }
+    if (!sessionTime) {
+      error("Time Required", "Please select the session start time");
+      return;
+    }
+
+    setIsStartingSession(true);
+    try {
+      const res = await startSession({
+        shift: sessionShift,
+        session_date: sessionDate,
+        start_time: sessionTime,
+      });
+
+      if (res.success && res.data) {
+        setActiveSession(res.data);
+        setIsSessionModalOpen(false);
+        success(
+          "Session Started! ✅",
+          `${SHIFT_LABELS[sessionShift]} session started at ${formatClinicTime(sessionTime)}. Tokens will start from ${getShiftTokenPrefix(sessionShift)}001.`
+        );
+        router.refresh();
+      } else {
+        error("Session Failed", res.error || "Could not start session");
+      }
+    } catch {
+      error("Error", "An unexpected error occurred while starting the session");
+    } finally {
+      setIsStartingSession(false);
+    }
+  };
 
   // 1. Handle Walk-in Token Booking (Immediate physical arrival)
   const handleQuickBookWalkIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canIssueToken) {
+      error("Start Session First", "Please start a clinic session (date & time) before issuing a token.");
+      return;
+    }
     if (!patientName.trim()) {
       error("Name Required", "Please enter patient name");
       return;
@@ -310,6 +385,10 @@ export function OperatorDashboardClient({
   // 2. Handle Advance Call Booking (Phone reservation)
   const handleBookCallAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canIssueToken) {
+      error("Start Session First", "Please start a clinic session (date & time) before booking a call appointment.");
+      return;
+    }
     if (!callName.trim()) {
       error("Name Required", "Please enter patient name");
       return;
@@ -358,6 +437,10 @@ export function OperatorDashboardClient({
 
   // 3. Handle Physical Arrival Check-In for Call Booking (Issue active Token)
   const handleCheckInCallPatient = async (appointmentId: string, patientName?: string) => {
+    if (!canIssueToken) {
+      error("Start Session First", "Please start a clinic session (date & time) before issuing a token.");
+      return;
+    }
     setLoadingAction(appointmentId);
     try {
       const res = await checkInCallAppointment(appointmentId);
@@ -420,7 +503,7 @@ export function OperatorDashboardClient({
   };
 
   const filteredList = React.useMemo(() => {
-    const filtered = appointments.filter((a) => {
+    const filtered = scopedAppointments.filter((a) => {
       if (filter === "active") return (a.status === "waiting" || a.status === "called" || a.status === "in_consultation") && a.token != null;
       if (filter === "call_bookings") return a.appointment_type === "scheduled" && a.token == null && a.status !== "no_show" && a.status !== "completed";
       if (filter === "procedure") return isProcedureAppointment(a);
@@ -434,7 +517,7 @@ export function OperatorDashboardClient({
       return true;
     });
     return sortAppointmentsForDashboard(filtered);
-  }, [appointments, filter]);
+  }, [scopedAppointments, filter]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -447,14 +530,44 @@ export function OperatorDashboardClient({
           <p className="text-sm sm:text-base text-[#8C6843] dark:text-[#E5C158] font-bold mt-1">
             Manage walk-in tokens, call bookings, and patient queue in real-time.
           </p>
+          {activeSession && (
+            <span className="inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-xl bg-[#E6F4EA] dark:bg-[#0F2A22] text-[#15803D] dark:text-[#34D399] border border-[#BBF7D0] dark:border-[#14532D] text-xs font-black">
+              <span className="w-2 h-2 rounded-full bg-[#15803D] dark:bg-[#34D399] animate-pulse" />
+              {SHIFT_LABELS[activeSession.shift]} session active
+              {activeSession.start_time ? ` • ${formatClinicTime(activeSession.start_time)}` : ""}
+            </span>
+          )}
         </div>
 
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
+          {/* Button 0: Start Session */}
+          <button
+            onClick={() => {
+              setSessionShift(activeSession?.shift || "morning");
+              setSessionDate(activeSession?.date || clinicDate);
+              setSessionTime(activeSession?.start_time || getClinicTimeString());
+              setIsSessionModalOpen(true);
+            }}
+            className="px-5 py-2.5 rounded-xl bg-white hover:bg-[#FAF7F2] text-[#15803D] dark:bg-[#1A2438] dark:hover:bg-[#223048] dark:text-[#34D399] border-2 border-[#15803D] dark:border-[#34D399] font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
+          >
+            <Play className="w-4.5 h-4.5 text-[#15803D] dark:text-[#34D399]" />
+            <span>Start Session</span>
+          </button>
+
           {/* Button 1: Walk-In Token */}
           <button
-            onClick={() => setIsWalkInModalOpen(true)}
-            className="px-5 py-2.5 rounded-xl bg-[#8C6843] hover:bg-[#785838] text-white dark:bg-[#D4AF37] dark:hover:bg-[#C5A059] dark:text-[#12100E] font-bold text-xs sm:text-sm shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 border-2 border-[#745534] dark:border-[#E5C158] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
+            onClick={() => {
+              if (!canIssueToken) {
+                error("Start Session First", "Please start a clinic session (date & time) before issuing a token.");
+                return;
+              }
+              setIsWalkInModalOpen(true);
+            }}
+            title={canIssueToken ? "Issue a walk-in token" : "Start a session first"}
+            className={`px-5 py-2.5 rounded-xl bg-[#8C6843] hover:bg-[#785838] text-white dark:bg-[#D4AF37] dark:hover:bg-[#C5A059] dark:text-[#12100E] font-bold text-xs sm:text-sm shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 border-2 border-[#745534] dark:border-[#E5C158] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
+              canIssueToken ? "" : "opacity-50 grayscale"
+            }`}
           >
             <Ticket className="w-4.5 h-4.5 text-white dark:text-[#12100E]" />
             <span>+ Walk-In Token</span>
@@ -462,8 +575,17 @@ export function OperatorDashboardClient({
 
           {/* Button 2: Call Appointment */}
           <button
-            onClick={() => setIsCallModalOpen(true)}
-            className="px-5 py-2.5 rounded-xl bg-white hover:bg-[#FAF7F2] text-[#8C6843] dark:bg-[#1A2438] dark:hover:bg-[#223048] dark:text-[#E2E8F0] border-2 border-[#8C6843] dark:border-[#334155] dark:hover:border-[#D4AF37]/50 font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
+            onClick={() => {
+              if (!canIssueToken) {
+                error("Start Session First", "Please start a clinic session (date & time) before booking a call appointment.");
+                return;
+              }
+              setIsCallModalOpen(true);
+            }}
+            title={canIssueToken ? "Book a call appointment" : "Start a session first"}
+            className={`px-5 py-2.5 rounded-xl bg-white hover:bg-[#FAF7F2] text-[#8C6843] dark:bg-[#1A2438] dark:hover:bg-[#223048] dark:text-[#E2E8F0] border-2 border-[#8C6843] dark:border-[#334155] dark:hover:border-[#D4AF37]/50 font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
+              canIssueToken ? "" : "opacity-50 grayscale"
+            }`}
           >
             <PhoneCall className="w-4.5 h-4.5 text-[#8C6843] dark:text-[#D4AF37]" />
             <span>+ Book Call Appointment</span>
@@ -484,7 +606,7 @@ export function OperatorDashboardClient({
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
         <StatCard
-          title="Today Total Patients"
+          title={activeSession ? `${SHIFT_LABELS[activeSession.shift]} Patients` : "Today Total Patients"}
           value={summary.total}
           icon={Users}
           variant="bronze"
@@ -572,6 +694,8 @@ export function OperatorDashboardClient({
                 ? "Completed Consultations"
                 : filter === "no_show"
                 ? "Absent / Not Present"
+                : activeSession
+                ? `${SHIFT_LABELS[activeSession.shift]} Patients`
                 : "All Today's Patients"}
             </h3>
             <span className="text-xs sm:text-sm font-bold text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs whitespace-nowrap inline-flex items-center justify-center">
@@ -724,8 +848,9 @@ export function OperatorDashboardClient({
                         <button
                           type="button"
                           onClick={() => handleCheckInCallPatient(app.id, app.patient?.full_name)}
-                          disabled={loadingAction === app.id}
-                          className="px-3.5 py-1.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-sm transition inline-flex items-center justify-center border border-[#2B1E14] whitespace-nowrap"
+                          disabled={loadingAction === app.id || !canIssueToken}
+                          title={canIssueToken ? "Issue a token for this arrived patient" : "Start a session first"}
+                          className="px-3.5 py-1.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-sm transition inline-flex items-center justify-center border border-[#2B1E14] whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           Arrived (Give Token)
                         </button>
@@ -1290,6 +1415,116 @@ export function OperatorDashboardClient({
             </form>
           </div>
         )}
+      </Modal>
+
+      {/* Modal 3: Start Clinic Session */}
+      <Modal
+        isOpen={isSessionModalOpen}
+        onClose={() => setIsSessionModalOpen(false)}
+        hideDefaultHeader={true}
+        maxWidth="md"
+      >
+        <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
+          <ModalCloseButton
+            onClick={() => setIsSessionModalOpen(false)}
+            className="absolute right-3.5 top-3.5"
+          />
+
+          <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
+            <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
+              {clinicSettings?.clinic_name || "Glow Derm"}
+            </h5>
+            <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">
+              Start Clinic Session
+            </p>
+          </div>
+
+          <form onSubmit={handleStartSession}>
+            <div className="py-3 space-y-3.5 max-w-[350px] mx-auto w-full">
+              <div>
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  Session
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["morning", "evening"] as ClinicShift[]).map((shift) => (
+                    <button
+                      key={shift}
+                      type="button"
+                      onClick={() => setSessionShift(shift)}
+                      className={`h-11 rounded-xl border-2 font-bold text-sm transition ${
+                        sessionShift === shift
+                          ? "bg-[#1E1915] text-[#FAF7F2] border-[#2B1E14] shadow-sm"
+                          : "bg-[#FAF7F2] text-[#8C6843] border-[#BCA58C] hover:bg-[#F4EFE6]"
+                      }`}
+                    >
+                      {SHIFT_LABELS[shift]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  Session Date
+                </label>
+                <div className="relative">
+                  <Calendar className="w-4 h-4 text-[#A8835A] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="date"
+                    required
+                    value={sessionDate}
+                    onChange={(e) => setSessionDate(e.target.value)}
+                    className="w-full h-11 pl-11 pr-4 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm font-mono font-bold transition shadow-2xs [color-scheme:light]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                  Start Time
+                </label>
+                <div className="relative">
+                  <Clock className="w-4 h-4 text-[#A8835A] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="time"
+                    required
+                    value={sessionTime}
+                    onChange={(e) => setSessionTime(e.target.value)}
+                    className="w-full h-11 pl-11 pr-4 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm font-mono font-bold transition shadow-2xs [color-scheme:light]"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-[#FAF7F2] border border-dashed border-[#D8C5AD] p-3 text-xs text-[#6B5E51] font-bold leading-relaxed">
+                Tokens can only be issued after the session starts. {SHIFT_LABELS[sessionShift]} tokens will begin from{" "}
+                <span className="font-mono font-black text-[#1A120B]">{getShiftTokenPrefix(sessionShift)}001</span>.
+                {activeSession && (
+                  <span className="block mt-1 text-[#B45309]">
+                    Starting a new session will replace the currently active {SHIFT_LABELS[activeSession.shift]} session.
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-2 pt-3.5 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
+              <button
+                type="button"
+                onClick={() => setIsSessionModalOpen(false)}
+                className="px-6 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs font-bold transition border border-[#E9DFD1]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isStartingSession}
+                className="px-7 py-2.5 rounded-xl bg-[#15803D] hover:bg-[#166534] text-[#FFFFFF] font-bold text-xs shadow-md transition flex items-center gap-2.5 disabled:opacity-50 border border-[#14532D]"
+              >
+                <Play className="w-4 h-4" />
+                {isStartingSession ? "Starting..." : "Done"}
+              </button>
+            </div>
+          </form>
+        </div>
       </Modal>
 
       {/* Operator View Consultation Notes Modal */}

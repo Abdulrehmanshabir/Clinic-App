@@ -11,8 +11,17 @@ import {
   operatorSchema,
   clinicSettingsSchema,
 } from "@/lib/validations";
-import { type AppointmentStatus } from "@/types/database";
+import { type ActiveSession, type AppointmentStatus, type ClinicShift } from "@/types/database";
 import { getTodayDateString } from "@/lib/utils";
+import {
+  appendShiftTag,
+  getShiftFromNotes,
+  getShiftFromTime,
+  getShiftFromToken,
+  getShiftTag,
+  getShiftTokenPrefix,
+  isClinicShift,
+} from "@/lib/session";
 import { HEAD_DOCTOR_EMAIL, isHeadDoctorEmail } from "@/lib/roles";
 
 async function getActingStaffProfile() {
@@ -30,6 +39,92 @@ async function getActingStaffProfile() {
     .maybeSingle();
 
   return profile as { id: string; email: string; role: string } | null;
+}
+
+type ClinicNotesPayload = Record<string, unknown>;
+
+function parseClinicNotes(notes: string | null | undefined): ClinicNotesPayload {
+  if (!notes) return {};
+  try {
+    const parsed = JSON.parse(notes);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as ClinicNotesPayload;
+    }
+  } catch {
+    // Legacy plain-text notes
+  }
+  return { closing_notes: notes };
+}
+
+function serializeClinicNotes(notes: ClinicNotesPayload): string | null {
+  return Object.keys(notes).length > 0 ? JSON.stringify(notes) : null;
+}
+
+async function readClinicNotes(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  clinicDate: string
+): Promise<ClinicNotesPayload> {
+  const { data } = await supabase
+    .from("clinic_days")
+    .select("notes")
+    .eq("clinic_date", clinicDate)
+    .maybeSingle();
+
+  return parseClinicNotes(data?.notes);
+}
+
+async function getActiveSessionForDate(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  clinicDate: string
+): Promise<ActiveSession | null> {
+  const notes = await readClinicNotes(supabase, clinicDate);
+  const session = notes.active_session as ActiveSession | undefined;
+
+  if (!session || !isClinicShift(session.shift)) return null;
+  if (session.date && session.date !== clinicDate) return null;
+
+  return {
+    shift: session.shift,
+    date: session.date || clinicDate,
+    start_time: session.start_time,
+    started_at: session.started_at || "",
+    started_by: session.started_by || null,
+  };
+}
+
+async function getNextSessionToken(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  clinicDate: string,
+  shift: ClinicShift
+): Promise<{ nextPos: number; sequence: number; tokenNumber: string }> {
+  const { data: tokens } = await supabase
+    .from("tokens")
+    .select("token_number, queue_position, appointment:appointments(appointment_time, notes)")
+    .eq("token_date", clinicDate);
+
+  const rows = tokens || [];
+  let sequence = 0;
+  let maxQueuePosition = 0;
+
+  for (const row of rows) {
+    maxQueuePosition = Math.max(maxQueuePosition, row.queue_position || 0);
+
+    const appointment = Array.isArray(row.appointment)
+      ? row.appointment[0]
+      : row.appointment;
+    const rowShift =
+      getShiftFromToken(row.token_number) ??
+      getShiftFromNotes(appointment?.notes) ??
+      getShiftFromTime(appointment?.appointment_time);
+
+    if (rowShift === shift) sequence += 1;
+  }
+
+  return {
+    nextPos: maxQueuePosition + 1,
+    sequence: sequence + 1,
+    tokenNumber: `${getShiftTokenPrefix(shift)}${String(sequence + 1).padStart(3, "0")}`,
+  };
 }
 
 // Helper to record audit log
@@ -202,6 +297,14 @@ export async function createAppointment(formData: unknown) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const activeSession = await getActiveSessionForDate(
+    supabase,
+    result.data.appointment_date
+  );
+  const notesToSave = activeSession
+    ? appendShiftTag(result.data.notes, activeSession.shift)
+    : result.data.notes || null;
+
   // 1. Insert Appointment
   const { data: appointment, error: appError } = await supabase
     .from("appointments")
@@ -213,7 +316,7 @@ export async function createAppointment(formData: unknown) {
       service_id: result.data.service_id || null,
       appointment_type: result.data.appointment_type,
       status: "waiting",
-      notes: result.data.notes || null,
+      notes: notesToSave,
       created_by: user?.id || null,
     })
     .select(`
@@ -234,37 +337,37 @@ export async function createAppointment(formData: unknown) {
     return { success: false, error: appError.message };
   }
 
-  // 2. Safely Generate Atomic Token for this appointment on the target clinic date
+  // 2. Generate a session token only when a clinic session is active
   let token: { token_num: string; queue_pos: number; id?: string } | null = null;
-  try {
-    const { count } = await supabase
-      .from("tokens")
-      .select("*", { count: "exact", head: true })
-      .eq("token_date", result.data.appointment_date);
+  if (activeSession) {
+    try {
+      const { nextPos, tokenNumber } = await getNextSessionToken(
+        supabase,
+        result.data.appointment_date,
+        activeSession.shift
+      );
 
-    const nextPos = (count || 0) + 1;
-    const formattedToken = `P-${String(nextPos).padStart(3, "0")}`;
+      const { data: insertedToken } = await supabase
+        .from("tokens")
+        .insert({
+          appointment_id: appointment.id,
+          token_number: tokenNumber,
+          token_date: result.data.appointment_date,
+          queue_position: nextPos,
+        })
+        .select()
+        .single();
 
-    const { data: insertedToken } = await supabase
-      .from("tokens")
-      .insert({
-        appointment_id: appointment.id,
-        token_number: formattedToken,
-        token_date: result.data.appointment_date,
-        queue_position: nextPos,
-      })
-      .select()
-      .single();
-
-    if (insertedToken) {
-      token = {
-        id: insertedToken.id,
-        token_num: insertedToken.token_number,
-        queue_pos: insertedToken.queue_position,
-      };
+      if (insertedToken) {
+        token = {
+          id: insertedToken.id,
+          token_num: insertedToken.token_number,
+          queue_pos: insertedToken.queue_position,
+        };
+      }
+    } catch (fallbackErr) {
+      console.error("Token generation error:", fallbackErr);
     }
-  } catch (fallbackErr) {
-    console.error("Token generation error:", fallbackErr);
   }
 
   await logAudit("CREATE_APPOINTMENT", "appointments", appointment.id, {
@@ -346,21 +449,27 @@ export async function quickBookToken(formData: {
     }
   }
 
-  // 2. Count existing tokens today for 5-minute automated scheduling
-  const { count: tokenCount } = await supabase
-    .from("tokens")
-    .select("*", { count: "exact", head: true })
-    .eq("token_date", today);
+  // 2. A clinic session must be started before any token can be issued
+  const activeSession = await getActiveSessionForDate(supabase, today);
+  if (!activeSession) {
+    return {
+      success: false,
+      error: "Please start a clinic session (date & time) before issuing a token.",
+    };
+  }
 
-  const nextPos = (tokenCount || 0) + 1;
-  const formattedToken = `P-${String(nextPos).padStart(3, "0")}`;
+  const { nextPos, sequence, tokenNumber } = await getNextSessionToken(
+    supabase,
+    today,
+    activeSession.shift
+  );
 
   // Calculate 5-minute slot time if time not explicitly set
   let calculatedTime = formData.appointment_time;
   if (!calculatedTime) {
     const now = new Date();
-    // Add (nextPos - 1) * 5 minutes from now
-    const slotDate = new Date(now.getTime() + (nextPos - 1) * 5 * 60000);
+    // Add (sequence - 1) * 5 minutes from now
+    const slotDate = new Date(now.getTime() + (sequence - 1) * 5 * 60000);
     const hrs = String(slotDate.getHours()).padStart(2, "0");
     const mins = String(slotDate.getMinutes()).padStart(2, "0");
     calculatedTime = `${hrs}:${mins}`;
@@ -375,6 +484,7 @@ export async function quickBookToken(formData: {
       appointment_time: calculatedTime,
       appointment_type: "walk_in",
       status: "waiting",
+      notes: getShiftTag(activeSession.shift),
       ...(formData.service_id ? { service_id: formData.service_id } : {}),
     })
     .select(`
@@ -406,7 +516,7 @@ export async function quickBookToken(formData: {
     .from("tokens")
     .insert({
       appointment_id: appointment.id,
-      token_number: formattedToken,
+      token_number: tokenNumber,
       token_date: today,
       queue_position: nextPos,
     })
@@ -415,7 +525,7 @@ export async function quickBookToken(formData: {
 
   const token = tokenRecord
     ? { token_num: tokenRecord.token_number, queue_pos: tokenRecord.queue_position }
-    : { token_num: formattedToken, queue_pos: nextPos };
+    : { token_num: tokenNumber, queue_pos: nextPos };
 
   await logAudit("QUICK_TOKEN_BOOK", "appointments", appointment.id, {
     patient: formData.full_name,
@@ -455,6 +565,19 @@ export async function bookCallAppointment(formData: {
   }
 
   const supabase = await createClient();
+
+  // A clinic session must be started before any call appointment can be booked
+  const activeSession = await getActiveSessionForDate(
+    supabase,
+    getTodayDateString()
+  );
+  if (!activeSession) {
+    return {
+      success: false,
+      error: "Please start a clinic session (date & time) before booking a call appointment.",
+    };
+  }
+
   const dateToUse = formData.appointment_date || getTodayDateString();
   const rawPhone = formData.phone?.trim() || "";
 
@@ -563,7 +686,7 @@ export async function checkInCallAppointment(appointmentId: string) {
   // 1. Fetch appointment details
   const { data: app, error: fetchErr } = await supabase
     .from("appointments")
-    .select("id, appointment_date, patient:patients(full_name)")
+    .select("id, appointment_date, appointment_time, notes, patient:patients(full_name)")
     .eq("id", appointmentId)
     .single();
 
@@ -573,21 +696,27 @@ export async function checkInCallAppointment(appointmentId: string) {
 
   const today = app.appointment_date || getTodayDateString();
 
-  // 2. Count existing tokens today for sequential token assignment
-  const { count: tokenCount } = await supabase
-    .from("tokens")
-    .select("*", { count: "exact", head: true })
-    .eq("token_date", today);
+  // 2. A clinic session must be started before any token can be issued
+  const activeSession = await getActiveSessionForDate(supabase, today);
+  if (!activeSession) {
+    return {
+      success: false,
+      error: "Please start a clinic session (date & time) before issuing a token.",
+    };
+  }
 
-  const nextPos = (tokenCount || 0) + 1;
-  const formattedToken = `P-${String(nextPos).padStart(3, "0")}`;
+  const { nextPos, tokenNumber } = await getNextSessionToken(
+    supabase,
+    today,
+    activeSession.shift
+  );
 
   // 3. Insert Token
   const { data: tokenRecord, error: tokErr } = await supabase
     .from("tokens")
     .insert({
       appointment_id: app.id,
-      token_number: formattedToken,
+      token_number: tokenNumber,
       token_date: today,
       queue_position: nextPos,
     })
@@ -598,10 +727,13 @@ export async function checkInCallAppointment(appointmentId: string) {
     return { success: false, error: tokErr.message };
   }
 
-  // 4. Update appointment status to waiting
+  // 4. Update appointment status to waiting with the session tag
   await supabase
     .from("appointments")
-    .update({ status: "waiting" })
+    .update({
+      status: "waiting",
+      notes: appendShiftTag(app.notes, activeSession.shift),
+    })
     .eq("id", app.id);
 
   await logAudit("CHECKIN_CALL_PATIENT", "appointments", app.id, {
@@ -836,13 +968,81 @@ export async function completeConsultationDirect(appointmentId: string, notes?: 
 }
 
 // -----------------------------------------------------------------------------
-// 4. CLINIC DAY WORKFLOW
+// 4. CLINIC DAY & SESSION WORKFLOW
 // -----------------------------------------------------------------------------
+export async function startSession(formData: {
+  shift: ClinicShift;
+  session_date: string;
+  start_time: string;
+}) {
+  if (!isClinicShift(formData.shift)) {
+    return { success: false, error: "Please select Morning or Evening session." };
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(formData.session_date || "")) {
+    return { success: false, error: "Please select a valid session date." };
+  }
+  if (!/^\d{2}:\d{2}$/.test(formData.start_time || "")) {
+    return { success: false, error: "Please select a valid start time." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const notes = await readClinicNotes(supabase, formData.session_date);
+  const session: ActiveSession = {
+    shift: formData.shift,
+    date: formData.session_date,
+    start_time: formData.start_time,
+    started_at: new Date().toISOString(),
+    started_by: user?.id || null,
+  };
+
+  notes.active_session = session;
+
+  const { data: clinicDay, error } = await supabase
+    .from("clinic_days")
+    .upsert(
+      {
+        clinic_date: formData.session_date,
+        status: "open",
+        closed_at: null,
+        closed_by: null,
+        notes: serializeClinicNotes(notes),
+      },
+      { onConflict: "clinic_date" }
+    )
+    .select()
+    .single();
+
+  if (error) return { success: false, error: error.message };
+
+  await logAudit("START_SESSION", "clinic_days", clinicDay.id, {
+    clinicDate: formData.session_date,
+    shift: formData.shift,
+    start_time: formData.start_time,
+  });
+
+  revalidatePath("/doctor");
+  revalidatePath("/operator");
+  revalidatePath("/queue");
+  revalidatePath("/appointments");
+  revalidatePath("/history");
+  return { success: true, data: session };
+}
+
 export async function closeClinicDay(clinicDate: string, notes?: string) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const existingNotes = await readClinicNotes(supabase, clinicDate);
+  existingNotes.active_session = null;
+  if (notes?.trim()) {
+    existingNotes.closing_notes = notes.trim();
+  }
 
   const { data: clinicDay, error } = await supabase
     .from("clinic_days")
@@ -852,7 +1052,7 @@ export async function closeClinicDay(clinicDate: string, notes?: string) {
         status: "closed",
         closed_at: new Date().toISOString(),
         closed_by: user?.id || null,
-        notes: notes || null,
+        notes: serializeClinicNotes(existingNotes),
       },
       { onConflict: "clinic_date" }
     )
@@ -872,12 +1072,16 @@ export async function closeClinicDay(clinicDate: string, notes?: string) {
 export async function reopenClinicDay(clinicDate: string) {
   const supabase = await createClient();
 
+  const existingNotes = await readClinicNotes(supabase, clinicDate);
+  existingNotes.active_session = null;
+
   const { data: clinicDay, error } = await supabase
     .from("clinic_days")
     .update({
       status: "open",
       closed_at: null,
       closed_by: null,
+      notes: serializeClinicNotes(existingNotes),
     })
     .eq("clinic_date", clinicDate)
     .select()

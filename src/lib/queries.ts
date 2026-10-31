@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { type Appointment, type QueueSummary, type ClinicDay, type Service, type Profile, type ClinicSettings, type DoctorBreakInfo } from "@/types/database";
+import { type Appointment, type QueueSummary, type ClinicDay, type Service, type Profile, type ClinicSettings, type DoctorBreakInfo, type ActiveSession, type ClinicShift } from "@/types/database";
 
 export const getCurrentProfile = cache(async (): Promise<Profile> => {
   try {
@@ -209,6 +209,34 @@ export function calculateQueueSummary(appointments: Appointment[]): QueueSummary
     no_show: appointments.filter((a) => a.status === "no_show").length,
   };
 }
+
+export const getActiveSession = cache(async (clinicDate: string): Promise<ActiveSession | null> => {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("clinic_days")
+      .select("notes")
+      .eq("clinic_date", clinicDate)
+      .maybeSingle();
+
+    if (!data?.notes) return null;
+    const parsed = JSON.parse(data.notes);
+    const session = parsed?.active_session;
+    const shift = session?.shift as ClinicShift | undefined;
+    if (shift !== "morning" && shift !== "evening") return null;
+    if (session.date && session.date !== clinicDate) return null;
+
+    return {
+      shift,
+      date: session.date || clinicDate,
+      start_time: session.start_time || undefined,
+      started_at: session.started_at || "",
+      started_by: session.started_by || null,
+    };
+  } catch {
+    return null;
+  }
+});
 
 export const getDoctorBreakStatus = cache(async (clinicDate: string): Promise<DoctorBreakInfo | null> => {
   try {

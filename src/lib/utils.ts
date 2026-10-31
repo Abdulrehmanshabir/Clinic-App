@@ -117,3 +117,18 @@ export function getClinicDateString(date: Date = new Date()): string {
 export function getTodayDateString(): string {
   return getClinicDateString();
 }
+
+export function getClinicTimeString(date: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: CLINIC_TIME_ZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+
+  const hourPart = parts.find((part) => part.type === "hour")?.value || "00";
+  const minute = parts.find((part) => part.type === "minute")?.value || "00";
+  const hour = hourPart === "24" ? "00" : hourPart;
+
+  return `${hour}:${minute}`;
+}

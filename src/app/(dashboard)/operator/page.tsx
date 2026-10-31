@@ -7,6 +7,7 @@ import {
   getDoctorsList,
   getClinicSettings,
   getDoctorBreakStatus,
+  getActiveSession,
 } from "@/lib/queries";
 import { OperatorDashboardClient } from "@/components/operator/operator-dashboard-client";
 
@@ -21,13 +22,14 @@ export default async function OperatorDashboardPage() {
   const today = getTodayDateString();
 
   // Run all independent queries in parallel for instant page transitions
-  const [profile, appointments, services, doctors, settings, doctorBreak] = await Promise.all([
+  const [profile, appointments, services, doctors, settings, doctorBreak, activeSession] = await Promise.all([
     getCurrentProfile(),
     getTodayAppointments(today),
     getActiveServices(),
     getDoctorsList(),
     getClinicSettings(),
     getDoctorBreakStatus(today),
+    getActiveSession(today),
   ]);
 
   const summary = calculateQueueSummary(appointments);
@@ -42,6 +44,7 @@ export default async function OperatorDashboardPage() {
       operatorProfile={profile}
       clinicSettings={settings}
       initialDoctorBreak={doctorBreak}
+      initialActiveSession={activeSession}
     />
   );
 }

@@ -50,6 +50,16 @@ export interface Service {
   updated_at: string;
 }
 
+export type ClinicShift = "morning" | "evening";
+
+export interface ActiveSession {
+  shift: ClinicShift;
+  date: string;
+  start_time?: string;
+  started_at: string;
+  started_by?: string | null;
+}
+
 export interface ClinicDay {
   id: string;
   clinic_date: string;

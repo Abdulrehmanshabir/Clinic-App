@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { type Appointment, type Service, type Profile } from "@/types/database";
+import { type Appointment, type ClinicShift, type Service, type Profile } from "@/types/database";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatClinicDate, formatClinicTime } from "@/lib/utils";
 import {
@@ -10,10 +10,13 @@ import {
   PhoneCall,
   UserCheck,
   Search,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
 import { getTodayDateString } from "@/lib/utils";
+import { SHIFT_LABELS, getAppointmentShift } from "@/lib/session";
 
 interface AppointmentsPageClientProps {
   initialAppointments: Appointment[];
@@ -59,97 +62,47 @@ export function AppointmentsPageClient({
     return true;
   });
 
-  return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="p-6 rounded-3xl bg-[#FCFAF6] dark:bg-[#131924] border border-[#E8DFD1] dark:border-[#232F42] aesthetic-card-shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A120B] dark:text-[#FFFFFF] tracking-tight">
-            Patient Visit Records
-          </h2>
-          <p className="text-sm sm:text-base text-[#8C6843] dark:text-[#E5C158] font-bold mt-1">
-            Complete record log of physical walk-in patients and phone call bookings.
-          </p>
-        </div>
+  const morningAppointments = filteredAppointments.filter(
+    (app) => getAppointmentShift(app) === "morning"
+  );
+  const eveningAppointments = filteredAppointments.filter(
+    (app) => getAppointmentShift(app) === "evening"
+  );
 
-        {/* Search & Date Filters with 2px outlines in both Light & Dark modes */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Search Input */}
-          <div className="flex items-center gap-2.5 w-full sm:w-64 bg-[#FAF7F2] dark:bg-[#1A2230] px-4 py-2.5 rounded-2xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-xs transition-colors">
-            <Search className="w-4 h-4 text-[#8C6843] dark:text-[#34D399] shrink-0" />
-            <input
-              type="text"
-              placeholder="Search patient, phone, token..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent text-xs font-serif font-bold text-[#1A120B] dark:text-[#FAF7F2] placeholder-[#8C7A6B] dark:placeholder-[#64748B] outline-none"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="text-xs font-bold text-[#8C7A6B] hover:text-[#1A120B] dark:text-[#94A3B8] dark:hover:text-white"
-              >
-                ✕
-              </button>
-            )}
-          </div>
+  const renderShiftTable = (
+    shift: ClinicShift,
+    rows: Appointment[]
+  ) => {
+    const isMorning = shift === "morning";
+    const Icon = isMorning ? Sun : Moon;
 
-          {/* Date Picker */}
-          <div className="flex items-center gap-2.5 bg-[#FAF7F2] dark:bg-[#1A2230] px-4 py-2.5 rounded-2xl border-2 border-[#8C6843] dark:border-[#34D399] text-xs text-[#1A120B] dark:text-[#FAF7F2] shadow-xs transition-colors">
-            <Filter className="w-3.5 h-3.5 text-[#8C6843] dark:text-[#34D399] shrink-0" />
-            <input
-              type="date"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="bg-transparent text-xs text-[#1A120B] dark:text-[#FAF7F2] font-semibold outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
-            />
-            {filterDate && (
-              <button
-                type="button"
-                onClick={() => setFilterDate("")}
-                className="text-[10px] font-bold text-[#B91C1C] dark:text-[#F87171] hover:underline ml-1"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Appointments Table */}
-      <div className="rounded-3xl border border-[#E8DFD1] dark:border-[#232F42] bg-[#FCFAF6] dark:bg-[#131924] overflow-hidden aesthetic-card-shadow">
+    return (
+      <div
+        key={shift}
+        className="rounded-3xl border border-[#E8DFD1] dark:border-[#232F42] bg-[#FCFAF6] dark:bg-[#131924] overflow-hidden aesthetic-card-shadow"
+      >
         <div className="px-7 py-5 border-b border-[#E8DFD1] dark:border-[#232F42] bg-[#FAF7F2] dark:bg-[#1A2230] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h3 className="text-base sm:text-lg font-serif font-bold text-[#1A120B] dark:text-[#FAF7F2]">
-              All Appointments
-            </h3>
-            <span className="text-xs sm:text-sm font-bold text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs whitespace-nowrap inline-flex items-center justify-center">
-              {filteredAppointments.length} Total
+            <span
+              className={`inline-flex items-center justify-center w-10 h-10 rounded-2xl border-2 ${
+                isMorning
+                  ? "bg-[#FFF7E6] text-[#B45309] border-[#FDE68A]"
+                  : "bg-[#EEF2FF] text-[#4338CA] border-[#C7D2FE]"
+              }`}
+            >
+              <Icon className="w-5 h-5" />
             </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Type Filter Pills */}
-            <div className="flex items-center rounded-2xl bg-[#F4EFE6] dark:bg-[#131924] p-1.5 border border-[#E9DFD1] dark:border-[#2E3C51] text-sm">
-              {[
-                { id: "all", label: "All Types" },
-                { id: "walk_in", label: "Walk-In" },
-                { id: "scheduled", label: "Call / Online" },
-              ].map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setFilterType(t.id)}
-                  className={`px-4 py-2 rounded-xl font-black text-sm transition-all duration-150 ${
-                    filterType === t.id
-                      ? "bg-[#1E1915] text-[#FAF7F2] dark:bg-gradient-to-r dark:from-[#D4AF37] dark:to-[#C5A059] dark:text-[#12100E] shadow-xs"
-                      : "text-[#1A120B] dark:text-[#FAF7F2] hover:text-[#1E1915] dark:hover:text-white hover:bg-[#EFE6D8]/80 dark:hover:bg-[#1A2230]"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
+            <div>
+              <h3 className="text-base sm:text-lg font-serif font-bold text-[#1A120B] dark:text-[#FAF7F2]">
+                {SHIFT_LABELS[shift]} Patients
+              </h3>
+              <p className="text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold">
+                {SHIFT_LABELS[shift]} session visit records
+              </p>
             </div>
+            <span className="text-xs sm:text-sm font-bold text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs whitespace-nowrap inline-flex items-center justify-center">
+              {rows.length} Records
+            </span>
           </div>
         </div>
 
@@ -166,17 +119,21 @@ export function AppointmentsPageClient({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EFE6D8] dark:divide-[#232F42]">
-              {filteredAppointments.length === 0 ? (
+              {rows.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-14 text-center text-[#8C7A6B] dark:text-[#94A3B8]">
                     <div className="max-w-sm mx-auto space-y-1.5 py-2">
-                      <p className="font-bold text-lg text-[#1A120B] dark:text-white">No appointments found</p>
-                      <p className="text-sm text-[#8C7A6B] dark:text-[#94A3B8]">No records matching your search and filter criteria.</p>
+                      <p className="font-bold text-lg text-[#1A120B] dark:text-white">
+                        No {SHIFT_LABELS[shift].toLowerCase()} patients found
+                      </p>
+                      <p className="text-sm text-[#8C7A6B] dark:text-[#94A3B8]">
+                        No records matching your search and filter criteria.
+                      </p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                filteredAppointments.map((app) => {
+                rows.map((app) => {
                   const isCallBooking = app.appointment_type === "scheduled";
                   const isWalkIn = app.appointment_type === "walk_in";
 
@@ -254,7 +211,93 @@ export function AppointmentsPageClient({
           </table>
         </div>
       </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="p-6 rounded-3xl bg-[#FCFAF6] dark:bg-[#131924] border border-[#E8DFD1] dark:border-[#232F42] aesthetic-card-shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A120B] dark:text-[#FFFFFF] tracking-tight">
+            Patient Visit Records
+          </h2>
+          <p className="text-sm sm:text-base text-[#8C6843] dark:text-[#E5C158] font-bold mt-1">
+            Complete record log of physical walk-in patients and phone call bookings.
+          </p>
+        </div>
+
+        {/* Search & Date Filters with 2px outlines in both Light & Dark modes */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Search Input */}
+          <div className="flex items-center gap-2.5 w-full sm:w-64 bg-[#FAF7F2] dark:bg-[#1A2230] px-4 py-2.5 rounded-2xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-xs transition-colors">
+            <Search className="w-4 h-4 text-[#8C6843] dark:text-[#34D399] shrink-0" />
+            <input
+              type="text"
+              placeholder="Search patient, phone, token..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-transparent text-xs font-serif font-bold text-[#1A120B] dark:text-[#FAF7F2] placeholder-[#8C7A6B] dark:placeholder-[#64748B] outline-none"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="text-xs font-bold text-[#8C7A6B] hover:text-[#1A120B] dark:text-[#94A3B8] dark:hover:text-white"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Date Picker */}
+          <div className="flex items-center gap-2.5 bg-[#FAF7F2] dark:bg-[#1A2230] px-4 py-2.5 rounded-2xl border-2 border-[#8C6843] dark:border-[#34D399] text-xs text-[#1A120B] dark:text-[#FAF7F2] shadow-xs transition-colors">
+            <Filter className="w-3.5 h-3.5 text-[#8C6843] dark:text-[#34D399] shrink-0" />
+            <input
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              className="bg-transparent text-xs text-[#1A120B] dark:text-[#FAF7F2] font-semibold outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]"
+            />
+            {filterDate && (
+              <button
+                type="button"
+                onClick={() => setFilterDate("")}
+                className="text-[10px] font-bold text-[#B91C1C] dark:text-[#F87171] hover:underline ml-1"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          {/* Type Filter Pills */}
+          <div className="flex items-center rounded-2xl bg-[#F4EFE6] dark:bg-[#131924] p-1.5 border border-[#E9DFD1] dark:border-[#2E3C51] text-sm">
+            {[
+              { id: "all", label: "All Types" },
+              { id: "walk_in", label: "Walk-In" },
+              { id: "scheduled", label: "Call / Online" },
+            ].map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setFilterType(t.id)}
+                className={`px-4 py-2 rounded-xl font-black text-sm transition-all duration-150 ${
+                  filterType === t.id
+                    ? "bg-[#1E1915] text-[#FAF7F2] dark:bg-gradient-to-r dark:from-[#D4AF37] dark:to-[#C5A059] dark:text-[#12100E] shadow-xs"
+                    : "text-[#1A120B] dark:text-[#FAF7F2] hover:text-[#1E1915] dark:hover:text-white hover:bg-[#EFE6D8]/80 dark:hover:bg-[#1A2230]"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Morning Session Table */}
+      {renderShiftTable("morning", morningAppointments)}
+
+      {/* Evening Session Table */}
+      {renderShiftTable("evening", eveningAppointments)}
     </div>
   );
 }
-
