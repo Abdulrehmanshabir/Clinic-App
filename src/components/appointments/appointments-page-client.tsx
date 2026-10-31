@@ -153,8 +153,23 @@ export function AppointmentsPageClient({
                 {SHIFT_LABELS[shift]} session visit records
               </p>
               {activeShift === shift && (
-                <span className="inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-lg bg-[#E6F4EA] dark:bg-[#0F2A22] text-[#15803D] dark:text-[#34D399] border border-[#BBF7D0] dark:border-[#14532D] text-[10px] font-black uppercase tracking-wider">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#15803D] dark:bg-[#34D399] animate-pulse" />
+                <span
+                  className={`inline-flex items-center gap-1.5 mt-1 px-2.5 py-1 rounded-lg border-2 text-[10px] font-black uppercase tracking-wider shadow-sm ${
+                    shift === "evening"
+                      ? "bg-gradient-to-r from-[#4C1D95] to-[#7C3AED] text-white border-[#A78BFA] shadow-[0_0_12px_rgba(124,58,237,0.28)]"
+                      : "bg-gradient-to-r from-[#B45309] to-[#D97706] text-white border-[#FCD34D] shadow-[0_0_12px_rgba(217,119,6,0.25)]"
+                  }`}
+                >
+                  {shift === "evening" ? (
+                    <Moon className="w-3 h-3" />
+                  ) : (
+                    <Sun className="w-3 h-3" />
+                  )}
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                      shift === "evening" ? "bg-[#DDD6FE]" : "bg-[#FEF3C7]"
+                    }`}
+                  />
                   Live Shift
                 </span>
               )}

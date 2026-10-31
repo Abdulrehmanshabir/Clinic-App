@@ -33,6 +33,8 @@ import {
   UserCheck,
   Play,
   Power,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { formatClinicTime, getClinicTimeString, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { SHIFT_LABELS, getAppointmentShift, getShiftTokenPrefix } from "@/lib/session";
@@ -558,10 +560,25 @@ export function OperatorDashboardClient({
             Manage walk-in tokens, call bookings, and patient queue in real-time.
           </p>
           {activeSession && (
-            <span className="inline-flex items-center gap-2 mt-2 px-3 py-1 rounded-xl bg-[#E6F4EA] dark:bg-[#0F2A22] text-[#15803D] dark:text-[#34D399] border border-[#BBF7D0] dark:border-[#14532D] text-xs font-black">
-              <span className="w-2 h-2 rounded-full bg-[#15803D] dark:bg-[#34D399] animate-pulse" />
+            <span
+              className={`inline-flex items-center gap-2 mt-2 px-3.5 py-1.5 rounded-xl border-2 text-xs font-black shadow-sm ${
+                activeSession.shift === "evening"
+                  ? "bg-gradient-to-r from-[#EEF2FF] via-[#F5F3FF] to-[#E0E7FF] dark:from-[#1E1B4B] dark:via-[#2E1065] dark:to-[#312E81] text-[#5B21B6] dark:text-[#DDD6FE] border-[#8B5CF6] dark:border-[#7C3AED] shadow-[0_0_14px_rgba(124,58,237,0.22)]"
+                  : "bg-gradient-to-r from-[#FEF9C3] via-[#FEF3C7] to-[#FDE68A] dark:from-[#2A1F0F] dark:via-[#3A2A10] dark:to-[#4A3510] text-[#92400E] dark:text-[#FCD34D] border-[#F59E0B] dark:border-[#B45309] shadow-[0_0_14px_rgba(217,119,6,0.18)]"
+              }`}
+            >
+              {activeSession.shift === "evening" ? (
+                <Moon className="w-3.5 h-3.5" />
+              ) : (
+                <Sun className="w-3.5 h-3.5" />
+              )}
+              <span
+                className={`w-2 h-2 rounded-full animate-pulse ${
+                  activeSession.shift === "evening" ? "bg-[#7C3AED] dark:bg-[#A78BFA]" : "bg-[#D97706] dark:bg-[#FCD34D]"
+                }`}
+              />
               {SHIFT_LABELS[activeSession.shift]} session active
-              {activeSession.start_time ? ` • ${formatClinicTime(activeSession.start_time)}` : ""}
+              {activeSession.start_time ? `  ${formatClinicTime(activeSession.start_time)}` : ""}
             </span>
           )}
         </div>
@@ -1507,13 +1524,13 @@ export function OperatorDashboardClient({
                   Session Date
                 </label>
                 <div className="relative">
-                  <Calendar className="w-4 h-4 text-[#A8835A] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Calendar className="w-4 h-4 text-[#FAF7F2] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="date"
                     required
                     value={sessionDate}
                     onChange={(e) => setSessionDate(e.target.value)}
-                    className="w-full h-11 pl-11 pr-4 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm font-mono font-bold transition shadow-2xs [color-scheme:light]"
+                    className="w-full h-11 pl-11 pr-4 rounded-xl bg-[#1E1915] border-2 border-[#8C6843] text-[#FAF7F2] focus:outline-none focus:border-[#D4AF37] focus:bg-[#241E18] focus:ring-2 focus:ring-[#D4AF37]/30 text-sm font-mono font-bold transition shadow-2xs [color-scheme:dark]"
                   />
                 </div>
               </div>
@@ -1523,13 +1540,13 @@ export function OperatorDashboardClient({
                   Start Time
                 </label>
                 <div className="relative">
-                  <Clock className="w-4 h-4 text-[#A8835A] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Clock className="w-4 h-4 text-[#FAF7F2] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="time"
                     required
                     value={sessionTime}
                     onChange={(e) => setSessionTime(e.target.value)}
-                    className="w-full h-11 pl-11 pr-4 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm font-mono font-bold transition shadow-2xs [color-scheme:light]"
+                    className="w-full h-11 pl-11 pr-4 rounded-xl bg-[#1E1915] border-2 border-[#8C6843] text-[#FAF7F2] focus:outline-none focus:border-[#D4AF37] focus:bg-[#241E18] focus:ring-2 focus:ring-[#D4AF37]/30 text-sm font-mono font-bold transition shadow-2xs [color-scheme:dark]"
                   />
                 </div>
               </div>
