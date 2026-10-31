@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Modal } from "@/components/ui/modal";
 import { ModalCloseButton } from "@/components/ui/modal-close-button";
 import { DoctorBreakBanner } from "@/components/doctor/doctor-break-banner";
-import { quickBookToken, bookCallAppointment, checkInCallAppointment, updateAppointmentStatus, startSession } from "@/lib/actions";
+import { quickBookToken, bookCallAppointment, checkInCallAppointment, updateAppointmentStatus, startSession, endSession } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
 import { useRouter } from "next/navigation";
@@ -32,6 +32,7 @@ import {
   CheckCheck,
   UserCheck,
   Play,
+  Power,
 } from "lucide-react";
 import { formatClinicTime, getClinicTimeString, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { SHIFT_LABELS, getAppointmentShift, getShiftTokenPrefix } from "@/lib/session";
@@ -79,6 +80,7 @@ export function OperatorDashboardClient({
   const [sessionDate, setSessionDate] = useState(clinicDate);
   const [sessionTime, setSessionTime] = useState(initialActiveSession?.start_time || "");
   const [isStartingSession, setIsStartingSession] = useState(false);
+  const [isEndingSession, setIsEndingSession] = useState(false);
 
   React.useEffect(() => {
     setDoctorBreakState(initialDoctorBreak || null);
@@ -335,6 +337,31 @@ export function OperatorDashboardClient({
     }
   };
 
+  const handleEndSession = async () => {
+    if (!activeSession) return;
+    const endedShift = activeSession.shift;
+
+    setIsEndingSession(true);
+    try {
+      const res = await endSession(clinicDate);
+
+      if (res.success) {
+        setActiveSession(null);
+        success(
+          "Session Ended",
+          `${SHIFT_LABELS[endedShift]} session has been ended. Tokens are blocked until a new session starts.`
+        );
+        router.refresh();
+      } else {
+        error("End Session Failed", res.error || "Could not end session");
+      }
+    } catch {
+      error("Error", "An unexpected error occurred while ending the session");
+    } finally {
+      setIsEndingSession(false);
+    }
+  };
+
   // 1. Handle Walk-in Token Booking (Immediate physical arrival)
   const handleQuickBookWalkIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -541,19 +568,31 @@ export function OperatorDashboardClient({
 
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Button 0: Start Session */}
-          <button
-            onClick={() => {
-              setSessionShift(activeSession?.shift || "morning");
-              setSessionDate(activeSession?.date || clinicDate);
-              setSessionTime(activeSession?.start_time || getClinicTimeString());
-              setIsSessionModalOpen(true);
-            }}
-            className="px-5 py-2.5 rounded-xl bg-white hover:bg-[#FAF7F2] text-[#15803D] dark:bg-[#1A2438] dark:hover:bg-[#223048] dark:text-[#34D399] border-2 border-[#15803D] dark:border-[#34D399] font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
-          >
-            <Play className="w-4.5 h-4.5 text-[#15803D] dark:text-[#34D399]" />
-            <span>Start Session</span>
-          </button>
+          {/* Button 0: Start / End Session */}
+          {activeSession ? (
+            <button
+              onClick={handleEndSession}
+              disabled={isEndingSession}
+              title={`End ${SHIFT_LABELS[activeSession.shift]} session`}
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-[#FEF2F2] text-[#DC2626] dark:bg-[#2A1518] dark:hover:bg-[#3A1B1F] dark:text-[#F87171] border-2 border-[#DC2626] dark:border-[#F87171] font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Power className="w-4.5 h-4.5 text-[#DC2626] dark:text-[#F87171]" />
+              <span>{isEndingSession ? "Ending..." : "End Session"}</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setSessionShift("morning");
+                setSessionDate(clinicDate);
+                setSessionTime(getClinicTimeString());
+                setIsSessionModalOpen(true);
+              }}
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-[#FAF7F2] text-[#15803D] dark:bg-[#1A2438] dark:hover:bg-[#223048] dark:text-[#34D399] border-2 border-[#15803D] dark:border-[#34D399] font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
+            >
+              <Play className="w-4.5 h-4.5 text-[#15803D] dark:text-[#34D399]" />
+              <span>Start Session</span>
+            </button>
+          )}
 
           {/* Button 1: Walk-In Token */}
           <button

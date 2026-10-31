@@ -1032,6 +1032,54 @@ export async function startSession(formData: {
   return { success: true, data: session };
 }
 
+export async function endSession(clinicDate: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const notes = await readClinicNotes(supabase, clinicDate);
+  const session = notes.active_session as ActiveSession | undefined;
+
+  if (!session || !isClinicShift(session.shift)) {
+    return { success: false, error: "No active session to end." };
+  }
+
+  notes.active_session = null;
+  notes.last_session = {
+    ...session,
+    ended_at: new Date().toISOString(),
+    ended_by: user?.id || null,
+  };
+
+  const { data: clinicDay, error } = await supabase
+    .from("clinic_days")
+    .upsert(
+      {
+        clinic_date: clinicDate,
+        notes: serializeClinicNotes(notes),
+      },
+      { onConflict: "clinic_date" }
+    )
+    .select()
+    .single();
+
+  if (error) return { success: false, error: error.message };
+
+  await logAudit("END_SESSION", "clinic_days", clinicDay.id, {
+    clinicDate,
+    shift: session.shift,
+    start_time: session.start_time,
+  });
+
+  revalidatePath("/doctor");
+  revalidatePath("/operator");
+  revalidatePath("/queue");
+  revalidatePath("/appointments");
+  revalidatePath("/history");
+  return { success: true, data: notes.last_session };
+}
+
 export async function closeClinicDay(clinicDate: string, notes?: string) {
   const supabase = await createClient();
   const {
