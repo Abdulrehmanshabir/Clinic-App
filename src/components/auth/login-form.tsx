@@ -89,14 +89,14 @@ export function LoginForm() {
       <header className="border-b border-[#E8DFD1]/40 bg-gradient-to-r from-[#C4A482] via-transparent to-transparent sticky top-0 z-30 px-4 sm:px-8 py-3.5 flex items-center justify-between">
         {/* Clinic Brand - Seamless within Header */}
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#2B1E14] to-[#4A3522] flex items-center justify-center shadow-lg shadow-[#2B1E14]/20 border border-[#6B4E31]/30 flex-shrink-0">
-            <span className="font-serif text-2xl font-bold text-[#E9DFD1] italic tracking-tighter">G</span>
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#D4AF37] to-[#F3E3A3] flex items-center justify-center shadow-lg shadow-[#D4AF37]/40 border border-[#F3E3A3]/70 flex-shrink-0">
+            <span className="font-serif text-2xl font-bold text-[#12100E] italic tracking-tighter">G</span>
           </div>
           <div>
-            <h1 className="text-lg sm:text-2xl font-serif font-black tracking-tight text-[#1A120B] leading-none">
+            <h1 className="text-lg sm:text-2xl font-serif font-black tracking-tight text-[#FAF7F2] leading-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.55)]">
               Glow Derm
             </h1>
-            <p className="text-xs sm:text-[13px] text-[#8C6843] font-black tracking-wider uppercase mt-1">
+            <p className="text-xs sm:text-[13px] text-[#E5C158] font-black tracking-wider uppercase mt-1 drop-shadow-[0_1px_3px_rgba(0,0,0,0.55)]">
               Expert Laser and Skin Clinic
             </p>
           </div>
