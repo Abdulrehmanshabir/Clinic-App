@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { type Appointment, type ClinicShift, type Service, type Profile } from "@/types/database";
+import { type ActiveSession, type Appointment, type ClinicShift, type Service, type Profile } from "@/types/database";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatClinicDate, formatClinicTime } from "@/lib/utils";
 import {
@@ -23,6 +23,7 @@ import { fetchAppointmentsForDate, searchAppointments } from "@/lib/actions";
 interface AppointmentsPageClientProps {
   initialAppointments: Appointment[];
   clinicDate: string;
+  initialActiveSession?: ActiveSession | null;
   services?: Service[];
   doctors?: Profile[];
 }
@@ -30,6 +31,7 @@ interface AppointmentsPageClientProps {
 export function AppointmentsPageClient({
   initialAppointments,
   clinicDate,
+  initialActiveSession = null,
 }: AppointmentsPageClientProps) {
   const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
@@ -111,6 +113,15 @@ export function AppointmentsPageClient({
     (app) => getAppointmentShift(app) === "evening"
   );
 
+  const activeShift: ClinicShift | null =
+    filterDate === clinicDate ? initialActiveSession?.shift ?? null : null;
+  const shiftOrder: ClinicShift[] =
+    activeShift === "evening" ? ["evening", "morning"] : ["morning", "evening"];
+  const rowsByShift: Record<ClinicShift, Appointment[]> = {
+    morning: morningAppointments,
+    evening: eveningAppointments,
+  };
+
   const renderShiftTable = (
     shift: ClinicShift,
     rows: Appointment[]
@@ -141,6 +152,12 @@ export function AppointmentsPageClient({
               <p className="text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold">
                 {SHIFT_LABELS[shift]} session visit records
               </p>
+              {activeShift === shift && (
+                <span className="inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-lg bg-[#E6F4EA] dark:bg-[#0F2A22] text-[#15803D] dark:text-[#34D399] border border-[#BBF7D0] dark:border-[#14532D] text-[10px] font-black uppercase tracking-wider">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#15803D] dark:bg-[#34D399] animate-pulse" />
+                  Live Shift
+                </span>
+              )}
             </div>
             <span className="text-xs sm:text-sm font-bold text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs whitespace-nowrap inline-flex items-center justify-center">
               {rows.length} Records
@@ -344,11 +361,8 @@ export function AppointmentsPageClient({
         </div>
       </div>
 
-      {/* Morning Session Table */}
-      {renderShiftTable("morning", morningAppointments)}
-
-      {/* Evening Session Table */}
-      {renderShiftTable("evening", eveningAppointments)}
+      {/* Active session table first, then the other session */}
+      {shiftOrder.map((shift) => renderShiftTable(shift, rowsByShift[shift]))}
     </div>
   );
 }
