@@ -1474,9 +1474,6 @@ export function OperatorDashboardClient({
                       </button>
                     ))}
                   </div>
-                  <p className="text-[11px] sm:text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold mt-1 ml-1">
-                    The booking will appear in the selected session on the chosen date.
-                  </p>
                 </div>
 
                 {/* Appointment Date & Time (single combined field) */}
@@ -1507,9 +1504,6 @@ export function OperatorDashboardClient({
                       title="Select or type appointment date and time"
                     />
                   </div>
-                  <p className="text-[11px] sm:text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold mt-1 ml-1">
-                    Select or type the date and time, then choose AM or PM.
-                  </p>
                 </div>
               </div>
 
