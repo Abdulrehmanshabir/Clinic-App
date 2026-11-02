@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { type Appointment, type QueueSummary, type Profile, type DoctorBreakInfo, type Service } from "@/types/database";
+import { type ActiveSession, type Appointment, type QueueSummary, type Profile, type DoctorBreakInfo, type Service } from "@/types/database";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ConsultationModal } from "@/components/doctor/consultation-modal";
@@ -40,12 +40,14 @@ import {
   Trash2,
 } from "lucide-react";
 import { formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
+import { getAppointmentShift } from "@/lib/session";
 
 interface DoctorDashboardClientProps {
   initialAppointments: Appointment[];
   summary: QueueSummary;
   clinicDate: string;
   doctorProfile: Profile | null;
+  initialActiveSession?: ActiveSession | null;
   initialDoctorBreak?: DoctorBreakInfo | null;
   services?: Service[];
 }
@@ -53,6 +55,7 @@ interface DoctorDashboardClientProps {
 export function DoctorDashboardClient({
   initialAppointments,
   clinicDate,
+  initialActiveSession,
   initialDoctorBreak,
   services = [],
 }: DoctorDashboardClientProps) {
@@ -81,6 +84,14 @@ export function DoctorDashboardClient({
     setDoctorBreakState(initialDoctorBreak || null);
   }, [initialDoctorBreak]);
 
+  // Only show patients belonging to the active clinic session
+  const scopedAppointments = useMemo(() => {
+    if (!initialActiveSession) return appointments;
+    return appointments.filter(
+      (appointment) => getAppointmentShift(appointment) === initialActiveSession.shift
+    );
+  }, [appointments, initialActiveSession]);
+
   // Supabase Realtime synchronization + cross-device call bell
   const { sendCallBell, sendBreakBell } = useRealtimeAppointments({
     clinicDate,
@@ -99,8 +110,8 @@ export function DoctorDashboardClient({
     let no_show = 0;
     let total = 0;
 
-    for (let i = 0; i < appointments.length; i++) {
-      const a = appointments[i];
+    for (let i = 0; i < scopedAppointments.length; i++) {
+      const a = scopedAppointments[i];
       if (!isProcedureAppointment(a)) total++;
       if (a.status === "waiting" && a.token != null) waiting++;
       else if (a.status === "called" && a.token != null) called++;
@@ -119,41 +130,41 @@ export function DoctorDashboardClient({
       cancelled,
       no_show,
     };
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   const callBookingsCount = useMemo(() => {
-    return appointments.filter(
+    return scopedAppointments.filter(
       (a) => a.appointment_type === "scheduled" && a.token == null && a.status !== "completed" && a.status !== "no_show"
     ).length;
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   // Procedure counts
   const procedureCount = useMemo(() => {
-    return appointments.filter((a) => a.service != null || a.service_id != null).length;
-  }, [appointments]);
+    return scopedAppointments.filter((a) => a.service != null || a.service_id != null).length;
+  }, [scopedAppointments]);
 
   const completeProcedureCount = useMemo(() => {
-    return appointments.filter(
+    return scopedAppointments.filter(
       (a) => (a.service != null || a.service_id != null) && a.status === "completed"
     ).length;
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   // Online patient counts — only appointments explicitly marked as online by the operator
   const onlinePatientCount = useMemo(() => {
-    return appointments.filter((a) => isOnlineAppointment(a)).length;
-  }, [appointments]);
+    return scopedAppointments.filter((a) => isOnlineAppointment(a)).length;
+  }, [scopedAppointments]);
 
   const onlinePatientCompleteCount = useMemo(() => {
-    return appointments.filter(
+    return scopedAppointments.filter(
       (a) => isOnlineAppointment(a) && a.status === "completed"
     ).length;
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   const simpleCompletedCount = useMemo(() => {
-    return appointments.filter(
+    return scopedAppointments.filter(
       (a) => a.status === "completed" && !isOnlineAppointment(a) && !isProcedureAppointment(a)
     ).length;
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   const handleStartConsultation = async (appointment: Appointment) => {
     setLoadingAction(appointment.id);
@@ -303,18 +314,18 @@ export function DoctorDashboardClient({
   };
 
   // Find currently active patient in consultation
-  const activeConsultation = appointments.find((a) => a.status === "in_consultation");
+  const activeConsultation = scopedAppointments.find((a) => a.status === "in_consultation");
 
   // Sorted waiting queue (Waiting / Called) ordered sequentially
   const waitingQueue = useMemo(() => {
-    return appointments
+    return scopedAppointments
       .filter((a) => (a.status === "waiting" || a.status === "called") && a.token != null)
       .sort((a, b) => {
         const posA = a.token?.queue_position || 999;
         const posB = b.token?.queue_position || 999;
         return posA - posB;
       });
-  }, [appointments]);
+  }, [scopedAppointments]);
 
   // Next patient in line
   const nextPatientInLine = waitingQueue[0] || null;
@@ -350,7 +361,7 @@ export function DoctorDashboardClient({
 
   // Filter queue list based on selected view
   const filteredAppointments = useMemo(() => {
-    const filtered = appointments.filter((a) => {
+    const filtered = scopedAppointments.filter((a) => {
       if (activeFilter === "all") return !isProcedureAppointment(a);
       if (activeFilter === "active") {
         return (a.status === "in_consultation" || a.status === "waiting" || a.status === "called") && a.token != null;
@@ -377,7 +388,7 @@ export function DoctorDashboardClient({
       return true;
     });
     return sortAppointmentsForDashboard(filtered);
-  }, [appointments, activeFilter]);
+  }, [scopedAppointments, activeFilter]);
 
   // Break Management Handlers
   const handleStartBreak = async (breakType: string, customReason?: string) => {
@@ -713,7 +724,7 @@ export function DoctorDashboardClient({
 
       {/* Clinical Procedures & Patient Demand Section */}
       <ProceduresSection
-        appointments={appointments}
+        appointments={scopedAppointments}
         services={services}
         isDoctorView={true}
       />

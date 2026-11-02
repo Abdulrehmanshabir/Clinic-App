@@ -1,5 +1,5 @@
 import { getTodayDateString } from "@/lib/utils";
-import { getTodayAppointments, calculateQueueSummary, getCurrentProfile, getDoctorBreakStatus, getActiveServices } from "@/lib/queries";
+import { getTodayAppointments, calculateQueueSummary, getCurrentProfile, getDoctorBreakStatus, getActiveServices, getActiveSession } from "@/lib/queries";
 import { DoctorDashboardClient } from "@/components/doctor/doctor-dashboard-client";
 import { redirect } from "next/navigation";
 
@@ -17,10 +17,11 @@ export default async function DoctorDashboardPage() {
   }
 
   const today = getTodayDateString();
-  const [appointments, doctorBreak, services] = await Promise.all([
+  const [appointments, doctorBreak, services, activeSession] = await Promise.all([
     getTodayAppointments(today),
     getDoctorBreakStatus(today),
     getActiveServices(),
+    getActiveSession(today),
   ]);
   const summary = calculateQueueSummary(appointments);
 
@@ -30,6 +31,7 @@ export default async function DoctorDashboardPage() {
       summary={summary}
       clinicDate={today}
       doctorProfile={profile}
+      initialActiveSession={activeSession}
       initialDoctorBreak={doctorBreak}
       services={services}
     />

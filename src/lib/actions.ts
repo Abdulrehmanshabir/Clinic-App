@@ -641,8 +641,10 @@ export async function bookCallAppointment(formData: {
   }
 
   const baseNotes = formData.notes?.trim() || "Phone Call Appointment";
-  const notesToSave =
-    wantsOnline && !supportsOnlineFlag ? `[ONLINE] ${baseNotes}` : baseNotes;
+  const notesToSave = appendShiftTag(
+    wantsOnline && !supportsOnlineFlag ? `[ONLINE] ${baseNotes}` : baseNotes,
+    activeSession.shift
+  );
 
   // 3. Insert Appointment as 'scheduled' without token yet
   const { data: appointment, error: appErr } = await supabase
