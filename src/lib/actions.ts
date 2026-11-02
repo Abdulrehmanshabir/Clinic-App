@@ -93,23 +93,65 @@ async function getActiveSessionForDate(
   };
 }
 
+const TOKEN_SLOT_GAP_MINUTES = 5;
+
+function timeToMinutes(time: string): number {
+  const [hours, minutes] = time.split(":").map(Number);
+  return (hours || 0) * 60 + (minutes || 0);
+}
+
+function addMinutesToTime(time: string, minutes: number): string {
+  const total = timeToMinutes(time) + minutes;
+  const wrapped = ((total % 1440) + 1440) % 1440;
+  return `${String(Math.floor(wrapped / 60)).padStart(2, "0")}:${String(
+    wrapped % 60
+  ).padStart(2, "0")}`;
+}
+
 async function getNextSessionToken(
   supabase: Awaited<ReturnType<typeof createClient>>,
   clinicDate: string,
   shift: ClinicShift,
   isProcedure = false
-): Promise<{ nextPos: number; sequence: number; tokenNumber: string }> {
+): Promise<{
+  nextPos: number;
+  sequence: number;
+  tokenNumber: string;
+  lastSlotTime: string | null;
+}> {
   const { data: tokens } = await supabase
     .from("tokens")
-    .select("token_number, queue_position, appointment:appointments(appointment_time, notes)")
+    .select(
+      "token_number, queue_position, appointment:appointments(appointment_time, notes, appointment_type)"
+    )
     .eq("token_date", clinicDate);
 
   const rows = tokens || [];
   let sequence = 0;
   let maxQueuePosition = 0;
+  let lastSlotTime: string | null = null;
 
   for (const row of rows) {
     maxQueuePosition = Math.max(maxQueuePosition, row.queue_position || 0);
+
+    const appointment = Array.isArray(row.appointment)
+      ? row.appointment[0]
+      : row.appointment;
+    const rowShift =
+      getShiftFromToken(row.token_number) ??
+      getShiftFromNotes(appointment?.notes) ??
+      getShiftFromTime(appointment?.appointment_time);
+
+    // Only walk-in tokens drive the 5-minute slot chain; call bookings keep
+    // the time they were reserved for.
+    if (
+      rowShift === shift &&
+      appointment?.appointment_type === "walk_in" &&
+      appointment?.appointment_time &&
+      (!lastSlotTime || appointment.appointment_time > lastSlotTime)
+    ) {
+      lastSlotTime = appointment.appointment_time;
+    }
 
     // Procedure tokens use their own P- sequence and never mix with M-/E-.
     const isProcedureToken = (row.token_number || "")
@@ -125,14 +167,6 @@ async function getNextSessionToken(
       continue;
     }
 
-    const appointment = Array.isArray(row.appointment)
-      ? row.appointment[0]
-      : row.appointment;
-    const rowShift =
-      getShiftFromToken(row.token_number) ??
-      getShiftFromNotes(appointment?.notes) ??
-      getShiftFromTime(appointment?.appointment_time);
-
     if (rowShift === shift) sequence += 1;
   }
 
@@ -142,6 +176,7 @@ async function getNextSessionToken(
     nextPos: maxQueuePosition + 1,
     sequence: sequence + 1,
     tokenNumber: `${prefix}${String(sequence + 1).padStart(3, "0")}`,
+    lastSlotTime,
   };
 }
 
@@ -495,19 +530,30 @@ export async function quickBookToken(formData: {
     };
   }
 
-  const { nextPos, tokenNumber } = await getNextSessionToken(
+  const { nextPos, tokenNumber, lastSlotTime } = await getNextSessionToken(
     supabase,
     today,
     activeSession.shift,
     Boolean(formData.service_id)
   );
 
-  // Slot time is the actual time the token is issued, never before the session start
+  // Slots run in 5-minute steps from the previous walk-in token.
+  // The first token uses the actual issue time (or the session start if earlier),
+  // and a late token never takes a slot that is already in the past.
   let calculatedTime = formData.appointment_time;
   if (!calculatedTime) {
     const nowTime = getClinicTimeString();
     const sessionStart = activeSession.start_time;
-    calculatedTime = sessionStart && nowTime < sessionStart ? sessionStart : nowTime;
+    const earliestTime =
+      sessionStart && nowTime < sessionStart ? sessionStart : nowTime;
+    const nextSlotTime = lastSlotTime
+      ? addMinutesToTime(lastSlotTime, TOKEN_SLOT_GAP_MINUTES)
+      : earliestTime;
+
+    calculatedTime =
+      timeToMinutes(nextSlotTime) > timeToMinutes(earliestTime)
+        ? nextSlotTime
+        : earliestTime;
   }
 
   // 3. Insert Appointment (status = waiting)
