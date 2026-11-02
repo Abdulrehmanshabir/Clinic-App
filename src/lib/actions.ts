@@ -637,6 +637,7 @@ export async function bookCallAppointment(formData: {
   notes?: string;
   service_id?: string;
   is_online?: boolean;
+  shift?: ClinicShift;
 }) {
   if (!formData.full_name || formData.full_name.trim().length === 0) {
     return { success: false, error: "Patient name is required" };
@@ -705,9 +706,13 @@ export async function bookCallAppointment(formData: {
   }
 
   const baseNotes = formData.notes?.trim() || "Phone Call Appointment";
+  const bookingShift =
+    formData.shift && isClinicShift(formData.shift)
+      ? formData.shift
+      : activeSession.shift;
   const notesToSave = appendShiftTag(
     wantsOnline && !supportsOnlineFlag ? `[ONLINE] ${baseNotes}` : baseNotes,
-    activeSession.shift
+    bookingShift
   );
 
   // 3. Insert Appointment as 'scheduled' without token yet
