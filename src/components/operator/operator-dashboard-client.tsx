@@ -1131,7 +1131,7 @@ export function OperatorDashboardClient({
           setIsWalkInModalOpen(false);
         }}
         hideDefaultHeader={true}
-        maxWidth="lg"
+        maxWidth="md"
       >
         {createdWalkInToken ? (
           <div className="p-5 text-center py-4 space-y-3 relative">
@@ -1524,7 +1524,7 @@ export function OperatorDashboardClient({
           setIsCallModalOpen(false);
         }}
         hideDefaultHeader={true}
-        maxWidth="lg"
+        maxWidth="md"
       >
         {createdCallReservation ? (
           <div className="p-5 text-center py-4 space-y-3 relative">
@@ -1610,7 +1610,7 @@ export function OperatorDashboardClient({
             </div>
           </div>
         ) : (
-          <div className="p-4 sm:p-5 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-lg mx-auto shadow-xl relative">
+          <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
             <ModalCloseButton
               onClick={() => setIsCallModalOpen(false)}
               className="absolute right-3.5 top-3.5"
@@ -1629,9 +1629,9 @@ export function OperatorDashboardClient({
 
             {/* Form Body: Matching Walk-in Card Style */}
             <form onSubmit={handleBookCallAppointment}>
-              <div className="py-2.5 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2.5 max-w-[460px] mx-auto w-full">
+              <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
                 {/* Patient Name Input */}
-                <div className="sm:col-span-2">
+                <div>
                   <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Patient Name
                   </label>
@@ -1711,7 +1711,7 @@ export function OperatorDashboardClient({
                 </div>
 
                 {/* Appointment Date & Time (single combined field) */}
-                <div className="sm:col-span-2 pt-2 border-t border-dashed border-[#D8C5AD]">
+                <div className="pt-2.5 border-t border-dashed border-[#D8C5AD]">
                   <div className="flex items-center justify-between mb-1.5 ml-3 mr-1">
                     <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158]">
                       Appointment Date &amp; Time
@@ -1742,7 +1742,7 @@ export function OperatorDashboardClient({
               </div>
 
               {/* Footer: Cancel & Reserve Appointment */}
-              <div className="mt-3 pt-3 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
+              <div className="mt-4 pt-3.5 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
                 <button
                   type="button"
                   onClick={() => setIsCallModalOpen(false)}
