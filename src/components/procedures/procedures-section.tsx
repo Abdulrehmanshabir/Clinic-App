@@ -27,8 +27,22 @@ interface ProceduresSectionProps {
 // Fallback icons cycling through a set of icons for any number of procedures
 const ICON_POOL = [Zap, Flame, Sparkles, Crosshair, Syringe, Droplets, Stethoscope];
 
+// Six clearly-visible text colors that repeat for any extra procedures
+const TITLE_COLOR_POOL = [
+  "text-[#B91C1C] dark:text-[#F87171]",
+  "text-[#1D4ED8] dark:text-[#60A5FA]",
+  "text-[#15803D] dark:text-[#34D399]",
+  "text-[#7E22CE] dark:text-[#C084FC]",
+  "text-[#C2410C] dark:text-[#FB923C]",
+  "text-[#0F766E] dark:text-[#2DD4BF]",
+];
+
 function getProcedureIcon(index: number) {
   return ICON_POOL[index % ICON_POOL.length];
+}
+
+function getProcedureTitleColor(index: number) {
+  return TITLE_COLOR_POOL[index % TITLE_COLOR_POOL.length];
 }
 
 export function ProceduresSection({
@@ -119,6 +133,7 @@ export function ProceduresSection({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             {categorizedData.map((item, index) => {
               const Icon = getProcedureIcon(index);
+              const titleColor = getProcedureTitleColor(index);
               const isSelected = selectedServiceId === item.service.id;
 
               return (
@@ -159,7 +174,7 @@ export function ProceduresSection({
 
                   {/* Title & Fee */}
                   <div className="space-y-2">
-                    <h4 className="font-serif font-bold text-base sm:text-lg text-[#1A120B] dark:text-[#FFFFFF] leading-snug line-clamp-1">
+                    <h4 className={`font-serif font-bold text-base sm:text-lg leading-snug line-clamp-1 ${titleColor}`}>
                       {item.service.name}
                     </h4>
 
