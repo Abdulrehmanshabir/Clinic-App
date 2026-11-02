@@ -1079,13 +1079,9 @@ export function OperatorDashboardClient({
               </div>
 
               <div className="border-t border-dashed border-[#D8C5AD] mt-3 pt-3 space-y-2.5 text-xs">
-                <div className="text-center pb-1">
-                  <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] dark:text-[#E5C158] block mb-0.5">
-                    Your Token Number
-                  </span>
-                  <span className="text-3xl sm:text-4xl font-mono font-black text-[#1A120B] tracking-widest block leading-none">
-                    {createdWalkInToken.token_num}
-                  </span>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Token Number:</span>
+                  <span className="font-black font-mono text-base sm:text-lg text-[#1A120B] tracking-wider">{createdWalkInToken.token_num}</span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
                   <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Name:</span>
@@ -1102,8 +1098,10 @@ export function OperatorDashboardClient({
                   <span className="font-black text-sm sm:text-base text-[#1A120B]">Walk-In Visit</span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Slot Time:</span>
-                  <span className="text-sm sm:text-base text-[#1A120B] font-mono font-black">{formatClinicTime(createdWalkInToken.time)}</span>
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Reserved Date &amp; Time:</span>
+                  <span className="text-sm sm:text-base text-[#1A120B] font-mono font-black">
+                    {clinicDate} • {formatClinicTime(createdWalkInToken.time)}
+                  </span>
                 </div>
               </div>
 
