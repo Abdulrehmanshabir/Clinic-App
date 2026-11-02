@@ -632,9 +632,9 @@ export function OperatorDashboardClient({
               onClick={handleEndSession}
               disabled={isEndingSession}
               title={`End ${SHIFT_LABELS[activeSession.shift]} session`}
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-[#FEF2F2] text-[#DC2626] dark:bg-[#2A1518] dark:hover:bg-[#3A1B1F] dark:text-[#F87171] border-2 border-[#DC2626] dark:border-[#F87171] font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#7F1D1D] via-[#B91C1C] to-[#EF4444] hover:from-[#991B1B] hover:via-[#DC2626] hover:to-[#F87171] text-white border-2 border-[#991B1B] dark:border-[#F87171] font-bold text-xs sm:text-sm shadow-md shadow-[#DC2626]/25 hover:shadow-lg transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Power className="w-4.5 h-4.5 text-[#DC2626] dark:text-[#F87171]" />
+              <Power className="w-4.5 h-4.5 text-white" />
               <span>{isEndingSession ? "Ending..." : "End Session"}</span>
             </button>
           ) : (
@@ -645,9 +645,9 @@ export function OperatorDashboardClient({
                 setSessionTime(getClinicTimeString());
                 setIsSessionModalOpen(true);
               }}
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-[#FAF7F2] text-[#15803D] dark:bg-[#1A2438] dark:hover:bg-[#223048] dark:text-[#34D399] border-2 border-[#15803D] dark:border-[#34D399] font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#065F46] via-[#047857] to-[#10B981] hover:from-[#047857] hover:via-[#059669] hover:to-[#34D399] text-white border-2 border-[#064E3B] dark:border-[#34D399] font-bold text-xs sm:text-sm shadow-md shadow-[#059669]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
             >
-              <Play className="w-4.5 h-4.5 text-[#15803D] dark:text-[#34D399]" />
+              <Play className="w-4.5 h-4.5 text-white" />
               <span>Start Session</span>
             </button>
           )}
@@ -662,7 +662,7 @@ export function OperatorDashboardClient({
               setIsWalkInModalOpen(true);
             }}
             title={canIssueToken ? "Issue a walk-in token" : "Start a session first"}
-            className={`px-5 py-2.5 rounded-xl bg-[#8C6843] hover:bg-[#785838] text-white dark:bg-[#D4AF37] dark:hover:bg-[#C5A059] dark:text-[#12100E] font-bold text-xs sm:text-sm shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 border-2 border-[#745534] dark:border-[#E5C158] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
+            className={`px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#5C3D22] via-[#8C6843] to-[#B08A5C] hover:from-[#6F4E2E] hover:via-[#A07A50] hover:to-[#C29A6B] text-white dark:from-[#8C6843] dark:via-[#D4AF37] dark:to-[#E5C158] dark:hover:from-[#A07A50] dark:hover:to-[#F0D27A] dark:text-[#12100E] font-bold text-xs sm:text-sm shadow-md shadow-[#8C6843]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 border-2 border-[#4A3018] dark:border-[#E5C158] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
               canIssueToken ? "" : "opacity-50 grayscale"
             }`}
           >
@@ -680,11 +680,11 @@ export function OperatorDashboardClient({
               setIsCallModalOpen(true);
             }}
             title={canIssueToken ? "Book a call appointment" : "Start a session first"}
-            className={`px-5 py-2.5 rounded-xl bg-white hover:bg-[#FAF7F2] text-[#8C6843] dark:bg-[#1A2438] dark:hover:bg-[#223048] dark:text-[#E2E8F0] border-2 border-[#8C6843] dark:border-[#334155] dark:hover:border-[#D4AF37]/50 font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
+            className={`px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#075985] via-[#0284C7] to-[#38BDF8] hover:from-[#0C4A6E] hover:via-[#0369A1] hover:to-[#0EA5E9] text-white dark:from-[#0C4A6E] dark:via-[#0369A1] dark:to-[#0EA5E9] dark:border-[#38BDF8] font-bold text-xs sm:text-sm shadow-md shadow-[#0284C7]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 border-2 border-[#0C4A6E] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
               canIssueToken ? "" : "opacity-50 grayscale"
             }`}
           >
-            <PhoneCall className="w-4.5 h-4.5 text-[#8C6843] dark:text-[#D4AF37]" />
+            <PhoneCall className="w-4.5 h-4.5 text-white" />
             <span>+ Book Call Appointment</span>
           </button>
         </div>
