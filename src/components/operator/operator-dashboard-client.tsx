@@ -1049,7 +1049,7 @@ export function OperatorDashboardClient({
           setIsWalkInModalOpen(false);
         }}
         hideDefaultHeader={true}
-        maxWidth="md"
+        maxWidth="lg"
       >
         {createdWalkInToken ? (
           <div className="p-5 text-center py-4 space-y-3 relative">

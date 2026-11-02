@@ -917,27 +917,6 @@ textarea.placeholder-soft::placeholder {
 }
 
 /* 14. Dedicated High-Contrast Exception for Printable Paper Token Slip */
-.dark #printable-slip {
-  background-color: #FAF7F2 !important;
-  color: #1A120B !important;
-  border-color: #D8C5AD !important;
-}
-.dark #printable-slip * {
-  color: #1A120B !important;
-}
-.dark #printable-slip .text-\[\#A8835A\] {
-  color: #A8835A !important;
-}
-.dark #printable-slip .text-\[\#5C4D3E\] {
-  color: #5C4D3E !important;
-}
-.dark #printable-slip .text-\[\#1A120B\] {
-  color: #1A120B !important;
-}
-.dark #printable-slip .border-\[\#D8C5AD\],
-.dark #printable-slip .border-\[\#EFE6D8\] {
-  border-color: #D8C5AD !important;
-}
 
 /* 15. Dark Mode Scrollbars (Cyan Glow) */
 .dark .custom-scrollbar::-webkit-scrollbar-track {
@@ -1038,12 +1017,14 @@ textarea.placeholder-soft::placeholder {
     transform: translateX(-50%) !important;
     width: 350px !important;
     max-width: 95vw !important;
-    border: 2px dashed #8C6843 !important;
+    border: 2px solid #D8C5AD !important;
     box-shadow: none !important;
     background: #ffffff !important;
     color: #000000 !important;
     padding: 16px !important;
     border-radius: 12px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 
