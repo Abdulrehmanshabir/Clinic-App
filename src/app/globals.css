@@ -98,6 +98,28 @@ body {
   stroke-width: 2.5px;
 }
 
+/* Absent-patient delete: neutral button, forced full-red trash icon */
+.absent-delete-btn {
+  background-color: #FFFFFF !important;
+  color: #DC2626 !important;
+  border-color: #D6CEC2 !important;
+}
+.absent-delete-btn svg,
+.dark .absent-delete-btn svg {
+  color: #DC2626 !important;
+  stroke: #DC2626 !important;
+}
+.absent-delete-btn:hover {
+  border-color: #DC2626 !important;
+}
+.dark .absent-delete-btn {
+  background-color: #1C1917 !important;
+  border-color: #3F3730 !important;
+}
+.dark .absent-delete-btn:hover {
+  border-color: #DC2626 !important;
+}
+
 /* 4. Secondary Action Buttons (Deep Charcoal Slate with Gold/Bronze Hover) */
 .dark button.bg-\[\#FAF7F2\],
 .dark button.bg-\[\#F4EFE6\] {
