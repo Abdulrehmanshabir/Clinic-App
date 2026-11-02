@@ -24,7 +24,6 @@ import {
   Phone,
   Calendar,
   Printer,
-  MapPin,
   Eye,
   ChevronDown,
   Globe,
@@ -1053,15 +1052,15 @@ export function OperatorDashboardClient({
               }}
               className="absolute right-0 top-0"
             />
-            <div className="w-10 h-10 rounded-2xl bg-[#E6F4EA] text-[#15803D] mx-auto flex items-center justify-center border border-[#BBF7D0] shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#E0F2FE] text-[#0369A1] mx-auto flex items-center justify-center border border-[#BAE6FD] shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-xl font-serif font-black text-[#1A120B]">Patient Added to Doctor Queue</h4>
-              <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">Official token slip generated successfully.</p>
+              <h4 className="text-xl font-serif font-black text-[#1A120B]">Token Issued Successfully</h4>
+              <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">Patient added to the doctor queue.</p>
             </div>
 
-            {/* Printable Aesthetic Token Slip Card */}
+            {/* Aesthetic Confirmation Slip Card */}
             <div
               id="printable-slip"
               className="p-5 sm:p-6 rounded-2xl bg-[#FFFFFF] border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative"
@@ -1074,18 +1073,20 @@ export function OperatorDashboardClient({
                   {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
                 </p>
                 <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{clinicDate}</p>
+                <div className="inline-block mt-1 px-3 py-0.5 rounded-full bg-[#E0F2FE] text-[#0369A1] text-[11px] font-black border border-[#BAE6FD]">
+                  Status: In Doctor Queue
+                </div>
               </div>
 
-              <div className="text-center my-2.5">
-                <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] dark:text-[#E5C158] block mb-0.5">
-                  Your Token Number
-                </span>
-                <span className="text-3xl sm:text-4xl font-mono font-black text-[#1A120B] tracking-widest block py-0.5">
-                  {createdWalkInToken.token_num}
-                </span>
-              </div>
-
-              <div className="border-t border-dashed border-[#D8C5AD] pt-3 space-y-2.5">
+              <div className="border-t border-dashed border-[#D8C5AD] mt-3 pt-3 space-y-2.5 text-xs">
+                <div className="text-center pb-1">
+                  <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] dark:text-[#E5C158] block mb-0.5">
+                    Your Token Number
+                  </span>
+                  <span className="text-3xl sm:text-4xl font-mono font-black text-[#1A120B] tracking-widest block leading-none">
+                    {createdWalkInToken.token_num}
+                  </span>
+                </div>
                 <div className="flex justify-between items-center gap-2">
                   <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Name:</span>
                   <span className="font-black text-[#1A120B] text-base sm:text-lg font-serif">{createdWalkInToken.patient_name}</span>
@@ -1097,38 +1098,16 @@ export function OperatorDashboardClient({
                   </div>
                 )}
                 <div className="flex justify-between items-center gap-2">
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Mode:</span>
+                  <span className="font-black text-sm sm:text-base text-[#1A120B]">Walk-In Visit</span>
+                </div>
+                <div className="flex justify-between items-center gap-2">
                   <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Slot Time:</span>
                   <span className="text-sm sm:text-base text-[#1A120B] font-mono font-black">{formatClinicTime(createdWalkInToken.time)}</span>
                 </div>
               </div>
 
-              {/* Dynamic Clinic Contact & Hours from Settings */}
-              {(clinicSettings?.phone || clinicSettings?.address || clinicSettings?.opening_time || clinicSettings?.closing_time) && (
-                <div className="mt-3 pt-2.5 border-t border-dashed border-[#D8C5AD] space-y-1 text-[11px] text-[#4A3522]">
-                  {clinicSettings.phone && (
-                    <div className="flex items-center gap-1.5 font-bold">
-                      <Phone className="w-3 h-3 text-[#A8835A]" />
-                      <span className="font-mono">{clinicSettings.phone}</span>
-                    </div>
-                  )}
-                  {clinicSettings.address && (
-                    <div className="flex items-start gap-1.5">
-                      <MapPin className="w-3 h-3 text-[#A8835A] shrink-0 mt-0.5" />
-                      <span className="font-medium leading-tight">{clinicSettings.address}</span>
-                    </div>
-                  )}
-                  {(clinicSettings?.opening_time || clinicSettings?.closing_time) && (
-                    <div className="flex items-center gap-1.5 font-bold">
-                      <Clock className="w-3 h-3 text-[#A8835A] shrink-0" />
-                      <span className="font-mono text-[10px]">
-                        Hours: {clinicSettings.opening_time ? formatClinicTime(clinicSettings.opening_time) : "--:--"} - {clinicSettings.closing_time ? formatClinicTime(clinicSettings.closing_time) : "--:--"}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="mt-2.5 pt-2 border-t border-[#EFE6D8] text-center text-[11px] sm:text-xs text-[#1A120B] font-black italic tracking-tight whitespace-nowrap">
+              <div className="mt-3 pt-2.5 border-t border-dashed border-[#D8C5AD] text-center text-[11px] sm:text-xs text-[#5C4D3E] font-bold italic">
                 Please wait comfortably until your number is called.
               </div>
             </div>
@@ -1137,7 +1116,7 @@ export function OperatorDashboardClient({
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="px-5 py-2.5 rounded-2xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs font-bold transition flex items-center gap-2 border border-[#E9DFD1]"
+                className="px-5 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs font-bold transition flex items-center gap-2 border border-[#E9DFD1]"
               >
                 <Printer className="w-4 h-4 text-[#A8835A]" />
                 Print Slip
@@ -1148,7 +1127,7 @@ export function OperatorDashboardClient({
                   setCreatedWalkInToken(null);
                   setIsWalkInModalOpen(false);
                 }}
-                className="px-6 py-2.5 rounded-2xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] text-xs font-bold transition shadow-md"
+                className="px-7 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] text-xs font-bold transition shadow-md"
               >
                 Done & Return
               </button>
