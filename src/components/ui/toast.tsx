@@ -22,6 +22,36 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+const TOAST_STYLES: Record<
+  ToastType,
+  { accent: string; iconBox: string; glow: string; border: string }
+> = {
+  success: {
+    accent: "from-[#047857] via-[#10B981] to-[#6EE7B7]",
+    iconBox: "bg-[#ECFDF5] text-[#047857] ring-[#A7F3D0]",
+    glow: "bg-[#6EE7B7]/25",
+    border: "border-[#BBF7D0] dark:border-[#065F46]",
+  },
+  error: {
+    accent: "from-[#9F1239] via-[#E11D48] to-[#FDA4AF]",
+    iconBox: "bg-[#FFF1F2] text-[#BE123C] ring-[#FECDD3]",
+    glow: "bg-[#FDA4AF]/25",
+    border: "border-[#FECDD3] dark:border-[#881337]",
+  },
+  warning: {
+    accent: "from-[#B45309] via-[#F59E0B] to-[#FCD34D]",
+    iconBox: "bg-[#FFFBEB] text-[#B45309] ring-[#FDE68A]",
+    glow: "bg-[#FCD34D]/25",
+    border: "border-[#FDE68A] dark:border-[#78350F]",
+  },
+  info: {
+    accent: "from-[#0369A1] via-[#0EA5E9] to-[#7DD3FC]",
+    iconBox: "bg-[#F0F9FF] text-[#0369A1] ring-[#BAE6FD]",
+    glow: "bg-[#7DD3FC]/25",
+    border: "border-[#BAE6FD] dark:border-[#0C4A6E]",
+  },
+};
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -62,38 +92,54 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast: addToast, success, error, info, warning }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 max-w-md w-full pointer-events-none px-4">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-lg border backdrop-blur-md transition-all duration-300 animate-in slide-in-from-bottom-5 ${
-              t.type === "success"
-                ? "bg-emerald-950/90 border-emerald-500/30 text-emerald-100"
-                : t.type === "error"
-                ? "bg-rose-950/90 border-rose-500/30 text-rose-100"
-                : t.type === "warning"
-                ? "bg-amber-950/90 border-amber-500/30 text-amber-100"
-                : "bg-slate-900/90 border-slate-700 text-slate-100"
-            }`}
-          >
-            <div className="mt-0.5 shrink-0">
-              {t.type === "success" && <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
-              {t.type === "error" && <AlertCircle className="w-5 h-5 text-rose-400" />}
-              {t.type === "warning" && <AlertTriangle className="w-5 h-5 text-amber-400" />}
-              {t.type === "info" && <Info className="w-5 h-5 text-sky-400" />}
-            </div>
-            <div className="flex-1 text-sm">
-              <p className="font-semibold">{t.title}</p>
-              {t.message && <p className="mt-0.5 text-xs opacity-90">{t.message}</p>}
-            </div>
-            <button
-              onClick={() => removeToast(t.id)}
-              className="shrink-0 p-1 hover:bg-white/10 rounded-md transition-colors"
+      <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2.5 w-[calc(100vw-2rem)] sm:w-[380px] max-w-[calc(100vw-2rem)] pointer-events-none">
+        {toasts.map((t) => {
+          const style = TOAST_STYLES[t.type];
+
+          return (
+            <div
+              key={t.id}
+              role="status"
+              className={`pointer-events-auto relative overflow-hidden flex items-start gap-3 p-4 pl-5 rounded-2xl border bg-[#FFFDF9]/95 dark:bg-[#131B2A]/95 backdrop-blur-xl text-[#1A120B] dark:text-[#F8FAFC] shadow-[0_18px_45px_rgba(26,18,11,0.18)] dark:shadow-[0_18px_45px_rgba(0,0,0,0.5)] transition-all duration-300 animate-in slide-in-from-top-4 fade-in ${style.border}`}
             >
-              <X className="w-4 h-4 opacity-70 hover:opacity-100" />
-            </button>
-          </div>
-        ))}
+              <span
+                className={`pointer-events-none absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${style.accent}`}
+              />
+              <span
+                className={`pointer-events-none absolute -right-8 -top-8 w-24 h-24 rounded-full blur-2xl ${style.glow}`}
+              />
+
+              <div
+                className={`relative shrink-0 w-10 h-10 rounded-xl ring-1 flex items-center justify-center shadow-xs ${style.iconBox}`}
+              >
+                {t.type === "success" && <CheckCircle2 className="w-5 h-5" />}
+                {t.type === "error" && <AlertCircle className="w-5 h-5" />}
+                {t.type === "warning" && <AlertTriangle className="w-5 h-5" />}
+                {t.type === "info" && <Info className="w-5 h-5" />}
+              </div>
+
+              <div className="relative flex-1 min-w-0">
+                <p className="font-serif text-sm sm:text-base font-black leading-snug">
+                  {t.title}
+                </p>
+                {t.message && (
+                  <p className="mt-0.5 text-xs sm:text-sm font-semibold text-[#6B5A47] dark:text-[#CBD5E1] leading-snug">
+                    {t.message}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => removeToast(t.id)}
+                aria-label="Close notification"
+                className="relative shrink-0 p-1.5 rounded-lg text-[#8C6843] dark:text-[#94A3B8] hover:bg-[#F4EFE6] dark:hover:bg-[#1E293B] transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          );
+        })}
       </div>
     </ToastContext.Provider>
   );
