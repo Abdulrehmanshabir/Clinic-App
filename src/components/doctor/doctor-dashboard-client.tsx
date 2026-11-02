@@ -656,9 +656,6 @@ export function DoctorDashboardClient({
                     <Clock className="w-3.5 h-3.5 text-[#E6D5C3]" />
                     Next In Line (Waiting)
                   </span>
-                  <span className="text-xs px-3 py-1 rounded-xl bg-[#FCFAF6] text-[#1A120B] font-black border border-[#E8DFD1] shadow-2xs">
-                    Pos #{nextPatientInLine.token?.queue_position || 1}
-                  </span>
                 </div>
                 <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-[#F4EFE6] px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] shadow-xs">
                   {nextPatientInLine.token?.token_number}
@@ -669,9 +666,6 @@ export function DoctorDashboardClient({
                 <h3 className="text-xl sm:text-2xl font-serif font-black text-[#1A120B] dark:text-[#FFFFFF] leading-snug">
                   {nextPatientInLine.patient?.full_name}
                 </h3>
-                <p className="text-sm text-[#8C6843] dark:text-[#E5C158] mt-1 font-bold">
-                  ID: {nextPatientInLine.patient?.patient_number} • {nextPatientInLine.patient?.gender} • {nextPatientInLine.patient?.phone}
-                </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
