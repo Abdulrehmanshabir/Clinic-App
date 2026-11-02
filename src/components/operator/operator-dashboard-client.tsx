@@ -351,7 +351,7 @@ export function OperatorDashboardClient({
   const nextEstimatedToken = React.useMemo(() => {
     if (!activeSession) return "Start Session";
     const sessionTokenCount = scopedAppointments.filter(
-      (a) => a.token != null
+      (a) => a.token != null && !isProcedureAppointment(a)
     ).length;
     return `${getShiftTokenPrefix(activeSession.shift)}${String(
       sessionTokenCount + 1
