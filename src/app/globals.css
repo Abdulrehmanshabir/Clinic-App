@@ -326,6 +326,38 @@ textarea.placeholder-soft::placeholder {
   stroke: #FACC15 !important;
 }
 
+/* 1b-2. Peach Cards (Soft warm typography) */
+.stat-card-peach {
+  background: linear-gradient(135deg, #FFE8D2 0%, #FFCDA8 55%, #FDBA74 100%) !important;
+  background-color: #FFCBA4 !important;
+  border: 1.5px solid #FB923C !important;
+  color: #5C2E0E !important;
+}
+.stat-card-peach .stat-card-title,
+.dark .stat-card-peach .stat-card-title {
+  color: #5C2E0E !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+.stat-card-peach .stat-card-value,
+.dark .stat-card-peach .stat-card-value {
+  color: #5C2E0E !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+.stat-icon-peach,
+.dark .stat-icon-peach {
+  background-color: #5C2E0E !important;
+  border: 1.5px solid rgba(92, 46, 14, 0.35) !important;
+  color: #FFE8D2 !important;
+}
+.stat-icon-peach svg,
+.dark .stat-icon-peach svg {
+  color: #FFE8D2 !important;
+  stroke: #FFE8D2 !important;
+}
+
 /* 1c. Navy Blue Cards (Pure white typography) */
 .stat-card-navy {
   background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%) !important;
@@ -779,6 +811,7 @@ textarea.placeholder-soft::placeholder {
 .stat-card-indigo:hover,
 .stat-card-emerald:hover,
 .stat-card-orange:hover,
+.stat-card-peach:hover,
 .stat-card-red:hover,
 .stat-card-purple:hover,
 .stat-card-violet:hover,
@@ -797,6 +830,7 @@ textarea.placeholder-soft::placeholder {
 .dark .stat-card-indigo:hover,
 .dark .stat-card-emerald:hover,
 .dark .stat-card-orange:hover,
+.dark .stat-card-peach:hover,
 .dark .stat-card-red:hover,
 .dark .stat-card-purple:hover,
 .dark .stat-card-violet:hover,

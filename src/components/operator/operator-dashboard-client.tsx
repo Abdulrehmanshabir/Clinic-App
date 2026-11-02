@@ -740,7 +740,7 @@ export function OperatorDashboardClient({
           title="Procedure"
           value={procedureCount}
           icon={Sparkles}
-          variant="emerald"
+          variant="peach"
           active={filter === "procedure"}
           onClick={() => setFilter("procedure")}
         />

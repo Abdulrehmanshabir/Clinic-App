@@ -516,7 +516,7 @@ export function DoctorDashboardClient({
           title="Procedure"
           value={procedureCount}
           icon={Sparkles}
-          variant="emerald"
+          variant="peach"
           active={activeFilter === "procedure"}
           onClick={() => setActiveFilter("procedure")}
         />
