@@ -35,7 +35,6 @@ import {
   Power,
   Sun,
   Moon,
-  BellRing,
 } from "lucide-react";
 import { formatClinicTime, getClinicTimeString, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { SHIFT_LABELS, getAppointmentShift, getShiftTokenPrefix } from "@/lib/session";
@@ -71,7 +70,6 @@ export function OperatorDashboardClient({
   const [filter, setFilter] = useState<string>("all");
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [viewedNoteStamps, setViewedNoteStamps] = useState<Record<string, string>>({});
-  const [isBellReady, setIsBellReady] = useState(false);
   const previousStatusesRef = React.useRef<Record<string, { status: string; updated_at: string }> | null>(null);
   const lastBellAtRef = React.useRef(0);
   const lastBreakBellAtRef = React.useRef(0);
@@ -218,20 +216,19 @@ export function OperatorDashboardClient({
     previousBreakStartedAtRef.current = startedAt;
   }, [doctorBreak, ringBreakBell]);
 
-  // Unlock audio after the operator's first interaction so the doctor's call bell can play
+  // Unlock audio automatically on the operator's first interaction so the doctor's bell can play
   React.useEffect(() => {
-    const unlock = async () => {
-      if (await unlockAudio()) setIsBellReady(true);
+    const onGesture = () => {
+      void unlockAudio();
     };
-    const onFirstGesture = () => {
-      void unlock();
-    };
-    window.addEventListener("pointerdown", onFirstGesture, { once: true });
-    window.addEventListener("keydown", onFirstGesture, { once: true });
-    void unlock();
+    window.addEventListener("pointerdown", onGesture, { once: true });
+    window.addEventListener("keydown", onGesture, { once: true });
+    window.addEventListener("touchstart", onGesture, { once: true, passive: true });
+    void unlockAudio();
     return () => {
-      window.removeEventListener("pointerdown", onFirstGesture);
-      window.removeEventListener("keydown", onFirstGesture);
+      window.removeEventListener("pointerdown", onGesture);
+      window.removeEventListener("keydown", onGesture);
+      window.removeEventListener("touchstart", onGesture);
     };
   }, []);
 
@@ -629,22 +626,6 @@ export function OperatorDashboardClient({
 
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
-          {!isBellReady && (
-            <button
-              onClick={async () => {
-                if (await unlockAudio()) {
-                  setIsBellReady(true);
-                  ringBell();
-                }
-              }}
-              title="Enable the doctor call bell sound on this device"
-              className="px-4 py-2.5 rounded-xl bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#92400E] border-2 border-[#D97706] font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
-            >
-              <BellRing className="w-4.5 h-4.5 animate-pulse" />
-              <span>Enable Bell</span>
-            </button>
-          )}
-
           {/* Button 0: Start / End Session */}
           {activeSession ? (
             <button

@@ -49,14 +49,14 @@ export function DoctorBreakBanner({
     <div
       className={
         isOperatorAlert
-          ? "p-4 sm:px-6 sm:py-4.5 rounded-3xl bg-gradient-to-r from-[#4C1D95] via-[#5B21B6] to-[#7C3AED] dark:from-[#2E1065] dark:via-[#4C1D95] dark:to-[#6D28D9] border-2 border-[#C4B5FD] dark:border-[#A78BFA] shadow-[0_12px_35px_rgba(124,58,237,0.35)] dark:shadow-[0_12px_35px_rgba(0,0,0,0.55)] relative overflow-hidden transition-all duration-200"
+          ? "p-4 sm:px-6 sm:py-4.5 rounded-3xl bg-gradient-to-r from-[#064E3B] via-[#047857] to-[#059669] dark:from-[#022C22] dark:via-[#064E3B] dark:to-[#047857] border-2 border-[#6EE7B7] dark:border-[#34D399] shadow-[0_12px_35px_rgba(5,150,105,0.35)] dark:shadow-[0_12px_35px_rgba(0,0,0,0.55)] relative overflow-hidden transition-all duration-200"
           : "p-4 sm:px-6 sm:py-4.5 rounded-3xl bg-gradient-to-r from-[#FCFAF6] via-[#FAF5EE] to-[#FCFAF6] dark:from-[#131B2A] dark:via-[#1A2438] dark:to-[#131B2A] border-2 border-[#8C6843] dark:border-[#D4AF37] shadow-lg shadow-[#8C6843]/10 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] relative overflow-hidden transition-all duration-200"
       }
     >
       {isOperatorAlert && (
         <>
-          <div className="absolute -right-12 -top-12 w-44 h-44 rounded-full bg-[#DDD6FE]/25 blur-3xl pointer-events-none" />
-          <div className="absolute -left-10 -bottom-12 w-40 h-40 rounded-full bg-[#C4B5FD]/20 blur-3xl pointer-events-none" />
+          <div className="absolute -right-12 -top-12 w-44 h-44 rounded-full bg-[#A7F3D0]/25 blur-3xl pointer-events-none" />
+          <div className="absolute -left-10 -bottom-12 w-40 h-40 rounded-full bg-[#6EE7B7]/20 blur-3xl pointer-events-none" />
         </>
       )}
 
@@ -74,12 +74,12 @@ export function DoctorBreakBanner({
             {getIcon("w-6 h-6")}
             <span
               className={`absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping ${
-                isOperatorAlert ? "bg-[#DDD6FE]" : "bg-[#E5C158] dark:bg-[#34D399]"
+                isOperatorAlert ? "bg-[#A7F3D0]" : "bg-[#E5C158] dark:bg-[#34D399]"
               }`}
             />
             <span
               className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ring-2 ring-white ${
-                isOperatorAlert ? "bg-[#DDD6FE]" : "bg-[#E5C158] dark:bg-[#34D399] dark:ring-[#131B2A]"
+                isOperatorAlert ? "bg-[#A7F3D0]" : "bg-[#E5C158] dark:bg-[#34D399] dark:ring-[#131B2A]"
               }`}
             />
           </div>
@@ -90,13 +90,13 @@ export function DoctorBreakBanner({
               <span
                 className={
                   isOperatorAlert
-                    ? "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F5F3FF] text-[#5B21B6] border-2 border-[#C4B5FD] text-[11px] font-black uppercase tracking-wider shadow-sm"
+                    ? "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#065F46] border-2 border-[#A7F3D0] text-[11px] font-black uppercase tracking-wider shadow-sm"
                     : "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#8C6843] border-2 border-[#8C6843] dark:bg-[#0B1120] dark:text-[#CBD5E1] dark:border-2 dark:border-[#334155] text-[11px] font-black uppercase tracking-wider shadow-2xs"
                 }
               >
                 <PauseCircle
                   className={`w-3.5 h-3.5 ${
-                    isOperatorAlert ? "text-[#7C3AED]" : "text-[#8C6843] dark:text-[#94A3B8]"
+                    isOperatorAlert ? "text-[#047857]" : "text-[#8C6843] dark:text-[#94A3B8]"
                   }`}
                 />
                 {isDoctorView ? "You Are On Break" : "Doctor On Break"}
@@ -106,7 +106,7 @@ export function DoctorBreakBanner({
               <span
                 className={
                   isOperatorAlert
-                    ? "inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/20 text-white border-2 border-white/40 backdrop-blur-md text-xs sm:text-sm font-black tracking-tight shadow-sm"
+                    ? "inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#065F46] text-white border-2 border-[#A7F3D0] text-xs sm:text-sm font-black tracking-tight shadow-sm"
                     : "inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#8C6843] text-white border-2 border-[#745534] dark:bg-[#D4AF37] dark:text-[#12100E] dark:border-2 dark:border-[#E5C158] text-xs sm:text-sm font-black tracking-tight shadow-sm dark:shadow-[0_4px_16px_rgba(212,175,55,0.25)]"
                 }
               >
@@ -120,13 +120,13 @@ export function DoctorBreakBanner({
               <div
                 className={
                   isOperatorAlert
-                    ? "flex items-center gap-2 mt-2 text-sm sm:text-base text-white/95 font-semibold bg-white/15 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/25 w-fit"
+                    ? "flex items-center gap-2 mt-2 text-sm sm:text-base text-white font-semibold bg-[#022C22]/45 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-[#6EE7B7]/50 w-fit"
                     : "flex items-center gap-2 mt-2 text-sm sm:text-base text-[#5C4D3E] dark:text-[#E2E8F0] font-semibold bg-white/70 dark:bg-[#0B1120]/70 px-3.5 py-1.5 rounded-xl border border-[#E8DFD1] dark:border-[#243248] w-fit"
                 }
               >
                 <MessageSquare
                   className={`w-4 h-4 shrink-0 ${
-                    isOperatorAlert ? "text-[#DDD6FE]" : "text-[#8C6843] dark:text-[#D4AF37]"
+                    isOperatorAlert ? "text-[#A7F3D0]" : "text-[#8C6843] dark:text-[#D4AF37]"
                   }`}
                 />
                 <span className="italic">&ldquo;{breakInfo.custom_reason?.trim()}&rdquo;</span>
@@ -158,8 +158,8 @@ export function DoctorBreakBanner({
             </button>
           </div>
         ) : (
-          <div className="shrink-0 hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 text-[11px] font-black uppercase tracking-[0.18em] text-[#EDE9FE]">
-            <span className="w-2 h-2 rounded-full bg-[#DDD6FE] animate-pulse" />
+          <div className="shrink-0 hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[#022C22]/40 backdrop-blur-md border border-[#6EE7B7]/50 text-[11px] font-black uppercase tracking-[0.18em] text-[#ECFDF5]">
+            <span className="w-2 h-2 rounded-full bg-[#A7F3D0] animate-pulse" />
             Reception Alert
           </div>
         )}
