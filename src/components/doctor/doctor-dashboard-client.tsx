@@ -728,13 +728,6 @@ export function DoctorDashboardClient({
         )}
       </div>
 
-      {/* Clinical Procedures & Patient Demand Section */}
-      <ProceduresSection
-        appointments={scopedAppointments}
-        services={services}
-        isDoctorView={true}
-      />
-
       {/* Main Live Queue Table (Exact Column Headers & Styling Matching Operator Desk) */}
       <div className="rounded-3xl border border-[#E8DFD1] bg-[#FCFAF6] overflow-hidden aesthetic-card-shadow">
         <div className="px-5 sm:px-7 py-5 border-b border-[#E8DFD1] bg-[#FAF7F2] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -943,6 +936,13 @@ export function DoctorDashboardClient({
           </table>
         </div>
       </div>
+
+      {/* Clinical Procedures & Patient Demand Section */}
+      <ProceduresSection
+        appointments={scopedAppointments}
+        services={services}
+        isDoctorView={true}
+      />
 
       {/* Doctor Consultation Modal */}
       <ConsultationModal
