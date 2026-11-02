@@ -550,30 +550,34 @@ export function DoctorDashboardClient({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Card 1: Currently In Consultation */}
         {activeConsultation ? (
-          <div className="p-6 rounded-3xl bg-[#FCFAF6] border border-[#E8DFD1] aesthetic-card-shadow flex flex-col justify-between relative overflow-hidden">
-            <div className="space-y-3.5">
-              <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1A120B] text-[#FCFAF6] text-xs font-bold uppercase tracking-wider shadow-sm">
+          <div className="p-6 rounded-3xl bg-gradient-to-br from-[#FFFDF9] via-[#FCFAF6] to-[#F3E9DA] dark:from-[#131B2A] dark:via-[#151E30] dark:to-[#1A2438] border border-[#E3D6C4] dark:border-[#2D3E58] aesthetic-card-shadow flex flex-col justify-between relative overflow-hidden">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#8C6843] via-[#D4AF37] to-[#E5C158]" />
+            <div className="pointer-events-none absolute -right-16 -top-16 w-44 h-44 rounded-full bg-[#D4AF37]/10 blur-2xl" />
+            <div className="pointer-events-none absolute -left-12 -bottom-16 w-40 h-40 rounded-full bg-[#8C6843]/5 blur-2xl" />
+
+            <div className="relative space-y-3.5">
+              <div className="flex items-center justify-between gap-3">
+                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1A120B] text-[#FCFAF6] text-xs font-bold uppercase tracking-wider shadow-md shadow-[#10B981]/20 ring-1 ring-white/15">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-ping" />
                   Currently In Room
                 </span>
-                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-[#F4EFE6] px-4 py-1.5 rounded-2xl border border-[#E8DFD1] shadow-2xs">
+                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] dark:border-[#2D3E58] shadow-sm">
                   {activeConsultation.token?.token_number}
                 </span>
               </div>
 
               <div>
-                <h3 className="text-xl sm:text-2xl font-serif font-black text-[#1A120B] dark:text-[#FFFFFF] leading-snug">
+                <h3 className="text-2xl sm:text-3xl font-serif font-black text-[#1A120B] dark:text-[#FFFFFF] leading-tight tracking-tight">
                   {activeConsultation.patient?.full_name}
                 </h3>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
-                <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] dark:bg-[#1A2234] border border-[#E9DFD1] dark:border-[#2D3E58] font-black text-[#2B1E14] dark:text-[#F8FAFC] flex items-center gap-1.5">
+                <span className="px-3.5 py-1.5 rounded-xl bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur border border-[#E9DFD1] dark:border-[#2D3E58] font-black text-[#2B1E14] dark:text-[#F8FAFC] flex items-center gap-1.5 shadow-2xs">
                   <Sparkles className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
-                  {activeConsultation.service?.name || "Expert Laser & Skin Consultation"}
+                  {activeConsultation.service?.name || "Skin Consultation"}
                 </span>
-                <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] dark:bg-[#1A2234] border border-[#E9DFD1] dark:border-[#2D3E58] font-black text-[#2B1E14] dark:text-[#F8FAFC] flex items-center gap-1.5 font-mono">
+                <span className="px-3.5 py-1.5 rounded-xl bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur border border-[#E9DFD1] dark:border-[#2D3E58] font-black text-[#2B1E14] dark:text-[#F8FAFC] flex items-center gap-1.5 font-mono shadow-2xs">
                   <Clock className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
                   {formatClinicTime(activeConsultation.appointment_time)}
                 </span>
@@ -648,33 +652,37 @@ export function DoctorDashboardClient({
 
         {/* Card 2: Next Patient In Line */}
         {nextPatientInLine ? (
-          <div className="p-6 rounded-3xl bg-[#FCFAF6] border border-[#E8DFD1] aesthetic-card-shadow flex flex-col justify-between">
-            <div className="space-y-3.5">
-              <div className="flex items-center justify-between">
+          <div className="p-6 rounded-3xl bg-gradient-to-br from-[#FFFDF9] via-[#FCFAF6] to-[#F6ECDD] dark:from-[#131B2A] dark:via-[#151E30] dark:to-[#1A2438] border border-[#E3D6C4] dark:border-[#2D3E58] aesthetic-card-shadow flex flex-col justify-between relative overflow-hidden">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#1A120B] via-[#8C6843] to-[#E5C158]" />
+            <div className="pointer-events-none absolute -left-16 -top-16 w-44 h-44 rounded-full bg-[#8C6843]/10 blur-2xl" />
+            <div className="pointer-events-none absolute -right-12 -bottom-16 w-40 h-40 rounded-full bg-[#D4AF37]/10 blur-2xl" />
+
+            <div className="relative space-y-3.5">
+              <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1A120B] text-[#FCFAF6] text-xs font-black uppercase tracking-wider shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1A120B] text-[#FCFAF6] text-xs font-black uppercase tracking-wider shadow-md shadow-[#8C6843]/20 ring-1 ring-white/15">
                     <Clock className="w-3.5 h-3.5 text-[#E6D5C3]" />
                     Next In Line (Waiting)
                   </span>
                 </div>
-                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-[#F4EFE6] px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] shadow-xs">
+                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] dark:border-[#2D3E58] shadow-sm">
                   {nextPatientInLine.token?.token_number}
                 </span>
               </div>
 
               <div>
-                <h3 className="text-xl sm:text-2xl font-serif font-black text-[#1A120B] dark:text-[#FFFFFF] leading-snug">
+                <h3 className="text-2xl sm:text-3xl font-serif font-black text-[#1A120B] dark:text-[#FFFFFF] leading-tight tracking-tight">
                   {nextPatientInLine.patient?.full_name}
                 </h3>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
-                <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] font-black text-[#2B1E14] flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#A8835A]" />
-                  {nextPatientInLine.service?.name || "Expert Laser & Skin Consultation"}
+                <span className="px-3.5 py-1.5 rounded-xl bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur border border-[#E9DFD1] dark:border-[#2D3E58] font-black text-[#2B1E14] dark:text-[#F8FAFC] flex items-center gap-1.5 shadow-2xs">
+                  <Sparkles className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
+                  {nextPatientInLine.service?.name || "Skin Consultation"}
                 </span>
-                <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] font-black text-[#2B1E14] flex items-center gap-1.5 font-mono">
-                  <Clock className="w-4 h-4 text-[#A8835A]" />
+                <span className="px-3.5 py-1.5 rounded-xl bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur border border-[#E9DFD1] dark:border-[#2D3E58] font-black text-[#2B1E14] dark:text-[#F8FAFC] flex items-center gap-1.5 font-mono shadow-2xs">
+                  <Clock className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
                   Arrival: {formatClinicTime(nextPatientInLine.appointment_time)}
                 </span>
               </div>
