@@ -662,65 +662,66 @@ export function OperatorDashboardClient({
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Action Header - Clean Luxury Banner */}
-      <div className="p-6 rounded-3xl bg-[#FCFAF6] border border-[#E8DFD1] aesthetic-card-shadow flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-        <div>
+      <div className="p-6 rounded-3xl bg-[#FCFAF6] border border-[#E8DFD1] aesthetic-card-shadow flex flex-col xl:flex-row xl:items-center justify-between gap-5">
+        <div className="min-w-0">
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A120B] dark:text-[#FFFFFF] tracking-tight">
             Front Desk & Patient Reception
           </h2>
           <p className="text-sm sm:text-base text-[#8C6843] dark:text-[#E5C158] font-bold mt-1">
             Manage walk-in tokens, call bookings, and patient queue in real-time.
           </p>
-          {activeSession && (
-            <span
-              className={`inline-flex items-center gap-2 mt-2 px-3.5 py-1.5 rounded-xl border-2 text-xs font-black shadow-sm ${
-                activeSession.shift === "evening"
-                  ? "bg-gradient-to-r from-[#EEF2FF] via-[#F5F3FF] to-[#E0E7FF] dark:from-[#1E1B4B] dark:via-[#2E1065] dark:to-[#312E81] text-[#5B21B6] dark:text-[#DDD6FE] border-[#8B5CF6] dark:border-[#7C3AED] shadow-[0_0_14px_rgba(124,58,237,0.22)]"
-                  : "bg-gradient-to-r from-[#FEF9C3] via-[#FEF3C7] to-[#FDE68A] dark:from-[#2A1F0F] dark:via-[#3A2A10] dark:to-[#4A3510] text-[#92400E] dark:text-[#FCD34D] border-[#F59E0B] dark:border-[#B45309] shadow-[0_0_14px_rgba(217,119,6,0.18)]"
-              }`}
-            >
-              {activeSession.shift === "evening" ? (
-                <Moon className="w-3.5 h-3.5" />
-              ) : (
-                <Sun className="w-3.5 h-3.5" />
-              )}
-              <span
-                className={`w-2 h-2 rounded-full animate-pulse ${
-                  activeSession.shift === "evening" ? "bg-[#7C3AED] dark:bg-[#A78BFA]" : "bg-[#D97706] dark:bg-[#FCD34D]"
-                }`}
-              />
-              {SHIFT_LABELS[activeSession.shift]} session active
-              {activeSession.start_time ? `  ${formatClinicTime(activeSession.start_time)}` : ""}
-            </span>
-          )}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {activeSession ? (
+              <>
+                <span
+                  className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border-2 text-xs font-black shadow-sm ${
+                    activeSession.shift === "evening"
+                      ? "bg-gradient-to-r from-[#EEF2FF] via-[#F5F3FF] to-[#E0E7FF] dark:from-[#1E1B4B] dark:via-[#2E1065] dark:to-[#312E81] text-[#5B21B6] dark:text-[#DDD6FE] border-[#8B5CF6] dark:border-[#7C3AED] shadow-[0_0_14px_rgba(124,58,237,0.22)]"
+                      : "bg-gradient-to-r from-[#FEF9C3] via-[#FEF3C7] to-[#FDE68A] dark:from-[#2A1F0F] dark:via-[#3A2A10] dark:to-[#4A3510] text-[#92400E] dark:text-[#FCD34D] border-[#F59E0B] dark:border-[#B45309] shadow-[0_0_14px_rgba(217,119,6,0.18)]"
+                  }`}
+                >
+                  {activeSession.shift === "evening" ? (
+                    <Moon className="w-3.5 h-3.5" />
+                  ) : (
+                    <Sun className="w-3.5 h-3.5" />
+                  )}
+                  <span
+                    className={`w-2 h-2 rounded-full animate-pulse ${
+                      activeSession.shift === "evening" ? "bg-[#7C3AED] dark:bg-[#A78BFA]" : "bg-[#D97706] dark:bg-[#FCD34D]"
+                    }`}
+                  />
+                  {SHIFT_LABELS[activeSession.shift]} session active
+                  {activeSession.start_time ? `  ${formatClinicTime(activeSession.start_time)}` : ""}
+                </span>
+                <button
+                  onClick={handleEndSession}
+                  disabled={isEndingSession}
+                  title={`End ${SHIFT_LABELS[activeSession.shift]} session`}
+                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#7F1D1D] via-[#B91C1C] to-[#EF4444] hover:from-[#991B1B] hover:via-[#DC2626] hover:to-[#F87171] text-white border-2 border-[#991B1B] dark:border-[#F87171] font-bold text-xs shadow-sm transition-all duration-200 flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Power className="w-3.5 h-3.5 text-white" />
+                  <span>{isEndingSession ? "Ending..." : "End Session"}</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  setSessionShift("morning");
+                  setSessionDate(clinicDate);
+                  setSessionTime(getClinicTimeString());
+                  setIsSessionModalOpen(true);
+                }}
+                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#065F46] via-[#047857] to-[#10B981] hover:from-[#047857] hover:via-[#059669] hover:to-[#34D399] text-white border-2 border-[#064E3B] dark:border-[#34D399] font-bold text-xs shadow-sm transition-all duration-200 flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
+              >
+                <Play className="w-3.5 h-3.5 text-white" />
+                <span>Start Session</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Quick Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Button 0: Start / End Session */}
-          {activeSession ? (
-            <button
-              onClick={handleEndSession}
-              disabled={isEndingSession}
-              title={`End ${SHIFT_LABELS[activeSession.shift]} session`}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#7F1D1D] via-[#B91C1C] to-[#EF4444] hover:from-[#991B1B] hover:via-[#DC2626] hover:to-[#F87171] text-white border-2 border-[#991B1B] dark:border-[#F87171] font-bold text-xs sm:text-sm shadow-md shadow-[#DC2626]/25 hover:shadow-lg transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Power className="w-4.5 h-4.5 text-white" />
-              <span>{isEndingSession ? "Ending..." : "End Session"}</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                setSessionShift("morning");
-                setSessionDate(clinicDate);
-                setSessionTime(getClinicTimeString());
-                setIsSessionModalOpen(true);
-              }}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#065F46] via-[#047857] to-[#10B981] hover:from-[#047857] hover:via-[#059669] hover:to-[#34D399] text-white border-2 border-[#064E3B] dark:border-[#34D399] font-bold text-xs sm:text-sm shadow-md shadow-[#059669]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
-            >
-              <Play className="w-4.5 h-4.5 text-white" />
-              <span>Start Session</span>
-            </button>
-          )}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 xl:gap-3">
 
           {/* Button 1: Walk-In Token */}
           <button
@@ -732,7 +733,7 @@ export function OperatorDashboardClient({
               setIsWalkInModalOpen(true);
             }}
             title={canIssueToken ? "Issue a walk-in token" : "Start a session first"}
-            className={`px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#5C3D22] via-[#8C6843] to-[#B08A5C] hover:from-[#6F4E2E] hover:via-[#A07A50] hover:to-[#C29A6B] text-white dark:from-[#8C6843] dark:via-[#D4AF37] dark:to-[#E5C158] dark:hover:from-[#A07A50] dark:hover:to-[#F0D27A] dark:text-[#12100E] font-bold text-xs sm:text-sm shadow-md shadow-[#8C6843]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 border-2 border-[#4A3018] dark:border-[#E5C158] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
+            className={`px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#5C3D22] via-[#8C6843] to-[#B08A5C] hover:from-[#6F4E2E] hover:via-[#A07A50] hover:to-[#C29A6B] text-white dark:from-[#8C6843] dark:via-[#D4AF37] dark:to-[#E5C158] dark:hover:from-[#A07A50] dark:hover:to-[#F0D27A] dark:text-[#12100E] font-bold text-xs sm:text-sm shadow-md shadow-[#8C6843]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 shrink-0 whitespace-nowrap border-2 border-[#4A3018] dark:border-[#E5C158] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
               canIssueToken ? "" : "opacity-50 grayscale"
             }`}
           >
@@ -750,7 +751,7 @@ export function OperatorDashboardClient({
               setIsProcedureModalOpen(true);
             }}
             title={canIssueToken ? "Add a procedure patient" : "Start a session first"}
-            className={`px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#9A3412] via-[#C2410C] to-[#F97316] hover:from-[#7C2D12] hover:via-[#9A3412] hover:to-[#EA580C] text-white dark:from-[#9A3412] dark:via-[#C2410C] dark:to-[#F97316] dark:border-[#FDBA74] font-bold text-xs sm:text-sm shadow-md shadow-[#C2410C]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 border-2 border-[#7C2D12] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
+            className={`px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#9A3412] via-[#C2410C] to-[#F97316] hover:from-[#7C2D12] hover:via-[#9A3412] hover:to-[#EA580C] text-white dark:from-[#9A3412] dark:via-[#C2410C] dark:to-[#F97316] dark:border-[#FDBA74] font-bold text-xs sm:text-sm shadow-md shadow-[#C2410C]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 shrink-0 whitespace-nowrap border-2 border-[#7C2D12] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
               canIssueToken ? "" : "opacity-50 grayscale"
             }`}
           >
@@ -769,7 +770,7 @@ export function OperatorDashboardClient({
               setIsCallModalOpen(true);
             }}
             title={canIssueToken ? "Book a call appointment" : "Start a session first"}
-            className={`px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#075985] via-[#0284C7] to-[#38BDF8] hover:from-[#0C4A6E] hover:via-[#0369A1] hover:to-[#0EA5E9] text-white dark:from-[#0C4A6E] dark:via-[#0369A1] dark:to-[#0EA5E9] dark:border-[#38BDF8] font-bold text-xs sm:text-sm shadow-md shadow-[#0284C7]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 border-2 border-[#0C4A6E] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
+            className={`px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#075985] via-[#0284C7] to-[#38BDF8] hover:from-[#0C4A6E] hover:via-[#0369A1] hover:to-[#0EA5E9] text-white dark:from-[#0C4A6E] dark:via-[#0369A1] dark:to-[#0EA5E9] dark:border-[#38BDF8] font-bold text-xs sm:text-sm shadow-md shadow-[#0284C7]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 shrink-0 whitespace-nowrap border-2 border-[#0C4A6E] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
               canIssueToken ? "" : "opacity-50 grayscale"
             }`}
           >
