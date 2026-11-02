@@ -923,7 +923,7 @@ export function DoctorDashboardClient({
                             type="button"
                             onClick={() => handleDeleteAbsent(app.id, app.patient?.full_name)}
                             disabled={deletingId === app.id}
-                            className="w-9 h-9 rounded-xl bg-white dark:bg-[#1C1917] text-[#7F1D1D] dark:text-[#FCA5A5] border border-[#D6CEC2] dark:border-[#3F3730] hover:border-[#7F1D1D] dark:hover:border-[#FCA5A5] transition-colors inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            className="w-9 h-9 rounded-xl bg-white dark:bg-[#1C1917] text-[#DC2626] dark:text-[#EF4444] border border-[#D6CEC2] dark:border-[#3F3730] hover:border-[#DC2626] dark:hover:border-[#EF4444] transition-colors inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             title="Delete absent patient from Total"
                             aria-label="Delete absent patient"
                           >
