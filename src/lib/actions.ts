@@ -96,7 +96,8 @@ async function getActiveSessionForDate(
 async function getNextSessionToken(
   supabase: Awaited<ReturnType<typeof createClient>>,
   clinicDate: string,
-  shift: ClinicShift
+  shift: ClinicShift,
+  isProcedure = false
 ): Promise<{ nextPos: number; sequence: number; tokenNumber: string }> {
   const { data: tokens } = await supabase
     .from("tokens")
@@ -110,6 +111,20 @@ async function getNextSessionToken(
   for (const row of rows) {
     maxQueuePosition = Math.max(maxQueuePosition, row.queue_position || 0);
 
+    // Procedure tokens use their own P- sequence and never mix with M-/E-.
+    const isProcedureToken = (row.token_number || "")
+      .trim()
+      .toUpperCase()
+      .startsWith("P-");
+    if (isProcedureToken !== isProcedure) continue;
+
+    // P- numbers stay unique across the whole day, so they never collide
+    // between the morning and evening sessions.
+    if (isProcedure) {
+      sequence += 1;
+      continue;
+    }
+
     const appointment = Array.isArray(row.appointment)
       ? row.appointment[0]
       : row.appointment;
@@ -121,10 +136,12 @@ async function getNextSessionToken(
     if (rowShift === shift) sequence += 1;
   }
 
+  const prefix = isProcedure ? "P-" : getShiftTokenPrefix(shift);
+
   return {
     nextPos: maxQueuePosition + 1,
     sequence: sequence + 1,
-    tokenNumber: `${getShiftTokenPrefix(shift)}${String(sequence + 1).padStart(3, "0")}`,
+    tokenNumber: `${prefix}${String(sequence + 1).padStart(3, "0")}`,
   };
 }
 
@@ -345,7 +362,8 @@ export async function createAppointment(formData: unknown) {
       const { nextPos, tokenNumber } = await getNextSessionToken(
         supabase,
         result.data.appointment_date,
-        activeSession.shift
+        activeSession.shift,
+        Boolean(result.data.service_id)
       );
 
       const { data: insertedToken } = await supabase
@@ -480,7 +498,8 @@ export async function quickBookToken(formData: {
   const { nextPos, tokenNumber } = await getNextSessionToken(
     supabase,
     today,
-    activeSession.shift
+    activeSession.shift,
+    Boolean(formData.service_id)
   );
 
   // Slot time is the actual time the token is issued, never before the session start
@@ -704,7 +723,7 @@ export async function checkInCallAppointment(appointmentId: string) {
   // 1. Fetch appointment details
   const { data: app, error: fetchErr } = await supabase
     .from("appointments")
-    .select("id, appointment_date, appointment_time, notes, patient:patients(full_name)")
+    .select("id, appointment_date, appointment_time, notes, service_id, patient:patients(full_name)")
     .eq("id", appointmentId)
     .single();
 
@@ -726,7 +745,8 @@ export async function checkInCallAppointment(appointmentId: string) {
   const { nextPos, tokenNumber } = await getNextSessionToken(
     supabase,
     today,
-    activeSession.shift
+    activeSession.shift,
+    Boolean(app.service_id)
   );
 
   // 3. Insert Token
