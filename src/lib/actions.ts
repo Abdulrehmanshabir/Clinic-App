@@ -12,7 +12,7 @@ import {
   clinicSettingsSchema,
 } from "@/lib/validations";
 import { type ActiveSession, type AppointmentStatus, type ClinicShift } from "@/types/database";
-import { addMinutesToTime, getClinicTimeString, getTodayDateString } from "@/lib/utils";
+import { getClinicTimeString, getTodayDateString } from "@/lib/utils";
 import {
   appendShiftTag,
   getShiftFromNotes,
@@ -477,19 +477,18 @@ export async function quickBookToken(formData: {
     };
   }
 
-  const { nextPos, sequence, tokenNumber } = await getNextSessionToken(
+  const { nextPos, tokenNumber } = await getNextSessionToken(
     supabase,
     today,
     activeSession.shift
   );
 
-  // Slot time follows the session start time: first patient at start time, then every 5 minutes
+  // Slot time is the actual time the token is issued, never before the session start
   let calculatedTime = formData.appointment_time;
   if (!calculatedTime) {
+    const nowTime = getClinicTimeString();
     const sessionStart = activeSession.start_time;
-    calculatedTime = sessionStart
-      ? addMinutesToTime(sessionStart, (sequence - 1) * 5)
-      : addMinutesToTime(getClinicTimeString(), (sequence - 1) * 5);
+    calculatedTime = sessionStart && nowTime < sessionStart ? sessionStart : nowTime;
   }
 
   // 3. Insert Appointment (status = waiting)

@@ -33,19 +33,6 @@ export function formatClinicTime(timeStr: string | null | undefined): string {
   return timeStr;
 }
 
-export function addMinutesToTime(timeStr: string, minutes: number): string {
-  const match = /^(\d{1,2}):(\d{2})/.exec(timeStr || "");
-  if (!match) return timeStr;
-
-  const totalMinutes =
-    (parseInt(match[1], 10) * 60 + parseInt(match[2], 10) + minutes) % (24 * 60);
-  const normalized = totalMinutes < 0 ? totalMinutes + 24 * 60 : totalMinutes;
-  const hours = String(Math.floor(normalized / 60)).padStart(2, "0");
-  const mins = String(normalized % 60).padStart(2, "0");
-
-  return `${hours}:${mins}`;
-}
-
 export function isOnlineAppointment(
   app: Pick<Appointment, "is_online" | "notes"> | null | undefined
 ): boolean {
