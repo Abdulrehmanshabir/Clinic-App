@@ -43,29 +43,73 @@ export function DoctorBreakBanner({
   };
 
   const hasNote = Boolean(breakInfo.custom_reason && breakInfo.custom_reason.trim().length > 0);
+  const isOperatorAlert = !isDoctorView;
 
   return (
-    <div className="p-4 sm:px-6 sm:py-4.5 rounded-3xl bg-gradient-to-r from-[#FCFAF6] via-[#FAF5EE] to-[#FCFAF6] dark:from-[#131B2A] dark:via-[#1A2438] dark:to-[#131B2A] border-2 border-[#8C6843] dark:border-[#D4AF37] shadow-lg shadow-[#8C6843]/10 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] relative overflow-hidden transition-all duration-200">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div
+      className={
+        isOperatorAlert
+          ? "p-4 sm:px-6 sm:py-4.5 rounded-3xl bg-gradient-to-r from-[#7C2D12] via-[#B45309] to-[#D97706] dark:from-[#3B1D0B] dark:via-[#7C2D12] dark:to-[#92400E] border-2 border-[#FCD34D] dark:border-[#FBBF24] shadow-[0_12px_35px_rgba(217,119,6,0.32)] dark:shadow-[0_12px_35px_rgba(0,0,0,0.55)] relative overflow-hidden transition-all duration-200"
+          : "p-4 sm:px-6 sm:py-4.5 rounded-3xl bg-gradient-to-r from-[#FCFAF6] via-[#FAF5EE] to-[#FCFAF6] dark:from-[#131B2A] dark:via-[#1A2438] dark:to-[#131B2A] border-2 border-[#8C6843] dark:border-[#D4AF37] shadow-lg shadow-[#8C6843]/10 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] relative overflow-hidden transition-all duration-200"
+      }
+    >
+      {isOperatorAlert && (
+        <>
+          <div className="absolute -right-12 -top-12 w-44 h-44 rounded-full bg-[#FDE68A]/20 blur-3xl pointer-events-none" />
+          <div className="absolute -left-10 -bottom-12 w-40 h-40 rounded-full bg-[#FCA5A5]/20 blur-3xl pointer-events-none" />
+        </>
+      )}
+
+      <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Left Info */}
         <div className="flex items-center gap-3.5">
           {/* Active Break Icon Squircle with live ping */}
-          <div className="w-12 h-12 rounded-2xl bg-[#8C6843] text-white dark:bg-[#D4AF37] dark:text-[#12100E] flex items-center justify-center shrink-0 shadow-sm relative">
+          <div
+            className={
+              isOperatorAlert
+                ? "w-12 h-12 rounded-2xl bg-white/20 text-white border border-white/35 backdrop-blur-md flex items-center justify-center shrink-0 shadow-lg shadow-black/10 relative"
+                : "w-12 h-12 rounded-2xl bg-[#8C6843] text-white dark:bg-[#D4AF37] dark:text-[#12100E] flex items-center justify-center shrink-0 shadow-sm relative"
+            }
+          >
             {getIcon("w-6 h-6")}
-            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#E5C158] dark:bg-[#34D399] animate-ping" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#E5C158] dark:bg-[#34D399] ring-2 ring-white dark:ring-[#131B2A]" />
+            <span
+              className={`absolute -top-1 -right-1 w-3 h-3 rounded-full animate-ping ${
+                isOperatorAlert ? "bg-[#FDE68A]" : "bg-[#E5C158] dark:bg-[#34D399]"
+              }`}
+            />
+            <span
+              className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ring-2 ring-white ${
+                isOperatorAlert ? "bg-[#FDE68A]" : "bg-[#E5C158] dark:bg-[#34D399] dark:ring-[#131B2A]"
+              }`}
+            />
           </div>
 
           <div>
             <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
               {/* Status Badge */}
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#8C6843] border-2 border-[#8C6843] dark:bg-[#0B1120] dark:text-[#CBD5E1] dark:border-2 dark:border-[#334155] text-[11px] font-black uppercase tracking-wider shadow-2xs">
-                <PauseCircle className="w-3.5 h-3.5 text-[#8C6843] dark:text-[#94A3B8]" />
+              <span
+                className={
+                  isOperatorAlert
+                    ? "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFFBEB] text-[#9A3412] border-2 border-[#FDBA74] text-[11px] font-black uppercase tracking-wider shadow-sm"
+                    : "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#8C6843] border-2 border-[#8C6843] dark:bg-[#0B1120] dark:text-[#CBD5E1] dark:border-2 dark:border-[#334155] text-[11px] font-black uppercase tracking-wider shadow-2xs"
+                }
+              >
+                <PauseCircle
+                  className={`w-3.5 h-3.5 ${
+                    isOperatorAlert ? "text-[#C2410C]" : "text-[#8C6843] dark:text-[#94A3B8]"
+                  }`}
+                />
                 {isDoctorView ? "You Are On Break" : "Doctor On Break"}
               </span>
 
-              {/* Break Type Badge (Styled matching pill) */}
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#8C6843] text-white border-2 border-[#745534] dark:bg-[#D4AF37] dark:text-[#12100E] dark:border-2 dark:border-[#E5C158] text-xs sm:text-sm font-black tracking-tight shadow-sm dark:shadow-[0_4px_16px_rgba(212,175,55,0.25)]">
+              {/* Break Type Badge */}
+              <span
+                className={
+                  isOperatorAlert
+                    ? "inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/20 text-white border-2 border-white/40 backdrop-blur-md text-xs sm:text-sm font-black tracking-tight shadow-sm"
+                    : "inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#8C6843] text-white border-2 border-[#745534] dark:bg-[#D4AF37] dark:text-[#12100E] dark:border-2 dark:border-[#E5C158] text-xs sm:text-sm font-black tracking-tight shadow-sm dark:shadow-[0_4px_16px_rgba(212,175,55,0.25)]"
+                }
+              >
                 {getIcon("w-3.5 h-3.5")}
                 <span>{breakInfo.break_type}</span>
               </span>
@@ -73,16 +117,26 @@ export function DoctorBreakBanner({
 
             {/* Doctor Note - ONLY shown if doctor wrote a note */}
             {hasNote && (
-              <div className="flex items-center gap-2 mt-2 text-sm sm:text-base text-[#5C4D3E] dark:text-[#E2E8F0] font-semibold bg-white/70 dark:bg-[#0B1120]/70 px-3.5 py-1.5 rounded-xl border border-[#E8DFD1] dark:border-[#243248] w-fit">
-                <MessageSquare className="w-4 h-4 text-[#8C6843] dark:text-[#D4AF37] shrink-0" />
+              <div
+                className={
+                  isOperatorAlert
+                    ? "flex items-center gap-2 mt-2 text-sm sm:text-base text-white/95 font-semibold bg-white/15 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/25 w-fit"
+                    : "flex items-center gap-2 mt-2 text-sm sm:text-base text-[#5C4D3E] dark:text-[#E2E8F0] font-semibold bg-white/70 dark:bg-[#0B1120]/70 px-3.5 py-1.5 rounded-xl border border-[#E8DFD1] dark:border-[#243248] w-fit"
+                }
+              >
+                <MessageSquare
+                  className={`w-4 h-4 shrink-0 ${
+                    isOperatorAlert ? "text-[#FDE68A]" : "text-[#8C6843] dark:text-[#D4AF37]"
+                  }`}
+                />
                 <span className="italic">&ldquo;{breakInfo.custom_reason?.trim()}&rdquo;</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Action (Doctor View Only: End Break button) */}
-        {isDoctorView && (
+        {/* Right Side */}
+        {isDoctorView ? (
           <div className="shrink-0 flex items-center sm:self-center">
             <button
               type="button"
@@ -102,6 +156,11 @@ export function DoctorBreakBanner({
                 </>
               )}
             </button>
+          </div>
+        ) : (
+          <div className="shrink-0 hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 text-[11px] font-black uppercase tracking-[0.18em] text-[#FEF3C7]">
+            <span className="w-2 h-2 rounded-full bg-[#FDE68A] animate-pulse" />
+            Reception Alert
           </div>
         )}
       </div>
