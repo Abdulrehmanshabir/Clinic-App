@@ -63,6 +63,7 @@ export function OperatorDashboardClient({
   const { success, error } = useToast();
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   const [isWalkInModalOpen, setIsWalkInModalOpen] = useState(false);
+  const [isProcedureModalOpen, setIsProcedureModalOpen] = useState(false);
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [selectedAppointmentForNotes, setSelectedAppointmentForNotes] = useState<Appointment | null>(null);
   const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
@@ -156,16 +157,30 @@ export function OperatorDashboardClient({
     shift: ClinicShift;
   } | null>(null);
 
+  const [createdProcedureToken, setCreatedProcedureToken] = useState<{
+    token_num: string;
+    queue_pos: number;
+    patient_name: string;
+    time: string;
+    phone?: string;
+    service_name?: string;
+    service_price?: number;
+  } | null>(null);
+
   // Form states for walk-in token
   const [patientName, setPatientName] = useState("");
   const [patientPhone, setPatientPhone] = useState("");
-  const [walkInServiceId, setWalkInServiceId] = useState("");
   const [isSubmittingWalkIn, setIsSubmittingWalkIn] = useState(false);
+
+  // Form states for procedure token
+  const [procedureName, setProcedureName] = useState("");
+  const [procedurePhone, setProcedurePhone] = useState("");
+  const [procedureServiceId, setProcedureServiceId] = useState("");
+  const [isSubmittingProcedure, setIsSubmittingProcedure] = useState(false);
 
   // Form states for call appointment
   const [callName, setCallName] = useState("");
   const [callPhone, setCallPhone] = useState("");
-  const [callServiceId, setCallServiceId] = useState("");
   const [callDate, setCallDate] = useState(clinicDate);
   const [callTime, setCallTime] = useState("18:00");
   const [callShift, setCallShift] = useState<ClinicShift>(
@@ -180,8 +195,7 @@ export function OperatorDashboardClient({
     return (services || []).filter((s) => s.is_active !== false);
   }, [services]);
 
-  const selectedWalkInService = canonicalServices.find((s) => s.id === walkInServiceId);
-  const selectedCallService = canonicalServices.find((s) => s.id === callServiceId);
+  const selectedProcedureService = canonicalServices.find((s) => s.id === procedureServiceId);
 
   // Sync state with server props
   React.useEffect(() => {
@@ -425,7 +439,6 @@ export function OperatorDashboardClient({
         full_name: patientName.trim(),
         phone: patientPhone.trim() || undefined,
         appointment_date: clinicDate,
-        service_id: walkInServiceId || undefined,
       });
 
       if (res.success && res.data) {
@@ -442,7 +455,6 @@ export function OperatorDashboardClient({
         );
         setPatientName("");
         setPatientPhone("");
-        setWalkInServiceId("");
         router.refresh();
       } else {
         error("Booking Failed", res.error || "Could not issue token");
@@ -454,7 +466,61 @@ export function OperatorDashboardClient({
     }
   };
 
-  // 2. Handle Advance Call Booking (Phone reservation)
+  // 2. Handle Procedure Patient (Immediate procedure token)
+  const handleQuickBookProcedure = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canIssueToken) {
+      error("Start Session First", "Please start a clinic session (date & time) before issuing a token.");
+      return;
+    }
+    if (!procedureName.trim()) {
+      error("Name Required", "Please enter patient name");
+      return;
+    }
+    if (!procedureServiceId) {
+      error("Procedure Required", "Please select a procedure");
+      return;
+    }
+
+    setIsSubmittingProcedure(true);
+    try {
+      const res = await quickBookToken({
+        full_name: procedureName.trim(),
+        phone: procedurePhone.trim() || undefined,
+        appointment_date: clinicDate,
+        service_id: procedureServiceId,
+      });
+
+      if (res.success && res.data) {
+        const service = canonicalServices.find((s) => s.id === procedureServiceId);
+        setCreatedProcedureToken({
+          token_num: res.data.token?.token_num || "",
+          queue_pos: res.data.token?.queue_pos || 1,
+          patient_name: procedureName.trim(),
+          time: res.data.appointment_time,
+          phone: procedurePhone.trim() || undefined,
+          service_name: service?.name,
+          service_price: service?.price,
+        });
+        success(
+          "Procedure Token Issued! ✨",
+          `Assigned ${res.data.token?.token_num || "Token"} to ${procedureName.trim()}`
+        );
+        setProcedureName("");
+        setProcedurePhone("");
+        setProcedureServiceId("");
+        router.refresh();
+      } else {
+        error("Booking Failed", res.error || "Could not issue procedure token");
+      }
+    } catch {
+      error("Error", "An unexpected error occurred while booking procedure");
+    } finally {
+      setIsSubmittingProcedure(false);
+    }
+  };
+
+  // 3. Handle Advance Call Booking (Phone reservation)
   const handleBookCallAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canIssueToken) {
@@ -473,7 +539,6 @@ export function OperatorDashboardClient({
         appointment_date: callDate || clinicDate,
         appointment_time: callTime,
         notes: callNotes.trim() || undefined,
-        service_id: callServiceId || undefined,
         is_online: callIsOnline,
         shift: callShift,
       });
@@ -493,7 +558,6 @@ export function OperatorDashboardClient({
         );
         setCallName("");
         setCallPhone("");
-        setCallServiceId("");
         setCallDate(clinicDate);
         setCallTime("18:00");
         setCallShift(activeSession?.shift || "morning");
@@ -676,7 +740,25 @@ export function OperatorDashboardClient({
             <span>+ Walk-In Token</span>
           </button>
 
-          {/* Button 2: Call Appointment */}
+          {/* Button 2: Procedure Patient */}
+          <button
+            onClick={() => {
+              if (!canIssueToken) {
+                error("Start Session First", "Please start a clinic session (date & time) before issuing a token.");
+                return;
+              }
+              setIsProcedureModalOpen(true);
+            }}
+            title={canIssueToken ? "Add a procedure patient" : "Start a session first"}
+            className={`px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#9A3412] via-[#C2410C] to-[#F97316] hover:from-[#7C2D12] hover:via-[#9A3412] hover:to-[#EA580C] text-white dark:from-[#9A3412] dark:via-[#C2410C] dark:to-[#F97316] dark:border-[#FDBA74] font-bold text-xs sm:text-sm shadow-md shadow-[#C2410C]/30 hover:shadow-lg transition-all duration-200 flex items-center gap-2 border-2 border-[#7C2D12] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] ${
+              canIssueToken ? "" : "opacity-50 grayscale"
+            }`}
+          >
+            <Sparkles className="w-4.5 h-4.5 text-white" />
+            <span>+ Procedure</span>
+          </button>
+
+          {/* Button 3: Call Appointment */}
           <button
             onClick={() => {
               if (!canIssueToken) {
@@ -1199,34 +1281,6 @@ export function OperatorDashboardClient({
                   />
                 </div>
 
-                {/* Procedure / Treatment Selection */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5 ml-3 mr-1">
-                    <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158]">
-                      Procedure / Treatment
-                    </label>
-                    {selectedWalkInService && (
-                      <span className="font-mono font-black text-xs text-[#15803D] bg-[#E6F4EA] px-2.5 py-0.5 rounded-lg border border-[#BBF7D0]">
-                        Rs {Number(selectedWalkInService.price).toLocaleString()}
-                      </span>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <select
-                      value={walkInServiceId}
-                      onChange={(e) => setWalkInServiceId(e.target.value)}
-                      className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FAF7F2] dark:bg-[#1A2234] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-xs sm:text-sm font-bold transition shadow-2xs appearance-none cursor-pointer"
-                    >
-                      <option value="">Select Procedure (Optional)</option>
-                      {canonicalServices.map((svc) => (
-                        <option key={svc.id} value={svc.id}>
-                          {svc.name} — Rs {Number(svc.price).toLocaleString()}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-[#8C6843] dark:text-[#E5C158] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
-                </div>
               </div>
 
               {/* Footer: Cancel & Issue Token */}
@@ -1252,8 +1306,217 @@ export function OperatorDashboardClient({
         )}
       </Modal>
 
-      {/* Modal 2: Book Call / Phone Appointment */}
-      {/* Modal 2: Book Call / Phone Appointment */}
+      {/* Modal 2: Procedure Patient */}
+      <Modal
+        isOpen={isProcedureModalOpen}
+        onClose={() => {
+          setCreatedProcedureToken(null);
+          setIsProcedureModalOpen(false);
+        }}
+        hideDefaultHeader={true}
+        maxWidth="lg"
+      >
+        {createdProcedureToken ? (
+          <div className="p-5 text-center py-4 space-y-3 relative">
+            <ModalCloseButton
+              onClick={() => {
+                setCreatedProcedureToken(null);
+                setIsProcedureModalOpen(false);
+              }}
+              className="absolute right-0 top-0"
+            />
+            <div className="w-10 h-10 rounded-2xl bg-[#E0F2FE] text-[#0369A1] mx-auto flex items-center justify-center border border-[#BAE6FD] shadow-xs">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="text-xl font-serif font-black text-[#1A120B]">Procedure Token Issued</h4>
+              <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">Procedure patient added to the doctor queue.</p>
+            </div>
+
+            <div
+              id="printable-slip"
+              className="p-5 sm:p-6 rounded-2xl bg-[#FFFFFF] border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative"
+            >
+              <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
+                <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
+                  {clinicSettings?.clinic_name || "Glow Derm"}
+                </h5>
+                <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">
+                  {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
+                </p>
+                <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{clinicDate}</p>
+                <div className="inline-block mt-1 px-3 py-0.5 rounded-full bg-[#E0F2FE] text-[#0369A1] text-[11px] font-black border border-[#BAE6FD]">
+                  Status: In Doctor Queue
+                </div>
+              </div>
+
+              <div className="border-t border-dashed border-[#D8C5AD] mt-3 pt-3 space-y-2.5 text-xs">
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Token Number:</span>
+                  <span className="font-black font-mono text-base sm:text-lg text-[#1A120B] tracking-wider">{createdProcedureToken.token_num}</span>
+                </div>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Name:</span>
+                  <span className="font-black text-[#1A120B] text-base sm:text-lg font-serif">{createdProcedureToken.patient_name}</span>
+                </div>
+                {createdProcedureToken.phone && (
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Phone Number:</span>
+                    <span className="font-black font-mono text-sm sm:text-base text-[#1A120B]">{createdProcedureToken.phone}</span>
+                  </div>
+                )}
+                {createdProcedureToken.service_name && (
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Procedure:</span>
+                    <span className="font-black text-sm sm:text-base text-[#1A120B]">{createdProcedureToken.service_name}</span>
+                  </div>
+                )}
+                {createdProcedureToken.service_price != null && (
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Price:</span>
+                    <span className="font-black font-mono text-sm sm:text-base text-[#15803D]">
+                      Rs {Number(createdProcedureToken.service_price).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Mode:</span>
+                  <span className="font-black text-sm sm:text-base text-[#1A120B]">Walk-In Procedure</span>
+                </div>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Reserved Date &amp; Time:</span>
+                  <span className="text-sm sm:text-base text-[#1A120B] font-mono font-black">
+                    {clinicDate} • {formatClinicTime(createdProcedureToken.time)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-3 pt-2.5 border-t border-dashed border-[#D8C5AD] text-center text-[11px] sm:text-xs text-[#5C4D3E] font-bold italic">
+                Please wait comfortably until your number is called.
+              </div>
+            </div>
+
+            <div className="pt-1.5 flex justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="px-5 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs font-bold transition flex items-center gap-2 border border-[#E9DFD1]"
+              >
+                <Printer className="w-4 h-4 text-[#A8835A]" />
+                Print Slip
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCreatedProcedureToken(null);
+                  setIsProcedureModalOpen(false);
+                }}
+                className="px-7 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] text-xs font-bold transition shadow-md"
+              >
+                Done &amp; Return
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 sm:p-5 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-lg mx-auto shadow-xl relative">
+            <ModalCloseButton
+              onClick={() => setIsProcedureModalOpen(false)}
+              className="absolute right-3.5 top-3.5"
+            />
+
+            <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
+              <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
+                {clinicSettings?.clinic_name || "Glow Derm"}
+              </h5>
+              <p className="text-sm text-[#8C6843] dark:text-[#E5C158] font-bold mt-0.5">
+                {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
+              </p>
+              <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{clinicDate}</p>
+            </div>
+
+            <form onSubmit={handleQuickBookProcedure}>
+              <div className="py-3 space-y-3.5 max-w-[380px] mx-auto w-full">
+                <div>
+                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                    Patient Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Enter patient name"
+                    value={procedureName}
+                    onChange={(e) => setProcedureName(e.target.value)}
+                    className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                    Phone Number <span className="font-semibold text-xs opacity-70">(Optional)</span>
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="Enter phone number (optional)"
+                    value={procedurePhone}
+                    onChange={(e) => setProcedurePhone(e.target.value)}
+                    className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5 ml-3 mr-1">
+                    <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158]">
+                      Procedure / Treatment
+                    </label>
+                    {selectedProcedureService && (
+                      <span className="font-mono font-black text-xs text-[#15803D] bg-[#E6F4EA] px-2.5 py-0.5 rounded-lg border border-[#BBF7D0]">
+                        Rs {Number(selectedProcedureService.price).toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <select
+                      required
+                      value={procedureServiceId}
+                      onChange={(e) => setProcedureServiceId(e.target.value)}
+                      className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs appearance-none cursor-pointer"
+                    >
+                      <option value="">Select Procedure</option>
+                      {canonicalServices.map((svc) => (
+                        <option key={svc.id} value={svc.id}>
+                          {svc.name} — Rs {Number(svc.price).toLocaleString()}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-[#8C6843] dark:text-[#E5C158] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
+                <button
+                  type="button"
+                  onClick={() => setIsProcedureModalOpen(false)}
+                  className="px-6 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs sm:text-sm font-bold transition border border-[#D8C5AD]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingProcedure}
+                  className="px-6 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-2.5 disabled:opacity-50 border border-[#2B1E14]"
+                >
+                  <Sparkles className="w-4 h-4 text-[#D8C5AD]" />
+                  <span>{isSubmittingProcedure ? "Issuing..." : "Issue Procedure Token"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal 3: Book Call / Phone Appointment */}
+      {/* Modal 3: Book Call / Phone Appointment */}
       <Modal
         isOpen={isCallModalOpen}
         onClose={() => {
@@ -1417,35 +1680,6 @@ export function OperatorDashboardClient({
                       This patient will appear in the Doctor&apos;s Online section.
                     </p>
                   )}
-                </div>
-
-                {/* Procedure / Treatment Selection */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5 ml-3 mr-1">
-                    <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158]">
-                      Procedure / Treatment
-                    </label>
-                    {selectedCallService && (
-                      <span className="font-mono font-black text-xs text-[#15803D] bg-[#E6F4EA] px-2.5 py-0.5 rounded-lg border border-[#BBF7D0]">
-                        Rs {Number(selectedCallService.price).toLocaleString()}
-                      </span>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <select
-                      value={callServiceId}
-                      onChange={(e) => setCallServiceId(e.target.value)}
-                      className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs appearance-none cursor-pointer"
-                    >
-                      <option value="">Select Procedure (Optional)</option>
-                      {canonicalServices.map((svc) => (
-                        <option key={svc.id} value={svc.id}>
-                          {svc.name} — Rs {Number(svc.price).toLocaleString()}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-[#8C6843] dark:text-[#E5C158] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
                 </div>
 
                 {/* Booking Session */}
