@@ -36,7 +36,7 @@ import {
   Moon,
 } from "lucide-react";
 import { formatClinicTime, getClinicTimeString, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
-import { SHIFT_LABELS, getAppointmentShift, getShiftFromTime, getShiftTokenPrefix } from "@/lib/session";
+import { SHIFT_LABELS, getAppointmentShift, getShiftTokenPrefix } from "@/lib/session";
 import { playBreakBell, playCallBell, unlockAudio } from "@/lib/sound";
 
 interface OperatorDashboardClientProps {
@@ -168,6 +168,9 @@ export function OperatorDashboardClient({
   const [callServiceId, setCallServiceId] = useState("");
   const [callDate, setCallDate] = useState(clinicDate);
   const [callTime, setCallTime] = useState("18:00");
+  const [callShift, setCallShift] = useState<ClinicShift>(
+    initialActiveSession?.shift || "morning"
+  );
   const [callIsOnline, setCallIsOnline] = useState(false);
   const [callNotes, setCallNotes] = useState("");
   const [isSubmittingCall, setIsSubmittingCall] = useState(false);
@@ -472,6 +475,7 @@ export function OperatorDashboardClient({
         notes: callNotes.trim() || undefined,
         service_id: callServiceId || undefined,
         is_online: callIsOnline,
+        shift: callShift,
       });
 
       if (res.success && res.data) {
@@ -481,7 +485,7 @@ export function OperatorDashboardClient({
           time: callTime,
           date: callDate || clinicDate,
           is_online: callIsOnline,
-          shift: getShiftFromTime(callTime),
+          shift: callShift,
         });
         success(
           "Call Appointment Reserved! 📞",
@@ -492,6 +496,7 @@ export function OperatorDashboardClient({
         setCallServiceId("");
         setCallDate(clinicDate);
         setCallTime("18:00");
+        setCallShift(activeSession?.shift || "morning");
         setCallIsOnline(false);
         setCallNotes("");
         router.refresh();
@@ -678,6 +683,7 @@ export function OperatorDashboardClient({
                 error("Start Session First", "Please start a clinic session (date & time) before booking a call appointment.");
                 return;
               }
+              setCallShift(activeSession?.shift || "morning");
               setIsCallModalOpen(true);
             }}
             title={canIssueToken ? "Book a call appointment" : "Start a session first"}
@@ -1440,6 +1446,37 @@ export function OperatorDashboardClient({
                     </select>
                     <ChevronDown className="w-4 h-4 text-[#8C6843] dark:text-[#E5C158] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
+                </div>
+
+                {/* Booking Session */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5 ml-3 mr-1">
+                    <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158]">
+                      Booking Session
+                    </label>
+                    <span className="font-mono font-black text-xs text-[#1A120B] bg-[#F4EFE6] px-2.5 py-0.5 rounded-lg border border-[#D8C5AD] shadow-2xs">
+                      {SHIFT_LABELS[callShift]}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(["morning", "evening"] as ClinicShift[]).map((shift) => (
+                      <button
+                        key={shift}
+                        type="button"
+                        onClick={() => setCallShift(shift)}
+                        className={`h-11 rounded-xl border-2 font-bold text-sm transition ${
+                          callShift === shift
+                            ? "bg-[#1E1915] text-[#FAF7F2] border-[#2B1E14] shadow-sm"
+                            : "bg-[#FAF7F2] text-[#8C6843] border-[#BCA58C] hover:bg-[#F4EFE6]"
+                        }`}
+                      >
+                        {SHIFT_LABELS[shift]}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[11px] sm:text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-bold mt-1 ml-1">
+                    The booking will appear in the selected session on the chosen date.
+                  </p>
                 </div>
 
                 {/* Appointment Date & Time (single combined field) */}
