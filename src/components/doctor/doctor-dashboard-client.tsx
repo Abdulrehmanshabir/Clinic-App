@@ -40,7 +40,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
-import { getAppointmentShift } from "@/lib/session";
+import { getAppointmentShift, SHIFT_LABELS } from "@/lib/session";
 
 interface DoctorDashboardClientProps {
   initialAppointments: Appointment[];
@@ -475,10 +475,14 @@ export function DoctorDashboardClient({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
         {/* Row 1: Core Queue Metrics */}
         <StatCard
-          title="Today Total Patients"
+          title={
+            initialActiveSession
+              ? `${SHIFT_LABELS[initialActiveSession.shift]} Patients`
+              : "Today Total Patients"
+          }
           value={summary.total}
           icon={Users}
-          variant="bronze"
+          variant="yellow"
           active={activeFilter === "all"}
           onClick={() => setActiveFilter("all")}
         />
@@ -512,7 +516,7 @@ export function DoctorDashboardClient({
           title="Procedure"
           value={procedureCount}
           icon={Sparkles}
-          variant="purple"
+          variant="emerald"
           active={activeFilter === "procedure"}
           onClick={() => setActiveFilter("procedure")}
         />
@@ -520,7 +524,7 @@ export function DoctorDashboardClient({
           title="Complete Procedure"
           value={completeProcedureCount}
           icon={CheckCheck}
-          variant="teal"
+          variant="gray"
           active={activeFilter === "complete_procedure"}
           onClick={() => setActiveFilter("complete_procedure")}
         />
@@ -528,7 +532,7 @@ export function DoctorDashboardClient({
           title="Online Patient"
           value={onlinePatientCount}
           icon={Globe}
-          variant="indigo"
+          variant="navy"
           active={activeFilter === "online"}
           onClick={() => setActiveFilter("online")}
         />
@@ -536,7 +540,7 @@ export function DoctorDashboardClient({
           title="Online Patient Complete"
           value={onlinePatientCompleteCount}
           icon={UserCheck}
-          variant="jade"
+          variant="orange"
           active={activeFilter === "online_complete"}
           onClick={() => setActiveFilter("online_complete")}
         />
