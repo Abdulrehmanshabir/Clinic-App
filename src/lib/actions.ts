@@ -798,6 +798,75 @@ export async function updateAppointmentStatus(appointmentId: string, status: App
   return { success: true, data: appointment };
 }
 
+export async function deleteNoShowAppointment(appointmentId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, is_active")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || profile.role !== "doctor" || profile.is_active !== true) {
+    return { success: false, error: "Only an active doctor can delete absent patients" };
+  }
+
+  const { data: appointment, error: fetchError } = await supabase
+    .from("appointments")
+    .select(`
+      id,
+      status,
+      appointment_date,
+      patient:patients (full_name)
+    `)
+    .eq("id", appointmentId)
+    .single();
+
+  if (fetchError || !appointment) {
+    return { success: false, error: fetchError?.message || "Appointment not found" };
+  }
+
+  if (appointment.status !== "no_show") {
+    return { success: false, error: "Only absent (no-show) patients can be deleted" };
+  }
+
+  const admin = createAdminClient();
+  const { error: deleteError } = await admin
+    .from("appointments")
+    .delete()
+    .eq("id", appointmentId);
+
+  if (deleteError) {
+    return { success: false, error: deleteError.message };
+  }
+
+  const patientRelation = appointment.patient as unknown as
+    | { full_name?: string }
+    | { full_name?: string }[]
+    | null;
+  const patientName = Array.isArray(patientRelation)
+    ? patientRelation[0]?.full_name
+    : patientRelation?.full_name;
+
+  await logAudit("DELETE_NO_SHOW_APPOINTMENT", "appointments", appointmentId, {
+    date: appointment.appointment_date,
+    patient: patientName,
+  });
+
+  revalidatePath("/doctor");
+  revalidatePath("/operator");
+  revalidatePath("/appointments");
+  revalidatePath("/queue");
+  revalidatePath("/history");
+
+  return { success: true };
+}
+
 // -----------------------------------------------------------------------------
 // 3. CONSULTATION ACTIONS (DOCTOR ONLY)
 // -----------------------------------------------------------------------------

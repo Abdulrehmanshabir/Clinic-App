@@ -1,18 +1,31 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 
 interface UseRealtimeAppointmentsProps {
   clinicDate: string;
   onUpdate: () => void;
+  onCallBell?: () => void;
 }
 
-export function useRealtimeAppointments({ clinicDate, onUpdate }: UseRealtimeAppointmentsProps) {
+export function useRealtimeAppointments({
+  clinicDate,
+  onUpdate,
+  onCallBell,
+}: UseRealtimeAppointmentsProps) {
   const onUpdateRef = useRef(onUpdate);
+  const onCallBellRef = useRef(onCallBell);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+
   useEffect(() => {
     onUpdateRef.current = onUpdate;
   }, [onUpdate]);
+
+  useEffect(() => {
+    onCallBellRef.current = onCallBell;
+  }, [onCallBell]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -64,7 +77,12 @@ export function useRealtimeAppointments({ clinicDate, onUpdate }: UseRealtimeApp
           onUpdateRef.current?.();
         }
       )
+      .on("broadcast", { event: "call_bell" }, () => {
+        onCallBellRef.current?.();
+      })
       .subscribe();
+
+    channelRef.current = appointmentChannel;
 
     // Gentle polling fallback (every 8s) to guarantee multi-screen sync without overloading CPU/network
     const pollInterval = setInterval(() => {
@@ -73,7 +91,16 @@ export function useRealtimeAppointments({ clinicDate, onUpdate }: UseRealtimeApp
 
     return () => {
       clearInterval(pollInterval);
+      channelRef.current = null;
       supabase.removeChannel(appointmentChannel);
     };
   }, [clinicDate]);
+
+  const sendCallBell = useCallback((payload: { token?: string; patient?: string }) => {
+    const channel = channelRef.current;
+    if (!channel) return;
+    void channel.send({ type: "broadcast", event: "call_bell", payload });
+  }, []);
+
+  return { sendCallBell };
 }

@@ -294,6 +294,70 @@ textarea.placeholder-soft::placeholder {
   stroke: #FFFFFF !important;
 }
 
+/* 1b. Yellow Cards (High-contrast dark typography) */
+.stat-card-yellow {
+  background: linear-gradient(135deg, #FDE047 0%, #FACC15 55%, #EAB308 100%) !important;
+  background-color: #FACC15 !important;
+  border: 1.5px solid #CA8A04 !important;
+  color: #1A120B !important;
+}
+.stat-card-yellow .stat-card-title,
+.dark .stat-card-yellow .stat-card-title {
+  color: #1A120B !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+.stat-card-yellow .stat-card-value,
+.dark .stat-card-yellow .stat-card-value {
+  color: #1A120B !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+.stat-icon-yellow,
+.dark .stat-icon-yellow {
+  background-color: #1A120B !important;
+  border: 1.5px solid rgba(26, 18, 11, 0.35) !important;
+  color: #FACC15 !important;
+}
+.stat-icon-yellow svg,
+.dark .stat-icon-yellow svg {
+  color: #FACC15 !important;
+  stroke: #FACC15 !important;
+}
+
+/* 1c. Navy Blue Cards (Pure white typography) */
+.stat-card-navy {
+  background: linear-gradient(135deg, #1E3A8A 0%, #172554 100%) !important;
+  background-color: #1E3A8A !important;
+  border: 1.5px solid #172554 !important;
+  color: #FFFFFF !important;
+}
+.stat-card-navy .stat-card-title,
+.dark .stat-card-navy .stat-card-title {
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+}
+.stat-card-navy .stat-card-value,
+.dark .stat-card-navy .stat-card-value {
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.28) !important;
+}
+.stat-icon-navy,
+.dark .stat-icon-navy {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  color: #FFFFFF !important;
+}
+.stat-icon-navy svg,
+.dark .stat-icon-navy svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+
 /* 2. Active Waiting (Full Alert Vibrant Crimson Red) */
 .stat-card-rose,
 .stat-card-amber,

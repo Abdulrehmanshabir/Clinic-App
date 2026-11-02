@@ -35,6 +35,7 @@ import {
   Power,
   Sun,
   Moon,
+  BellRing,
 } from "lucide-react";
 import { formatClinicTime, getClinicTimeString, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { SHIFT_LABELS, getAppointmentShift, getShiftTokenPrefix } from "@/lib/session";
@@ -70,7 +71,9 @@ export function OperatorDashboardClient({
   const [filter, setFilter] = useState<string>("all");
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [viewedNoteStamps, setViewedNoteStamps] = useState<Record<string, string>>({});
+  const [isBellReady, setIsBellReady] = useState(false);
   const previousStatusesRef = React.useRef<Record<string, { status: string; updated_at: string }> | null>(null);
+  const lastBellAtRef = React.useRef(0);
 
   // Doctor Break state for Receptionist view
   const [doctorBreak, setDoctorBreakState] = useState<DoctorBreakInfo | null>(initialDoctorBreak || null);
@@ -185,18 +188,31 @@ export function OperatorDashboardClient({
     setCallDate(clinicDate);
   }, [clinicDate]);
 
+  const ringBell = React.useCallback(() => {
+    const now = Date.now();
+    if (now - lastBellAtRef.current < 3000) return;
+    lastBellAtRef.current = now;
+    playCallBell();
+  }, []);
+
   // Unlock audio after the operator's first interaction so the doctor's call bell can play
   React.useEffect(() => {
-    const unlock = () => unlockAudio();
-    window.addEventListener("pointerdown", unlock, { once: true });
-    window.addEventListener("keydown", unlock, { once: true });
+    const unlock = async () => {
+      if (await unlockAudio()) setIsBellReady(true);
+    };
+    const onFirstGesture = () => {
+      void unlock();
+    };
+    window.addEventListener("pointerdown", onFirstGesture, { once: true });
+    window.addEventListener("keydown", onFirstGesture, { once: true });
+    void unlock();
     return () => {
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("pointerdown", onFirstGesture);
+      window.removeEventListener("keydown", onFirstGesture);
     };
   }, []);
 
-  // Ring the bell at reception whenever the doctor calls a patient
+  // Fallback: ring when a patient's status becomes "called" after a data refresh
   React.useEffect(() => {
     const previous = previousStatusesRef.current;
     const next: Record<string, { status: string; updated_at: string }> = {};
@@ -216,15 +232,16 @@ export function OperatorDashboardClient({
     }
 
     previousStatusesRef.current = next;
-    if (calledNow) playCallBell();
-  }, [appointments]);
+    if (calledNow) ringBell();
+  }, [appointments, ringBell]);
 
-  // Supabase Realtime synchronization
+  // Supabase Realtime synchronization + cross-device call bell
   useRealtimeAppointments({
     clinicDate,
     onUpdate: () => {
       router.refresh();
     },
+    onCallBell: ringBell,
   });
 
   // Memoized live summary calculations for maximum performance & 0 lag
@@ -235,9 +252,11 @@ export function OperatorDashboardClient({
     let completed = 0;
     let cancelled = 0;
     let no_show = 0;
+    let total = 0;
 
     for (let i = 0; i < scopedAppointments.length; i++) {
       const a = scopedAppointments[i];
+      if (!isProcedureAppointment(a)) total++;
       if (a.status === "waiting" && a.token != null) waiting++;
       else if (a.status === "called" && a.token != null) called++;
       else if (a.status === "in_consultation") in_consultation++;
@@ -247,7 +266,7 @@ export function OperatorDashboardClient({
     }
 
     return {
-      total: scopedAppointments.length,
+      total,
       waiting,
       called,
       in_consultation,
@@ -533,6 +552,7 @@ export function OperatorDashboardClient({
 
   const filteredList = React.useMemo(() => {
     const filtered = scopedAppointments.filter((a) => {
+      if (filter === "all") return !isProcedureAppointment(a);
       if (filter === "active") return (a.status === "waiting" || a.status === "called" || a.status === "in_consultation") && a.token != null;
       if (filter === "call_bookings") return a.appointment_type === "scheduled" && a.token == null && a.status !== "no_show" && a.status !== "completed";
       if (filter === "procedure") return isProcedureAppointment(a);
@@ -585,6 +605,22 @@ export function OperatorDashboardClient({
 
         {/* Quick Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
+          {!isBellReady && (
+            <button
+              onClick={async () => {
+                if (await unlockAudio()) {
+                  setIsBellReady(true);
+                  ringBell();
+                }
+              }}
+              title="Enable the doctor call bell sound on this device"
+              className="px-4 py-2.5 rounded-xl bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#92400E] border-2 border-[#D97706] font-bold text-xs sm:text-sm shadow-xs hover:shadow-sm transition-all duration-200 flex items-center gap-2 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
+            >
+              <BellRing className="w-4.5 h-4.5 animate-pulse" />
+              <span>Enable Bell</span>
+            </button>
+          )}
+
           {/* Button 0: Start / End Session */}
           {activeSession ? (
             <button
@@ -665,7 +701,7 @@ export function OperatorDashboardClient({
           title={activeSession ? `${SHIFT_LABELS[activeSession.shift]} Patients` : "Today Total Patients"}
           value={summary.total}
           icon={Users}
-          variant="bronze"
+          variant="yellow"
           active={filter === "all"}
           onClick={() => setFilter("all")}
         />
@@ -699,7 +735,7 @@ export function OperatorDashboardClient({
           title="Procedure"
           value={procedureCount}
           icon={Sparkles}
-          variant="purple"
+          variant="emerald"
           active={filter === "procedure"}
           onClick={() => setFilter("procedure")}
         />
@@ -707,7 +743,7 @@ export function OperatorDashboardClient({
           title="Complete Procedure"
           value={completeProcedureCount}
           icon={CheckCheck}
-          variant="teal"
+          variant="gray"
           active={filter === "complete_procedure"}
           onClick={() => setFilter("complete_procedure")}
         />
@@ -715,7 +751,7 @@ export function OperatorDashboardClient({
           title="Online Patient"
           value={onlinePatientCount}
           icon={Globe}
-          variant="indigo"
+          variant="navy"
           active={filter === "online"}
           onClick={() => setFilter("online")}
         />
@@ -723,7 +759,7 @@ export function OperatorDashboardClient({
           title="Online Patient Complete"
           value={onlinePatientCompleteCount}
           icon={UserCheck}
-          variant="jade"
+          variant="orange"
           active={filter === "online_complete"}
           onClick={() => setFilter("online_complete")}
         />

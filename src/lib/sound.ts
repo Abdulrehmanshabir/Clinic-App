@@ -15,11 +15,19 @@ function getAudioContext(): AudioContext | null {
   return audioContext;
 }
 
-export function unlockAudio() {
+export async function unlockAudio(): Promise<boolean> {
   const ctx = getAudioContext();
-  if (ctx && ctx.state === "suspended") {
-    void ctx.resume().catch(() => {});
+  if (!ctx) return false;
+
+  if (ctx.state === "suspended") {
+    try {
+      await ctx.resume();
+    } catch {
+      return false;
+    }
   }
+
+  return ctx.state === "running";
 }
 
 function strike(ctx: AudioContext, frequency: number, start: number, duration: number, volume: number) {

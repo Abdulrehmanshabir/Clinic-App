@@ -12,6 +12,7 @@ import {
   startConsultation,
   completeConsultationDirect,
   updateAppointmentStatus,
+  deleteNoShowAppointment,
   setDoctorBreak,
   endDoctorBreak,
 } from "@/lib/actions";
@@ -36,6 +37,7 @@ import {
   Coffee,
   Loader2,
   Globe,
+  Trash2,
 } from "lucide-react";
 import { formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 
@@ -63,6 +65,7 @@ export function DoctorDashboardClient({
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Doctor Break states
   const [doctorBreak, setDoctorBreakState] = useState<DoctorBreakInfo | null>(initialDoctorBreak || null);
@@ -78,8 +81,8 @@ export function DoctorDashboardClient({
     setDoctorBreakState(initialDoctorBreak || null);
   }, [initialDoctorBreak]);
 
-  // Supabase Realtime synchronization
-  useRealtimeAppointments({
+  // Supabase Realtime synchronization + cross-device call bell
+  const { sendCallBell } = useRealtimeAppointments({
     clinicDate,
     onUpdate: () => {
       router.refresh();
@@ -94,9 +97,11 @@ export function DoctorDashboardClient({
     let completed = 0;
     let cancelled = 0;
     let no_show = 0;
+    let total = 0;
 
     for (let i = 0; i < appointments.length; i++) {
       const a = appointments[i];
+      if (!isProcedureAppointment(a)) total++;
       if (a.status === "waiting" && a.token != null) waiting++;
       else if (a.status === "called" && a.token != null) called++;
       else if (a.status === "in_consultation") in_consultation++;
@@ -106,7 +111,7 @@ export function DoctorDashboardClient({
     }
 
     return {
-      total: appointments.length,
+      total,
       waiting,
       called,
       in_consultation,
@@ -203,6 +208,7 @@ export function DoctorDashboardClient({
   };
 
   const handleCallPatient = async (appointmentId: string) => {
+    const calledAppointment = appointments.find((a) => a.id === appointmentId);
     setLoadingAction(appointmentId);
     setAppointments((prev) =>
       prev.map((a) => (a.id === appointmentId ? { ...a, status: "called" } : a))
@@ -211,6 +217,10 @@ export function DoctorDashboardClient({
     try {
       const res = await updateAppointmentStatus(appointmentId, "called");
       if (res.success) {
+        sendCallBell({
+          token: calledAppointment?.token?.token_number,
+          patient: calledAppointment?.patient?.full_name,
+        });
         success("Patient Called", "Token status marked as Called");
         router.refresh();
       } else {
@@ -239,6 +249,33 @@ export function DoctorDashboardClient({
       }
     } finally {
       setLoadingAction(null);
+    }
+  };
+
+  const handleDeleteAbsent = async (appointmentId: string, patientName?: string) => {
+    if (
+      !window.confirm(
+        `Permanently delete ${patientName || "this absent patient"}? This will remove the patient from today's Total and cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setDeletingId(appointmentId);
+
+    try {
+      const res = await deleteNoShowAppointment(appointmentId);
+      if (res.success) {
+        setAppointments((prev) => prev.filter((a) => a.id !== appointmentId));
+        success("Absent Patient Deleted", `${patientName || "Patient"} has been removed from today's Total.`);
+        router.refresh();
+      } else {
+        error("Delete Failed", res.error || "Could not delete absent patient");
+      }
+    } catch {
+      error("Error", "An unexpected error occurred while deleting the patient");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -314,6 +351,7 @@ export function DoctorDashboardClient({
   // Filter queue list based on selected view
   const filteredAppointments = useMemo(() => {
     const filtered = appointments.filter((a) => {
+      if (activeFilter === "all") return !isProcedureAppointment(a);
       if (activeFilter === "active") {
         return (a.status === "in_consultation" || a.status === "waiting" || a.status === "called") && a.token != null;
       }
@@ -844,19 +882,37 @@ export function DoctorDashboardClient({
 
                     {/* Actions */}
                     <td className="px-6 py-4 text-center">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsNotesReadOnly(true);
-                          setSelectedAppointment(app);
-                          setIsConsultationOpen(true);
-                        }}
-                        className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1.5 shadow-2xs"
-                        title="View Notes"
-                      >
-                        <Eye className="w-3.5 h-3.5 text-[#A8835A]" />
-                        View Notes
-                      </button>
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsNotesReadOnly(true);
+                            setSelectedAppointment(app);
+                            setIsConsultationOpen(true);
+                          }}
+                          className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1.5 shadow-2xs"
+                          title="View Notes"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-[#A8835A]" />
+                          View Notes
+                        </button>
+                        {app.status === "no_show" && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAbsent(app.id, app.patient?.full_name)}
+                            disabled={deletingId === app.id}
+                            className="px-3.5 py-1.5 rounded-xl bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#B91C1C] border border-[#FCA5A5] text-xs font-bold transition inline-flex items-center gap-1.5 shadow-2xs disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Delete absent patient from Total"
+                          >
+                            {deletingId === app.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-3.5 h-3.5" />
+                            )}
+                            {deletingId === app.id ? "Deleting..." : "Delete"}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
