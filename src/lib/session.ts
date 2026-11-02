@@ -1,6 +1,6 @@
 import type { AppointmentStatus, ClinicShift } from "@/types/database";
 
-export const EVENING_SESSION_START_HOUR = 18;
+export const EVENING_SESSION_START_HOUR = 12;
 
 export const SHIFT_LABELS: Record<ClinicShift, string> = {
   morning: "Morning",
