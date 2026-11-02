@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 import { formatClinicTime, getClinicTimeString, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { SHIFT_LABELS, getAppointmentShift, getShiftTokenPrefix } from "@/lib/session";
-import { playCallBell, unlockAudio } from "@/lib/sound";
+import { playBreakBell, playCallBell, unlockAudio } from "@/lib/sound";
 
 interface OperatorDashboardClientProps {
   initialAppointments: Appointment[];
@@ -74,6 +74,10 @@ export function OperatorDashboardClient({
   const [isBellReady, setIsBellReady] = useState(false);
   const previousStatusesRef = React.useRef<Record<string, { status: string; updated_at: string }> | null>(null);
   const lastBellAtRef = React.useRef(0);
+  const lastBreakBellAtRef = React.useRef(0);
+  const previousBreakStartedAtRef = React.useRef<string | null>(
+    initialDoctorBreak?.on_break ? initialDoctorBreak.started_at : null
+  );
 
   // Doctor Break state for Receptionist view
   const [doctorBreak, setDoctorBreakState] = useState<DoctorBreakInfo | null>(initialDoctorBreak || null);
@@ -195,6 +199,25 @@ export function OperatorDashboardClient({
     playCallBell();
   }, []);
 
+  const ringBreakBell = React.useCallback(() => {
+    const now = Date.now();
+    if (now - lastBreakBellAtRef.current < 3000) return;
+    lastBreakBellAtRef.current = now;
+    playBreakBell();
+  }, []);
+
+  // Fallback: ring the separate break chime when the doctor goes on break
+  React.useEffect(() => {
+    const startedAt = doctorBreak?.on_break ? doctorBreak.started_at : null;
+    const previous = previousBreakStartedAtRef.current;
+
+    if (startedAt && startedAt !== previous) {
+      ringBreakBell();
+    }
+
+    previousBreakStartedAtRef.current = startedAt;
+  }, [doctorBreak, ringBreakBell]);
+
   // Unlock audio after the operator's first interaction so the doctor's call bell can play
   React.useEffect(() => {
     const unlock = async () => {
@@ -242,6 +265,7 @@ export function OperatorDashboardClient({
       router.refresh();
     },
     onCallBell: ringBell,
+    onBreakBell: ringBreakBell,
   });
 
   // Memoized live summary calculations for maximum performance & 0 lag

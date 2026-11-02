@@ -64,3 +64,21 @@ export function playCallBell() {
     ring();
   }
 }
+
+export function playBreakBell() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const ring = () => {
+    const now = ctx.currentTime;
+    strike(ctx, 523.25, now, 0.5, 0.24);
+    strike(ctx, 659.25, now + 0.18, 0.55, 0.24);
+    strike(ctx, 783.99, now + 0.36, 0.9, 0.26);
+  };
+
+  if (ctx.state === "suspended") {
+    ctx.resume().then(ring).catch(() => {});
+  } else {
+    ring();
+  }
+}

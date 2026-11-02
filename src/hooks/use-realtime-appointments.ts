@@ -8,15 +8,18 @@ interface UseRealtimeAppointmentsProps {
   clinicDate: string;
   onUpdate: () => void;
   onCallBell?: () => void;
+  onBreakBell?: () => void;
 }
 
 export function useRealtimeAppointments({
   clinicDate,
   onUpdate,
   onCallBell,
+  onBreakBell,
 }: UseRealtimeAppointmentsProps) {
   const onUpdateRef = useRef(onUpdate);
   const onCallBellRef = useRef(onCallBell);
+  const onBreakBellRef = useRef(onBreakBell);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
@@ -26,6 +29,10 @@ export function useRealtimeAppointments({
   useEffect(() => {
     onCallBellRef.current = onCallBell;
   }, [onCallBell]);
+
+  useEffect(() => {
+    onBreakBellRef.current = onBreakBell;
+  }, [onBreakBell]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -80,6 +87,9 @@ export function useRealtimeAppointments({
       .on("broadcast", { event: "call_bell" }, () => {
         onCallBellRef.current?.();
       })
+      .on("broadcast", { event: "break_bell" }, () => {
+        onBreakBellRef.current?.();
+      })
       .subscribe();
 
     channelRef.current = appointmentChannel;
@@ -102,5 +112,11 @@ export function useRealtimeAppointments({
     void channel.send({ type: "broadcast", event: "call_bell", payload });
   }, []);
 
-  return { sendCallBell };
+  const sendBreakBell = useCallback((payload: { breakType?: string; doctorName?: string }) => {
+    const channel = channelRef.current;
+    if (!channel) return;
+    void channel.send({ type: "broadcast", event: "break_bell", payload });
+  }, []);
+
+  return { sendCallBell, sendBreakBell };
 }

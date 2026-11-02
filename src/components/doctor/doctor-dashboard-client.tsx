@@ -82,7 +82,7 @@ export function DoctorDashboardClient({
   }, [initialDoctorBreak]);
 
   // Supabase Realtime synchronization + cross-device call bell
-  const { sendCallBell } = useRealtimeAppointments({
+  const { sendCallBell, sendBreakBell } = useRealtimeAppointments({
     clinicDate,
     onUpdate: () => {
       router.refresh();
@@ -385,9 +385,14 @@ export function DoctorDashboardClient({
     try {
       const res = await setDoctorBreak(clinicDate, breakType, customReason);
       if (res.success && res.data) {
-        setDoctorBreakState(res.data as DoctorBreakInfo);
+        const breakInfo = res.data as DoctorBreakInfo;
+        setDoctorBreakState(breakInfo);
+        sendBreakBell({
+          breakType: breakInfo.break_type || breakType,
+          doctorName: breakInfo.doctor_name,
+        });
         setIsBreakModalOpen(false);
-        success("Break Activated ☕", `You are now on ${breakType}. Reception is alerted.`);
+        success("Break Activated ?", `You are now on ${breakType}. Reception is alerted.`);
         router.refresh();
       } else {
         error("Action Failed", res.error || "Could not set break");
