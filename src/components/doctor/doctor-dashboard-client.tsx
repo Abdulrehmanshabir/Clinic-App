@@ -532,7 +532,7 @@ export function DoctorDashboardClient({
           title="Online Patient"
           value={onlinePatientCount}
           icon={Globe}
-          variant="navy"
+          variant="teal"
           active={activeFilter === "online"}
           onClick={() => setActiveFilter("online")}
         />

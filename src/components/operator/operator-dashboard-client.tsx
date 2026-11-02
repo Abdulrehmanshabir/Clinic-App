@@ -756,7 +756,7 @@ export function OperatorDashboardClient({
           title="Online Patient"
           value={onlinePatientCount}
           icon={Globe}
-          variant="navy"
+          variant="teal"
           active={filter === "online"}
           onClick={() => setFilter("online")}
         />
