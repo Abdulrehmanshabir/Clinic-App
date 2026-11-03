@@ -1315,7 +1315,7 @@ export function OperatorDashboardClient({
           setIsProcedureModalOpen(false);
         }}
         hideDefaultHeader={true}
-        maxWidth="lg"
+        maxWidth="md"
       >
         {createdProcedureToken ? (
           <div className="p-5 text-center py-4 space-y-3 relative">
@@ -1419,7 +1419,7 @@ export function OperatorDashboardClient({
             </div>
           </div>
         ) : (
-          <div className="p-4 sm:p-5 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-lg mx-auto shadow-xl relative">
+          <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
             <ModalCloseButton
               onClick={() => setIsProcedureModalOpen(false)}
               className="absolute right-3.5 top-3.5"
@@ -1436,7 +1436,7 @@ export function OperatorDashboardClient({
             </div>
 
             <form onSubmit={handleQuickBookProcedure}>
-              <div className="py-3 space-y-3.5 max-w-[380px] mx-auto w-full">
+              <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
                 <div>
                   <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Patient Name
@@ -1447,7 +1447,7 @@ export function OperatorDashboardClient({
                     placeholder="Enter patient name"
                     value={procedureName}
                     onChange={(e) => setProcedureName(e.target.value)}
-                    className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                    className="w-full h-10 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                   />
                 </div>
 
@@ -1460,7 +1460,7 @@ export function OperatorDashboardClient({
                     placeholder="Enter phone number (optional)"
                     value={procedurePhone}
                     onChange={(e) => setProcedurePhone(e.target.value)}
-                    className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
+                    className="w-full h-10 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
                   />
                 </div>
 
@@ -1480,7 +1480,7 @@ export function OperatorDashboardClient({
                       required
                       value={procedureServiceId}
                       onChange={(e) => setProcedureServiceId(e.target.value)}
-                      className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs appearance-none cursor-pointer"
+                      className="w-full h-10 pl-4 pr-10 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs appearance-none cursor-pointer"
                     >
                       <option value="">Select Procedure</option>
                       {canonicalServices.map((svc) => (
@@ -1494,18 +1494,18 @@ export function OperatorDashboardClient({
                 </div>
               </div>
 
-              <div className="mt-3 pt-3 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
+              <div className="mt-4 pt-3.5 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
                 <button
                   type="button"
                   onClick={() => setIsProcedureModalOpen(false)}
-                  className="px-6 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs sm:text-sm font-bold transition border border-[#D8C5AD]"
+                  className="px-6 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs font-bold transition border border-[#E9DFD1]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingProcedure}
-                  className="px-6 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-2.5 disabled:opacity-50 border border-[#2B1E14]"
+                  className="px-7 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-md transition flex items-center gap-2.5 disabled:opacity-50 border border-[#2B1E14]"
                 >
                   <Sparkles className="w-4 h-4 text-[#D8C5AD]" />
                   <span>{isSubmittingProcedure ? "Issuing..." : "Issue Procedure Token"}</span>
