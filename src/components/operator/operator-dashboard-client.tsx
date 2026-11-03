@@ -358,6 +358,15 @@ export function OperatorDashboardClient({
     ).padStart(3, "0")}`;
   }, [scopedAppointments, activeSession]);
 
+  const nextEstimatedProcedureToken = React.useMemo(() => {
+    if (!activeSession) return "Start Session";
+    const procedureTokenCount = appointments.filter(
+      (a) =>
+        a.token?.token_number?.trim().toUpperCase().startsWith("P-") ?? false
+    ).length;
+    return `P-${String(procedureTokenCount + 1).padStart(3, "0")}`;
+  }, [appointments, activeSession]);
+
   // 0. Start a clinic session (morning / evening)
   const handleStartSession = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1437,7 +1446,16 @@ export function OperatorDashboardClient({
 
             <form onSubmit={handleQuickBookProcedure}>
               <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
-                <div>
+                <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border border-dashed border-[#D8C5AD]">
+                  <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] dark:text-[#E5C158] block mb-0.5">
+                    Next In Line Token
+                  </span>
+                  <span className="text-3xl sm:text-4xl font-mono font-black text-[#1A120B] tracking-widest block py-0.5">
+                    {nextEstimatedProcedureToken}
+                  </span>
+                </div>
+
+                <div className="border-t border-dashed border-[#D8C5AD] pt-3">
                   <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Patient Name
                   </label>
