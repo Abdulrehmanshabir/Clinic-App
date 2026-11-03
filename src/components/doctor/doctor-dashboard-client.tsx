@@ -367,14 +367,7 @@ export function DoctorDashboardClient({
   // Filter queue list based on selected view
   const filteredAppointments = useMemo(() => {
     const filtered = scopedAppointments.filter((a) => {
-      if (activeFilter === "all") {
-        return (
-          !isProcedureAppointment(a) ||
-          a.status === "waiting" ||
-          a.status === "called" ||
-          a.status === "in_consultation"
-        );
-      }
+      if (activeFilter === "all") return !isProcedureAppointment(a);
       if (activeFilter === "active") {
         return (a.status === "in_consultation" || a.status === "waiting" || a.status === "called") && a.token != null;
       }
@@ -802,7 +795,11 @@ export function DoctorDashboardClient({
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Price</th>
+                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">
+                  {activeFilter === "procedure" || activeFilter === "complete_procedure"
+                    ? "Procedure & Price"
+                    : "Queue Action"}
+                </th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Status</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Action</th>
               </tr>
@@ -979,6 +976,8 @@ export function DoctorDashboardClient({
         appointments={scopedAppointments}
         services={services}
         isDoctorView={true}
+        onCallPatient={handleCallPatient}
+        loadingAction={loadingAction}
       />
 
       {/* Doctor Consultation Modal */}

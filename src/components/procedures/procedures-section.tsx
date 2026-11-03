@@ -15,13 +15,19 @@ import {
   Stethoscope,
   User,
   X,
+  Star,
 } from "lucide-react";
 import { formatClinicTime } from "@/lib/utils";
+import { markPatientNext } from "@/lib/actions";
+import { useToast } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
 
 interface ProceduresSectionProps {
   appointments: Appointment[];
   services: Service[];
   isDoctorView?: boolean;
+  onCallPatient?: (appointmentId: string) => Promise<void> | void;
+  loadingAction?: string | null;
 }
 
 // Fallback icons cycling through a set of icons for any number of procedures
@@ -49,8 +55,37 @@ export function ProceduresSection({
   appointments,
   services,
   isDoctorView = false,
+  onCallPatient,
+  loadingAction,
 }: ProceduresSectionProps) {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const [localLoadingId, setLocalLoadingId] = useState<string | null>(null);
+  const router = useRouter();
+  const { success, error } = useToast();
+
+  const handleCall = async (appointmentId: string) => {
+    if (onCallPatient) {
+      await onCallPatient(appointmentId);
+      return;
+    }
+    setLocalLoadingId(appointmentId);
+    try {
+      const res = await markPatientNext(appointmentId);
+      if (res.success) {
+        success("Patient Called Next", "This patient will be seen before the normal queue");
+        router.refresh();
+      } else {
+        error("Action Failed", res.error);
+        router.refresh();
+      }
+    } catch {
+      error("Error", "An unexpected error occurred");
+    } finally {
+      setLocalLoadingId(null);
+    }
+  };
+
+  const activeLoading = loadingAction ?? localLoadingId;
 
   // Only show active services from DB — no hardcoded list
   const activeServices = React.useMemo(
@@ -58,19 +93,10 @@ export function ProceduresSection({
     [services]
   );
 
-  // Doctor sees procedures here only after completion; active ones stay in the main queue.
-  const sectionAppointments = React.useMemo(
-    () =>
-      isDoctorView
-        ? appointments.filter((a) => a.status === "completed")
-        : appointments,
-    [appointments, isDoctorView]
-  );
-
   // Group appointments by service_id — purely DB-driven, no keyword matching
   const categorizedData = React.useMemo(() => {
     return activeServices.map((svc) => {
-      const svcAppointments = sectionAppointments.filter(
+      const svcAppointments = appointments.filter(
         (a) => a.service_id === svc.id
       );
 
@@ -87,7 +113,7 @@ export function ProceduresSection({
         totalRevenue,
       };
     });
-  }, [sectionAppointments, activeServices]);
+  }, [appointments, activeServices]);
 
   const activeCategory = selectedServiceId
     ? categorizedData.find((c) => c.service.id === selectedServiceId) || null
@@ -267,6 +293,9 @@ export function ProceduresSection({
                         <th className="px-6 py-4 text-left font-black">Patient Name</th>
                         <th className="px-6 py-4 text-center font-black">Phone</th>
                         <th className="px-6 py-4 text-center font-black">Appointment Time</th>
+                        {isDoctorView && (
+                          <th className="px-6 py-4 text-center font-black">Queue Action</th>
+                        )}
                         <th className="px-6 py-4 text-center font-black">Status</th>
                         <th className="px-6 py-4 text-center font-black">Procedure Fee</th>
                       </tr>
@@ -316,6 +345,34 @@ export function ProceduresSection({
                             <td className="px-6 py-4 text-center font-mono font-bold text-xs text-[#1A120B]">
                               {formatClinicTime(app.appointment_time)}
                             </td>
+
+                            {/* Queue Action */}
+                            {isDoctorView && (
+                              <td className="px-6 py-4 text-center">
+                                {app.status === "waiting" && app.token ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCall(app.id)}
+                                    disabled={activeLoading === app.id}
+                                    className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50"
+                                    title="Call this patient before the normal queue"
+                                  >
+                                    {activeLoading === app.id ? "Calling..." : "Call Next"}
+                                  </button>
+                                ) : app.status === "called" ? (
+                                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black shadow-2xs whitespace-nowrap">
+                                    <Star className="w-3.5 h-3.5 fill-current" />
+                                    Next
+                                  </span>
+                                ) : app.status === "in_consultation" ? (
+                                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] text-[#7E22CE] border border-[#D8B4FE] text-xs font-black shadow-2xs whitespace-nowrap">
+                                    In Room
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-[#A89887] font-medium">—</span>
+                                )}
+                              </td>
+                            )}
 
                             {/* Status */}
                             <td className="px-6 py-4 text-center">
