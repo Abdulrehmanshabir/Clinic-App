@@ -17,7 +17,6 @@ import {
   X,
   Star,
 } from "lucide-react";
-import { formatClinicTime } from "@/lib/utils";
 import { markPatientNext } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
@@ -292,7 +291,6 @@ export function ProceduresSection({
                         <th className="px-6 py-4 text-center font-black">Token</th>
                         <th className="px-6 py-4 text-left font-black">Patient Name</th>
                         <th className="px-6 py-4 text-center font-black">Phone</th>
-                        <th className="px-6 py-4 text-center font-black">Appointment Time</th>
                         {isDoctorView && (
                           <th className="px-6 py-4 text-center font-black">Queue Action</th>
                         )}
@@ -339,11 +337,6 @@ export function ProceduresSection({
                                   ? app.patient.phone
                                   : "—"}
                               </span>
-                            </td>
-
-                            {/* Time */}
-                            <td className="px-6 py-4 text-center font-mono font-bold text-xs text-[#1A120B]">
-                              {formatClinicTime(app.appointment_time)}
                             </td>
 
                             {/* Queue Action */}
