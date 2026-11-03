@@ -81,12 +81,12 @@ export function ProceduresPageClient({
           </div>
 
           {/* Estimated Value - White Text & Count */}
-          <div className="px-4 sm:px-5 py-2.5 rounded-2xl bg-[#FAF7F2] dark:bg-[#1A2230] border-2 border-[#D6B98C] dark:border-[#B45309] shadow-xs flex items-center gap-2.5 whitespace-nowrap">
-            <span className="w-2 h-2 rounded-full bg-[#B45309] dark:bg-[#FCD34D] animate-pulse" />
+          <div className="px-4 sm:px-5 py-2.5 rounded-2xl bg-[#FAF7F2] dark:bg-[#1A2230] border-2 border-[#8C6843] dark:border-[#34D399] shadow-xs flex items-center gap-2.5 whitespace-nowrap">
+            <span className="w-2 h-2 rounded-full bg-[#8C6843] dark:bg-[#34D399] animate-pulse" />
             <span className="text-xs sm:text-sm font-bold text-[#1A120B] dark:text-white">
               Estimated Value:
             </span>
-            <span className="font-mono font-black text-sm sm:text-base text-[#92400E] dark:text-[#FCD34D]">
+            <span className="font-mono font-black text-sm sm:text-base text-[#8C6843] dark:text-[#34D399]">
               Rs {totalRevenue.toLocaleString()}
             </span>
           </div>

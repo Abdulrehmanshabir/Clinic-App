@@ -864,10 +864,10 @@ export function DoctorDashboardClient({
                         <td className="px-6 py-4 text-center">
                           {app.service ? (
                             <div className="inline-flex flex-col items-center gap-0.5">
-                              <span className="text-[11px] font-bold text-[#8C6843] dark:text-[#E5C158] max-w-[150px] truncate">
+                              <span className="font-bold text-xs px-2.5 py-1 rounded-xl bg-[#FAF7F2] dark:bg-[#1E293B] border border-[#E8DFD1] dark:border-[#334155] text-[#1A120B] dark:text-white max-w-[150px] truncate">
                                 {app.service.name}
                               </span>
-                              <span className="font-mono font-bold text-xs text-[#B45309] dark:text-[#FCD34D]">
+                              <span className="font-mono font-bold text-xs text-[#8C6843] dark:!text-[#34D399] mt-0.5">
                                 Rs {Number(app.service.price).toLocaleString()}
                               </span>
                             </div>

@@ -992,7 +992,7 @@ export function OperatorDashboardClient({
                             <span className="font-bold text-xs px-2.5 py-1 rounded-xl bg-[#FAF7F2] dark:bg-[#1E293B] border border-[#E8DFD1] dark:border-[#334155] text-[#1A120B] dark:text-white">
                               {app.service.name}
                             </span>
-                            <span className="text-[11px] font-mono font-bold text-[#B45309] dark:text-[#FCD34D] mt-0.5">
+                            <span className="text-[11px] font-mono font-bold text-[#8C6843] dark:!text-[#34D399] mt-0.5">
                               Rs {Number(app.service.price).toLocaleString()}
                             </span>
                           </div>
@@ -1390,7 +1390,7 @@ export function OperatorDashboardClient({
                 {createdProcedureToken.service_price != null && (
                   <div className="flex justify-between items-center gap-2">
                     <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Price:</span>
-                    <span className="font-black font-mono text-sm sm:text-base text-[#B45309] dark:text-[#FCD34D]">
+                    <span className="font-black font-mono text-sm sm:text-base text-[#8C6843] dark:text-[#34D399]">
                       Rs {Number(createdProcedureToken.service_price).toLocaleString()}
                     </span>
                   </div>
@@ -1494,7 +1494,7 @@ export function OperatorDashboardClient({
                       Procedure / Treatment
                     </label>
                     {selectedProcedureService && (
-                      <span className="font-mono font-black text-xs text-[#92400E] dark:text-[#FCD34D] bg-[#FEF3C7] dark:bg-[#2A1F0F] px-2.5 py-0.5 rounded-lg border border-[#FDE68A] dark:border-[#B45309]">
+                      <span className="font-mono font-black text-xs text-[#8C6843] dark:text-[#34D399] bg-[#FAF7F2] dark:bg-[#1A2230] px-2.5 py-0.5 rounded-lg border-2 border-[#8C6843] dark:border-[#34D399]">
                         Rs {Number(selectedProcedureService.price).toLocaleString()}
                       </span>
                     )}
