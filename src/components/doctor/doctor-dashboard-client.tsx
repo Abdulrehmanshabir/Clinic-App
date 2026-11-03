@@ -367,7 +367,14 @@ export function DoctorDashboardClient({
   // Filter queue list based on selected view
   const filteredAppointments = useMemo(() => {
     const filtered = scopedAppointments.filter((a) => {
-      if (activeFilter === "all") return !isProcedureAppointment(a);
+      if (activeFilter === "all") {
+        return (
+          !isProcedureAppointment(a) ||
+          a.status === "waiting" ||
+          a.status === "called" ||
+          a.status === "in_consultation"
+        );
+      }
       if (activeFilter === "active") {
         return (a.status === "in_consultation" || a.status === "waiting" || a.status === "called") && a.token != null;
       }

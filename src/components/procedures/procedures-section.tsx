@@ -48,6 +48,7 @@ function getProcedureTitleColor(index: number) {
 export function ProceduresSection({
   appointments,
   services,
+  isDoctorView = false,
 }: ProceduresSectionProps) {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
 
@@ -57,10 +58,19 @@ export function ProceduresSection({
     [services]
   );
 
+  // Doctor sees procedures here only after completion; active ones stay in the main queue.
+  const sectionAppointments = React.useMemo(
+    () =>
+      isDoctorView
+        ? appointments.filter((a) => a.status === "completed")
+        : appointments,
+    [appointments, isDoctorView]
+  );
+
   // Group appointments by service_id — purely DB-driven, no keyword matching
   const categorizedData = React.useMemo(() => {
     return activeServices.map((svc) => {
-      const svcAppointments = appointments.filter(
+      const svcAppointments = sectionAppointments.filter(
         (a) => a.service_id === svc.id
       );
 
@@ -77,7 +87,7 @@ export function ProceduresSection({
         totalRevenue,
       };
     });
-  }, [appointments, activeServices]);
+  }, [sectionAppointments, activeServices]);
 
   const activeCategory = selectedServiceId
     ? categorizedData.find((c) => c.service.id === selectedServiceId) || null
