@@ -28,8 +28,21 @@ interface AppointmentsPageClientProps {
   doctors?: Profile[];
 }
 
+const RECORD_STATUS_ORDER: Record<Appointment["status"], number> = {
+  in_consultation: 0,
+  called: 1,
+  waiting: 2,
+  completed: 3,
+  cancelled: 4,
+  no_show: 5,
+};
+
 function sortAppointmentRecords(rows: Appointment[]): Appointment[] {
   return [...rows].sort((a, b) => {
+    const statusDiff =
+      RECORD_STATUS_ORDER[a.status] - RECORD_STATUS_ORDER[b.status];
+    if (statusDiff !== 0) return statusDiff;
+
     const procedureDiff =
       (isProcedureAppointment(a) ? 1 : 0) -
       (isProcedureAppointment(b) ? 1 : 0);
