@@ -12,6 +12,7 @@ import {
   startConsultation,
   completeConsultationDirect,
   updateAppointmentStatus,
+  markPatientNext,
   deleteNoShowAppointment,
   setDoctorBreak,
   endDoctorBreak,
@@ -38,6 +39,7 @@ import {
   Loader2,
   Globe,
   Trash2,
+  Star,
 } from "lucide-react";
 import { formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { getAppointmentShift, SHIFT_LABELS } from "@/lib/session";
@@ -226,13 +228,13 @@ export function DoctorDashboardClient({
     );
 
     try {
-      const res = await updateAppointmentStatus(appointmentId, "called");
+      const res = await markPatientNext(appointmentId);
       if (res.success) {
         sendCallBell({
           token: calledAppointment?.token?.token_number,
           patient: calledAppointment?.patient?.full_name,
         });
-        success("Patient Called", "Token status marked as Called");
+        success("Patient Called Next", "This patient will be seen before the normal queue");
         router.refresh();
       } else {
         error("Action Failed", res.error);
@@ -316,11 +318,14 @@ export function DoctorDashboardClient({
   // Find currently active patient in consultation
   const activeConsultation = scopedAppointments.find((a) => a.status === "in_consultation");
 
-  // Sorted waiting queue (Waiting / Called) ordered sequentially
+  // Called patient always comes first, then the normal waiting queue
   const waitingQueue = useMemo(() => {
     return scopedAppointments
       .filter((a) => (a.status === "waiting" || a.status === "called") && a.token != null)
       .sort((a, b) => {
+        const calledDiff =
+          (a.status === "called" ? 0 : 1) - (b.status === "called" ? 0 : 1);
+        if (calledDiff !== 0) return calledDiff;
         const posA = a.token?.queue_position || 999;
         const posB = b.token?.queue_position || 999;
         return posA - posB;
@@ -662,7 +667,9 @@ export function DoctorDashboardClient({
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1A120B] text-[#FCFAF6] text-xs font-black uppercase tracking-wider shadow-md shadow-[#8C6843]/20 ring-1 ring-white/15">
                     <Clock className="w-3.5 h-3.5 text-[#E6D5C3]" />
-                    Next In Line (Waiting)
+                    {nextPatientInLine.status === "called"
+                      ? "Next In Line (Priority)"
+                      : "Next In Line (Waiting)"}
                   </span>
                 </div>
                 <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] dark:border-[#2D3E58] shadow-sm">
@@ -786,7 +793,7 @@ export function DoctorDashboardClient({
               <tr>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Token</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Price</th>
+                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Status</th>
@@ -845,17 +852,32 @@ export function DoctorDashboardClient({
                       </div>
                     </td>
 
-                    {/* Procedure & Price */}
+                    {/* Queue Action */}
                     <td className="px-6 py-4 text-center">
-                      {app.service ? (
-                        <div className="inline-flex flex-col items-center">
-                          <span className="font-bold text-xs px-2.5 py-1 rounded-xl bg-[#FAF7F2] dark:bg-[#1E293B] border border-[#E8DFD1] dark:border-[#334155] text-[#1A120B] dark:text-white">
-                            {app.service.name}
-                          </span>
-                          <span className="text-[11px] font-mono font-bold text-[#15803D] dark:text-[#34D399] mt-0.5">
-                            Rs {Number(app.service.price).toLocaleString()}
-                          </span>
-                        </div>
+                      {app.status === "waiting" && app.token ? (
+                        <button
+                          type="button"
+                          onClick={() => handleCallPatient(app.id)}
+                          disabled={loadingAction === app.id}
+                          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] text-xs font-bold transition shadow-2xs disabled:opacity-50"
+                          title="Call this patient before the normal queue"
+                        >
+                          {loadingAction === app.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Star className="w-3.5 h-3.5 text-[#E5C158]" />
+                          )}
+                          Call Next
+                        </button>
+                      ) : app.status === "called" ? (
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black shadow-2xs whitespace-nowrap">
+                          <Star className="w-3.5 h-3.5 fill-current" />
+                          Next
+                        </span>
+                      ) : app.status === "in_consultation" ? (
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] text-[#7E22CE] border border-[#D8B4FE] text-xs font-black shadow-2xs whitespace-nowrap">
+                          In Room
+                        </span>
                       ) : (
                         <span className="text-xs text-[#A89887] font-medium">—</span>
                       )}

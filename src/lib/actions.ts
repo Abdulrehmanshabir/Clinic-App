@@ -868,6 +868,97 @@ export async function updateAppointmentStatus(appointmentId: string, status: App
   return { success: true, data: appointment };
 }
 
+export async function markPatientNext(appointmentId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, is_active")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile || profile.role !== "doctor" || profile.is_active !== true) {
+    return { success: false, error: "Only an active doctor can set the next patient" };
+  }
+
+  const { data: appointment, error: fetchError } = await supabase
+    .from("appointments")
+    .select(`
+      id,
+      appointment_date,
+      status,
+      token:tokens (id)
+    `)
+    .eq("id", appointmentId)
+    .maybeSingle();
+
+  if (fetchError || !appointment) {
+    return { success: false, error: fetchError?.message || "Appointment not found" };
+  }
+
+  if (appointment.status !== "waiting" && appointment.status !== "called") {
+    return { success: false, error: "Only waiting patients can be called next" };
+  }
+
+  const tokenRelation = appointment.token as unknown as
+    | { id?: string }
+    | { id?: string }[]
+    | null;
+  const hasToken = Array.isArray(tokenRelation)
+    ? tokenRelation.length > 0
+    : Boolean(tokenRelation?.id);
+
+  if (!hasToken) {
+    return { success: false, error: "Patient does not have a token yet" };
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from("appointments")
+    .update({ status: "called" })
+    .eq("id", appointmentId)
+    .select(`
+      id,
+      status,
+      patient:patients (full_name)
+    `)
+    .single();
+
+  if (updateError) {
+    return { success: false, error: updateError.message };
+  }
+
+  const { data: previousCalled } = await supabase
+    .from("appointments")
+    .select("id")
+    .eq("appointment_date", appointment.appointment_date)
+    .eq("status", "called")
+    .neq("id", appointmentId);
+
+  if (previousCalled?.length) {
+    await supabase
+      .from("appointments")
+      .update({ status: "waiting" })
+      .in(
+        "id",
+        previousCalled.map((row) => row.id)
+      );
+  }
+
+  await logAudit("CALL_NEXT_PATIENT", "appointments", appointmentId, {
+    reset_previous_called: previousCalled?.length || 0,
+  });
+
+  revalidatePath("/doctor");
+  revalidatePath("/operator");
+  revalidatePath("/queue");
+  return { success: true, data: updated };
+}
+
 export async function deleteNoShowAppointment(appointmentId: string) {
   const supabase = await createClient();
   const {
