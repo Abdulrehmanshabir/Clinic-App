@@ -142,12 +142,12 @@ export function DoctorDashboardClient({
 
   // Procedure counts
   const procedureCount = useMemo(() => {
-    return scopedAppointments.filter((a) => a.service != null || a.service_id != null).length;
+    return scopedAppointments.filter((a) => isProcedureAppointment(a)).length;
   }, [scopedAppointments]);
 
   const completeProcedureCount = useMemo(() => {
     return scopedAppointments.filter(
-      (a) => (a.service != null || a.service_id != null) && a.status === "completed"
+      (a) => isProcedureAppointment(a) && a.status === "completed"
     ).length;
   }, [scopedAppointments]);
 
@@ -375,10 +375,10 @@ export function DoctorDashboardClient({
         return a.appointment_type === "scheduled" && a.token == null && a.status !== "no_show" && a.status !== "completed";
       }
       if (activeFilter === "procedure") {
-        return a.service != null || a.service_id != null;
+        return isProcedureAppointment(a);
       }
       if (activeFilter === "complete_procedure") {
-        return (a.service != null || a.service_id != null) && a.status === "completed";
+        return isProcedureAppointment(a) && a.status === "completed";
       }
       if (activeFilter === "online") {
         return isOnlineAppointment(a);

@@ -41,10 +41,14 @@ export function isOnlineAppointment(
 }
 
 export function isProcedureAppointment(
-  app: Pick<Appointment, "service_id" | "service"> | null | undefined
+  app: Pick<Appointment, "service_id" | "service" | "token"> | null | undefined
 ): boolean {
   if (!app) return false;
-  return app.service_id != null || app.service != null;
+  return (
+    app.service_id != null ||
+    app.service != null ||
+    (app.token?.token_number?.trim().toUpperCase().startsWith("P-") ?? false)
+  );
 }
 
 const APPOINTMENT_STATUS_PRIORITY: Record<AppointmentStatus, number> = {
