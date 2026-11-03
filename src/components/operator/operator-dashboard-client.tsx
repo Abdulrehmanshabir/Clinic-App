@@ -1494,7 +1494,7 @@ export function OperatorDashboardClient({
                       Procedure / Treatment
                     </label>
                     {selectedProcedureService && (
-                      <span className="font-mono font-black text-xs text-[#8C6843] dark:text-[#34D399] bg-[#FAF7F2] dark:bg-[#1A2230] px-2.5 py-0.5 rounded-lg border-2 border-[#8C6843] dark:border-[#34D399]">
+                      <span className="font-mono font-black text-xs text-white bg-[#FAF7F2] dark:bg-[#1A2230] px-2.5 py-0.5 rounded-lg border-2 border-[#8C6843] dark:border-[#34D399]">
                         Rs {Number(selectedProcedureService.price).toLocaleString()}
                       </span>
                     )}
