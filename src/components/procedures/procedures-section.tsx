@@ -179,7 +179,7 @@ export function ProceduresSection({
                     </h4>
 
                     <div className="flex items-center justify-between pt-1">
-                      <span className="font-mono font-bold text-xs sm:text-sm text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
+                      <span className="font-mono font-bold text-xs sm:text-sm text-[#92400E] dark:text-[#FCD34D] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#D6B98C] dark:border-[#B45309] shadow-2xs inline-flex items-center justify-center">
                         Rs {item.currentPrice.toLocaleString()}
                       </span>
 
@@ -213,7 +213,7 @@ export function ProceduresSection({
                       <h4 className="text-base sm:text-lg font-serif font-black text-[#1A120B] dark:text-[#F8FAFC]">
                         {activeCategory.service.name}
                       </h4>
-                      <span className="font-mono font-bold text-xs sm:text-sm text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
+                      <span className="font-mono font-bold text-xs sm:text-sm text-[#92400E] dark:text-[#FCD34D] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#D6B98C] dark:border-[#B45309] shadow-2xs inline-flex items-center justify-center">
                         Rs {activeCategory.currentPrice.toLocaleString()}
                       </span>
                     </div>
@@ -327,7 +327,7 @@ export function ProceduresSection({
 
                             {/* Procedure Fee */}
                             <td className="px-6 py-4 text-center">
-                              <span className="font-mono font-bold text-xs sm:text-sm text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
+                              <span className="font-mono font-bold text-xs sm:text-sm text-[#92400E] dark:text-[#FCD34D] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#D6B98C] dark:border-[#B45309] shadow-2xs inline-flex items-center justify-center">
                                 Rs {price.toLocaleString()}
                               </span>
                             </td>

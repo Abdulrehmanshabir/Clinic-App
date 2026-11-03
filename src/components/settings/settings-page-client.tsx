@@ -260,7 +260,7 @@ export function SettingsPageClient({
                             />
                           </div>
                         ) : (
-                          <span className="font-mono font-bold text-xs sm:text-sm text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
+                          <span className="font-mono font-bold text-xs sm:text-sm text-[#92400E] dark:text-[#FCD34D] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#D6B98C] dark:border-[#B45309] shadow-2xs inline-flex items-center justify-center">
                             Rs {Number(svc.price).toLocaleString()}
                           </span>
                         )}
