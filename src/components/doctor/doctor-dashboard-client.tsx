@@ -794,15 +794,17 @@ export function DoctorDashboardClient({
             <thead className="bg-[#F4EFE6] text-lg font-black tracking-wider text-[#1A120B] border-b border-[#E8DFD1]">
               <tr>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Token</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
                 {isProcedureView ? (
                   <>
-                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Price</th>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
                   </>
                 ) : (
                   <>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
                   </>
@@ -856,30 +858,46 @@ export function DoctorDashboardClient({
                       )}
                     </td>
 
-                    {/* Patient Name */}
-                    <td className="px-6 py-4 text-center">
-                      <div className="font-bold text-[#1A120B] text-base">
-                        {app.patient?.full_name}
-                      </div>
-                    </td>
-
-                    {/* Phone Number */}
-                    <td className="px-6 py-4 text-center">
-                      {app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
-                        <div className="inline-flex items-center gap-1.5 text-[#1A120B] font-mono text-base font-bold bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1]">
-                          <Phone className="w-4 h-4 text-[#A8835A]" />
-                          {app.patient.phone}
-                        </div>
-                      ) : app.patient?.phone ? (
-                        <span className="text-[#1A120B] font-mono text-base font-bold">{app.patient.phone}</span>
-                      ) : (
-                        <span className="text-[#A89887] text-base font-medium">—</span>
-                      )}
-                    </td>
-
                     {isProcedureView ? (
                       <>
-                        {/* Queue Action for Procedure */}
+                        {/* Procedure & Price */}
+                        <td className="px-6 py-4 text-center">
+                          {app.service ? (
+                            <div className="inline-flex flex-col items-center gap-0.5">
+                              <span className="text-[11px] font-bold text-[#8C6843] dark:text-[#E5C158] max-w-[150px] truncate">
+                                {app.service.name}
+                              </span>
+                              <span className="font-mono font-bold text-xs text-[#B45309] dark:text-[#FCD34D]">
+                                Rs {Number(app.service.price).toLocaleString()}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-[#A89887] font-medium">—</span>
+                          )}
+                        </td>
+
+                        {/* Patient Name */}
+                        <td className="px-6 py-4 text-center">
+                          <div className="font-bold text-[#1A120B] text-base">
+                            {app.patient?.full_name}
+                          </div>
+                        </td>
+
+                        {/* Phone Number */}
+                        <td className="px-6 py-4 text-center">
+                          {app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
+                            <div className="inline-flex items-center gap-1.5 text-[#1A120B] font-mono text-base font-bold bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1]">
+                              <Phone className="w-4 h-4 text-[#A8835A]" />
+                              {app.patient.phone}
+                            </div>
+                          ) : app.patient?.phone ? (
+                            <span className="text-[#1A120B] font-mono text-base font-bold">{app.patient.phone}</span>
+                          ) : (
+                            <span className="text-[#A89887] text-base font-medium">—</span>
+                          )}
+                        </td>
+
+                        {/* Queue Action for Procedure (before Status) */}
                         <td className="px-6 py-4 text-center">
                           {app.status === "waiting" && app.token ? (
                             <button
@@ -904,25 +922,30 @@ export function DoctorDashboardClient({
                             <span className="text-xs text-[#A89887] font-medium">—</span>
                           )}
                         </td>
-
-                        {/* Procedure & Price */}
-                        <td className="px-6 py-4 text-center">
-                          {app.service ? (
-                            <div className="inline-flex flex-col items-center gap-0.5">
-                              <span className="text-[11px] font-bold text-[#8C6843] dark:text-[#E5C158] max-w-[150px] truncate">
-                                {app.service.name}
-                              </span>
-                              <span className="font-mono font-bold text-xs text-[#B45309] dark:text-[#FCD34D]">
-                                Rs {Number(app.service.price).toLocaleString()}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-[#A89887] font-medium">—</span>
-                          )}
-                        </td>
                       </>
                     ) : (
                       <>
+                        {/* Patient Name */}
+                        <td className="px-6 py-4 text-center">
+                          <div className="font-bold text-[#1A120B] text-base">
+                            {app.patient?.full_name}
+                          </div>
+                        </td>
+
+                        {/* Phone Number */}
+                        <td className="px-6 py-4 text-center">
+                          {app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
+                            <div className="inline-flex items-center gap-1.5 text-[#1A120B] font-mono text-base font-bold bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1]">
+                              <Phone className="w-4 h-4 text-[#A8835A]" />
+                              {app.patient.phone}
+                            </div>
+                          ) : app.patient?.phone ? (
+                            <span className="text-[#1A120B] font-mono text-base font-bold">{app.patient.phone}</span>
+                          ) : (
+                            <span className="text-[#A89887] text-base font-medium">—</span>
+                          )}
+                        </td>
+
                         {/* Reserved / Arrival Time */}
                         <td className="px-6 py-4 text-center">
                           <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] text-base font-bold text-[#1A120B] inline-flex items-center gap-1.5 shadow-2xs">
@@ -931,7 +954,7 @@ export function DoctorDashboardClient({
                           </span>
                         </td>
 
-                        {/* Queue Action */}
+                        {/* Queue Action (before Status) */}
                         <td className="px-6 py-4 text-center">
                           {app.status === "waiting" && app.token ? (
                             <button

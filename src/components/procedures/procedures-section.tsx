@@ -289,13 +289,13 @@ export function ProceduresSection({
                     <thead className="bg-[#F4EFE6] text-base sm:text-lg font-black tracking-wider text-[#1A120B] border-b border-[#E8DFD1]">
                       <tr>
                         <th className="px-6 py-4 text-center font-black">Token</th>
+                        <th className="px-6 py-4 text-center font-black">Procedure Fee</th>
                         <th className="px-6 py-4 text-left font-black">Patient Name</th>
                         <th className="px-6 py-4 text-center font-black">Phone</th>
                         {isDoctorView && (
                           <th className="px-6 py-4 text-center font-black">Queue Action</th>
                         )}
                         <th className="px-6 py-4 text-center font-black">Status</th>
-                        <th className="px-6 py-4 text-center font-black">Procedure Fee</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#EFE6D8]">
@@ -323,6 +323,13 @@ export function ProceduresSection({
                               )}
                             </td>
 
+                            {/* Procedure Fee */}
+                            <td className="px-6 py-4 text-center">
+                              <span className="font-mono font-bold text-xs sm:text-sm text-[#92400E] dark:text-[#FCD34D] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#D6B98C] dark:border-[#B45309] shadow-2xs inline-flex items-center justify-center">
+                                Rs {price.toLocaleString()}
+                              </span>
+                            </td>
+
                             {/* Patient Name */}
                             <td className="px-6 py-4 text-left">
                               <div className="font-bold text-[#1A120B] text-base font-serif">
@@ -339,7 +346,7 @@ export function ProceduresSection({
                               </span>
                             </td>
 
-                            {/* Queue Action */}
+                            {/* Queue Action (before Status) */}
                             {isDoctorView && (
                               <td className="px-6 py-4 text-center">
                                 {app.status === "waiting" && app.token ? (
@@ -382,13 +389,6 @@ export function ProceduresSection({
                               >
                                 <span className="w-2 h-2 rounded-full bg-current" />
                                 <span className="capitalize">{app.status.replace("_", " ")}</span>
-                              </span>
-                            </td>
-
-                            {/* Procedure Fee */}
-                            <td className="px-6 py-4 text-center">
-                              <span className="font-mono font-bold text-xs sm:text-sm text-[#92400E] dark:text-[#FCD34D] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#D6B98C] dark:border-[#B45309] shadow-2xs inline-flex items-center justify-center">
-                                Rs {price.toLocaleString()}
                               </span>
                             </td>
                           </tr>

@@ -931,10 +931,10 @@ export function OperatorDashboardClient({
             <thead className="bg-[#F4EFE6] text-lg font-black tracking-wider text-[#1A120B] border-b border-[#E8DFD1]">
               <tr>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Token</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
                 {isProcedureView && (
                   <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Price</th>
                 )}
+                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Status</th>
@@ -984,13 +984,6 @@ export function OperatorDashboardClient({
                       )}
                     </td>
 
-                    {/* Patient Name */}
-                    <td className="px-6 py-4 text-center">
-                      <div className="font-bold text-[#1A120B] text-base">
-                        {app.patient?.full_name}
-                      </div>
-                    </td>
-
                     {/* Procedure & Price */}
                     {isProcedureView && (
                       <td className="px-6 py-4 text-center">
@@ -1008,6 +1001,13 @@ export function OperatorDashboardClient({
                         )}
                       </td>
                     )}
+
+                    {/* Patient Name */}
+                    <td className="px-6 py-4 text-center">
+                      <div className="font-bold text-[#1A120B] text-base">
+                        {app.patient?.full_name}
+                      </div>
+                    </td>
 
                     {/* Phone Number */}
                     <td className="px-6 py-4 text-center">
