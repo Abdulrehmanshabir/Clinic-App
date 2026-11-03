@@ -1150,7 +1150,7 @@ export function OperatorDashboardClient({
                 setCreatedWalkInToken(null);
                 setIsWalkInModalOpen(false);
               }}
-              className="absolute right-0 top-0"
+              className="absolute right-3.5 top-3.5"
             />
             <div className="w-10 h-10 rounded-2xl bg-[#E0F2FE] text-[#0369A1] mx-auto flex items-center justify-center border border-[#BAE6FD] shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
@@ -1333,7 +1333,7 @@ export function OperatorDashboardClient({
                 setCreatedProcedureToken(null);
                 setIsProcedureModalOpen(false);
               }}
-              className="absolute right-0 top-0"
+              className="absolute right-3.5 top-3.5"
             />
             <div className="w-10 h-10 rounded-2xl bg-[#E0F2FE] text-[#0369A1] mx-auto flex items-center justify-center border border-[#BAE6FD] shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
@@ -1552,7 +1552,7 @@ export function OperatorDashboardClient({
                 setCreatedCallReservation(null);
                 setIsCallModalOpen(false);
               }}
-              className="absolute right-0 top-0"
+              className="absolute right-3.5 top-3.5"
             />
             <div className="w-10 h-10 rounded-2xl bg-[#E0F2FE] text-[#0369A1] mx-auto flex items-center justify-center border border-[#BAE6FD] shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
