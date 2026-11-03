@@ -793,9 +793,9 @@ export function DoctorDashboardClient({
               <tr>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Token</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
+                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Status</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Action</th>
               </tr>
@@ -852,37 +852,6 @@ export function DoctorDashboardClient({
                       </div>
                     </td>
 
-                    {/* Queue Action */}
-                    <td className="px-6 py-4 text-center">
-                      {app.status === "waiting" && app.token ? (
-                        <button
-                          type="button"
-                          onClick={() => handleCallPatient(app.id)}
-                          disabled={loadingAction === app.id}
-                          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] text-xs font-bold transition shadow-2xs disabled:opacity-50"
-                          title="Call this patient before the normal queue"
-                        >
-                          {loadingAction === app.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Star className="w-3.5 h-3.5 text-[#E5C158]" />
-                          )}
-                          Call Next
-                        </button>
-                      ) : app.status === "called" ? (
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black shadow-2xs whitespace-nowrap">
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          Next
-                        </span>
-                      ) : app.status === "in_consultation" ? (
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] text-[#7E22CE] border border-[#D8B4FE] text-xs font-black shadow-2xs whitespace-nowrap">
-                          In Room
-                        </span>
-                      ) : (
-                        <span className="text-xs text-[#A89887] font-medium">—</span>
-                      )}
-                    </td>
-
                     {/* Phone Number */}
                     <td className="px-6 py-4 text-center">
                       {app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
@@ -903,6 +872,37 @@ export function DoctorDashboardClient({
                         <Clock className="w-4 h-4 text-[#A8835A]" />
                         {formatClinicTime(app.appointment_time)}
                       </span>
+                    </td>
+
+                    {/* Queue Action */}
+                    <td className="px-6 py-4 text-center">
+                      {app.status === "waiting" && app.token ? (
+                        <button
+                          type="button"
+                          onClick={() => handleCallPatient(app.id)}
+                          disabled={loadingAction === app.id}
+                          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#14532D] hover:bg-[#166534] text-white text-xs font-bold transition shadow-2xs disabled:opacity-50"
+                          title="Call this patient before the normal queue"
+                        >
+                          {loadingAction === app.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Star className="w-3.5 h-3.5 text-[#BBF7D0]" />
+                          )}
+                          Call Next
+                        </button>
+                      ) : app.status === "called" ? (
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black shadow-2xs whitespace-nowrap">
+                          <Star className="w-3.5 h-3.5 fill-current" />
+                          Next
+                        </span>
+                      ) : app.status === "in_consultation" ? (
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] text-[#7E22CE] border border-[#D8B4FE] text-xs font-black shadow-2xs whitespace-nowrap">
+                          In Room
+                        </span>
+                      ) : (
+                        <span className="text-xs text-[#A89887] font-medium">—</span>
+                      )}
                     </td>
 
                     {/* Status */}
