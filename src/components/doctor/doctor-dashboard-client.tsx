@@ -438,6 +438,8 @@ export function DoctorDashboardClient({
     }
   };
 
+  const isProcedureView = activeFilter === "procedure" || activeFilter === "complete_procedure";
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Action Header - Clean Luxury Banner */}
@@ -794,12 +796,17 @@ export function DoctorDashboardClient({
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Token</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">
-                  {activeFilter === "procedure" || activeFilter === "complete_procedure"
-                    ? "Procedure & Price"
-                    : "Queue Action"}
-                </th>
+                {isProcedureView ? (
+                  <>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Price</th>
+                  </>
+                ) : (
+                  <>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
+                  </>
+                )}
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Status</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Action</th>
               </tr>
@@ -870,52 +877,87 @@ export function DoctorDashboardClient({
                       )}
                     </td>
 
-                    {/* Reserved / Arrival Time */}
-                    <td className="px-6 py-4 text-center">
-                      <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] text-base font-bold text-[#1A120B] inline-flex items-center gap-1.5 shadow-2xs">
-                        <Clock className="w-4 h-4 text-[#A8835A]" />
-                        {formatClinicTime(app.appointment_time)}
-                      </span>
-                    </td>
+                    {isProcedureView ? (
+                      <>
+                        {/* Queue Action for Procedure */}
+                        <td className="px-6 py-4 text-center">
+                          {app.status === "waiting" && app.token ? (
+                            <button
+                              type="button"
+                              onClick={() => handleCallPatient(app.id)}
+                              disabled={loadingAction === app.id}
+                              className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50"
+                              title="Call this patient before the normal queue"
+                            >
+                              {loadingAction === app.id ? "Calling..." : "Call Next"}
+                            </button>
+                          ) : app.status === "called" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black shadow-2xs whitespace-nowrap">
+                              <Star className="w-3.5 h-3.5 fill-current" />
+                              Next
+                            </span>
+                          ) : app.status === "in_consultation" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] text-[#7E22CE] border border-[#D8B4FE] text-xs font-black shadow-2xs whitespace-nowrap">
+                              In Room
+                            </span>
+                          ) : (
+                            <span className="text-xs text-[#A89887] font-medium">—</span>
+                          )}
+                        </td>
 
-                    {/* Queue Action / Procedure Price */}
-                    <td className="px-6 py-4 text-center">
-                      {isProcedureAppointment(app) ? (
-                        app.service ? (
-                          <div className="inline-flex flex-col items-center gap-0.5">
-                            <span className="text-[11px] font-bold text-[#8C6843] dark:text-[#E5C158] max-w-[150px] truncate">
-                              {app.service.name}
+                        {/* Procedure & Price */}
+                        <td className="px-6 py-4 text-center">
+                          {app.service ? (
+                            <div className="inline-flex flex-col items-center gap-0.5">
+                              <span className="text-[11px] font-bold text-[#8C6843] dark:text-[#E5C158] max-w-[150px] truncate">
+                                {app.service.name}
+                              </span>
+                              <span className="font-mono font-bold text-xs text-[#B45309] dark:text-[#FCD34D]">
+                                Rs {Number(app.service.price).toLocaleString()}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-[#A89887] font-medium">—</span>
+                          )}
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        {/* Reserved / Arrival Time */}
+                        <td className="px-6 py-4 text-center">
+                          <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] text-base font-bold text-[#1A120B] inline-flex items-center gap-1.5 shadow-2xs">
+                            <Clock className="w-4 h-4 text-[#A8835A]" />
+                            {formatClinicTime(app.appointment_time)}
+                          </span>
+                        </td>
+
+                        {/* Queue Action */}
+                        <td className="px-6 py-4 text-center">
+                          {app.status === "waiting" && app.token ? (
+                            <button
+                              type="button"
+                              onClick={() => handleCallPatient(app.id)}
+                              disabled={loadingAction === app.id}
+                              className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50"
+                              title="Call this patient before the normal queue"
+                            >
+                              {loadingAction === app.id ? "Calling..." : "Call Next"}
+                            </button>
+                          ) : app.status === "called" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black shadow-2xs whitespace-nowrap">
+                              <Star className="w-3.5 h-3.5 fill-current" />
+                              Next
                             </span>
-                            <span className="font-mono font-bold text-xs text-[#B45309] dark:text-[#FCD34D]">
-                              Rs {Number(app.service.price).toLocaleString()}
+                          ) : app.status === "in_consultation" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] text-[#7E22CE] border border-[#D8B4FE] text-xs font-black shadow-2xs whitespace-nowrap">
+                              In Room
                             </span>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-[#A89887] font-medium">—</span>
-                        )
-                      ) : app.status === "waiting" && app.token ? (
-                        <button
-                          type="button"
-                          onClick={() => handleCallPatient(app.id)}
-                          disabled={loadingAction === app.id}
-                          className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50"
-                          title="Call this patient before the normal queue"
-                        >
-                          {loadingAction === app.id ? "Calling..." : "Call Next"}
-                        </button>
-                      ) : app.status === "called" ? (
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black shadow-2xs whitespace-nowrap">
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          Next
-                        </span>
-                      ) : app.status === "in_consultation" ? (
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] text-[#7E22CE] border border-[#D8B4FE] text-xs font-black shadow-2xs whitespace-nowrap">
-                          In Room
-                        </span>
-                      ) : (
-                        <span className="text-xs text-[#A89887] font-medium">—</span>
-                      )}
-                    </td>
+                          ) : (
+                            <span className="text-xs text-[#A89887] font-medium">—</span>
+                          )}
+                        </td>
+                      </>
+                    )}
 
                     {/* Status */}
                     <td className="px-6 py-4 text-center">
