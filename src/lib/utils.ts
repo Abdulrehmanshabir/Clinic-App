@@ -71,13 +71,6 @@ export function sortAppointmentsForDashboard(
       APPOINTMENT_STATUS_PRIORITY[b.status];
     if (priorityDiff !== 0) return priorityDiff;
 
-    if (a.status === "completed") {
-      const completedDiff =
-        toTimestamp(b.consultation?.completed_at ?? b.updated_at) -
-        toTimestamp(a.consultation?.completed_at ?? a.updated_at);
-      if (completedDiff !== 0) return completedDiff;
-    }
-
     if (a.status === "cancelled" || a.status === "no_show") {
       const updatedDiff =
         toTimestamp(b.updated_at) - toTimestamp(a.updated_at);
