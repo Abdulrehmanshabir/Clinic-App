@@ -930,7 +930,6 @@ export function OperatorDashboardClient({
               <tr>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Token</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Price</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Status</th>
@@ -940,7 +939,7 @@ export function OperatorDashboardClient({
             <tbody className="divide-y divide-[#EFE6D8]">
               {filteredList.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-14 text-center text-[#8C6843] dark:text-[#E5C158]">
+                  <td colSpan={6} className="px-6 py-14 text-center text-[#8C6843] dark:text-[#E5C158]">
                     <div className="max-w-sm mx-auto space-y-1.5 py-2">
                       <p className="font-bold text-lg text-[#1A120B] dark:text-[#FFFFFF]">No patients found</p>
                       <p className="text-base text-[#8C6843] dark:text-[#E5C158] font-bold">No records matching the selected queue filter.</p>
@@ -985,22 +984,6 @@ export function OperatorDashboardClient({
                       <div className="font-bold text-[#1A120B] text-base">
                         {app.patient?.full_name}
                       </div>
-                    </td>
-
-                    {/* Procedure & Price */}
-                    <td className="px-6 py-4 text-center">
-                      {app.service ? (
-                        <div className="inline-flex flex-col items-center">
-                          <span className="font-bold text-xs px-2.5 py-1 rounded-xl bg-[#FAF7F2] dark:bg-[#1E293B] border border-[#E8DFD1] dark:border-[#334155] text-[#1A120B] dark:text-white">
-                            {app.service.name}
-                          </span>
-                          <span className="text-[11px] font-mono font-bold text-[#15803D] dark:text-[#34D399] mt-0.5">
-                            Rs {Number(app.service.price).toLocaleString()}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-[#A89887] font-medium">—</span>
-                      )}
                     </td>
 
                     {/* Phone Number */}
