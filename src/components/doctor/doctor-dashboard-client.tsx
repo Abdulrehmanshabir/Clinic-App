@@ -795,7 +795,7 @@ export function DoctorDashboardClient({
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
+                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue / Price</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Status</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Action</th>
               </tr>
@@ -874,9 +874,22 @@ export function DoctorDashboardClient({
                       </span>
                     </td>
 
-                    {/* Queue Action */}
+                    {/* Queue Action / Procedure Price */}
                     <td className="px-6 py-4 text-center">
-                      {app.status === "waiting" && app.token ? (
+                      {isProcedureAppointment(app) ? (
+                        app.service ? (
+                          <div className="inline-flex flex-col items-center gap-0.5">
+                            <span className="text-[11px] font-bold text-[#8C6843] dark:text-[#E5C158] max-w-[150px] truncate">
+                              {app.service.name}
+                            </span>
+                            <span className="font-mono font-bold text-xs text-[#B45309] dark:text-[#FCD34D]">
+                              Rs {Number(app.service.price).toLocaleString()}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-[#A89887] font-medium">—</span>
+                        )
+                      ) : app.status === "waiting" && app.token ? (
                         <button
                           type="button"
                           onClick={() => handleCallPatient(app.id)}
