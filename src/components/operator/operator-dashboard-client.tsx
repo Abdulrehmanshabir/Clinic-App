@@ -294,7 +294,7 @@ export function OperatorDashboardClient({
 
     for (let i = 0; i < scopedAppointments.length; i++) {
       const a = scopedAppointments[i];
-      if (!isProcedureAppointment(a)) total++;
+      if (!isProcedureAppointment(a) && a.token != null) total++;
       if (a.status === "waiting" && a.token != null) waiting++;
       else if (a.status === "called" && a.token != null) called++;
       else if (a.status === "in_consultation") in_consultation++;
