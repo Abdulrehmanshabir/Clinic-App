@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { type ActiveSession, type Appointment, type ClinicShift, type Service, type Profile } from "@/types/database";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { formatClinicDate, formatClinicTime } from "@/lib/utils";
+import { formatClinicDate, formatClinicTime, isProcedureAppointment } from "@/lib/utils";
 import {
   Filter,
   Phone,
@@ -26,6 +26,25 @@ interface AppointmentsPageClientProps {
   initialActiveSession?: ActiveSession | null;
   services?: Service[];
   doctors?: Profile[];
+}
+
+function sortAppointmentRecords(rows: Appointment[]): Appointment[] {
+  return [...rows].sort((a, b) => {
+    const procedureDiff =
+      (isProcedureAppointment(a) ? 1 : 0) -
+      (isProcedureAppointment(b) ? 1 : 0);
+    if (procedureDiff !== 0) return procedureDiff;
+
+    const posA = a.token?.queue_position ?? Number.MAX_SAFE_INTEGER;
+    const posB = b.token?.queue_position ?? Number.MAX_SAFE_INTEGER;
+    if (posA !== posB) return posA - posB;
+
+    return (a.token?.token_number || "").localeCompare(
+      b.token?.token_number || "",
+      undefined,
+      { numeric: true }
+    );
+  });
 }
 
 export function AppointmentsPageClient({
@@ -106,11 +125,15 @@ export function AppointmentsPageClient({
     return true;
   });
 
-  const morningAppointments = filteredAppointments.filter(
-    (app) => getAppointmentShift(app) === "morning"
+  const morningAppointments = sortAppointmentRecords(
+    filteredAppointments.filter(
+      (app) => getAppointmentShift(app) === "morning"
+    )
   );
-  const eveningAppointments = filteredAppointments.filter(
-    (app) => getAppointmentShift(app) === "evening"
+  const eveningAppointments = sortAppointmentRecords(
+    filteredAppointments.filter(
+      (app) => getAppointmentShift(app) === "evening"
+    )
   );
 
   const activeShift: ClinicShift | null =
