@@ -881,15 +881,10 @@ export function DoctorDashboardClient({
                           type="button"
                           onClick={() => handleCallPatient(app.id)}
                           disabled={loadingAction === app.id}
-                          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#14532D] hover:bg-[#166534] text-white text-xs font-bold transition shadow-2xs disabled:opacity-50"
+                          className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50"
                           title="Call this patient before the normal queue"
                         >
-                          {loadingAction === app.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Star className="w-3.5 h-3.5 text-[#BBF7D0]" />
-                          )}
-                          Call Next
+                          {loadingAction === app.id ? "Calling..." : "Call Next"}
                         </button>
                       ) : app.status === "called" ? (
                         <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black shadow-2xs whitespace-nowrap">
