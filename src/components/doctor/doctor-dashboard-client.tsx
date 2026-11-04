@@ -367,13 +367,7 @@ export function DoctorDashboardClient({
   // Filter queue list based on selected view
   const filteredAppointments = useMemo(() => {
     const filtered = scopedAppointments.filter((a) => {
-      if (activeFilter === "all") {
-        return (
-          !isProcedureAppointment(a) &&
-          a.status !== "completed" &&
-          a.status !== "cancelled"
-        );
-      }
+      if (activeFilter === "all") return !isProcedureAppointment(a);
       if (activeFilter === "active") {
         return (a.status === "in_consultation" || a.status === "waiting" || a.status === "called") && a.token != null;
       }
@@ -764,7 +758,7 @@ export function DoctorDashboardClient({
                 ? "Completed Consultations"
                 : activeFilter === "no_show"
                 ? "Absent / Not Present"
-                : "Waiting / Active Patients"}
+                : "All Today's Patients"}
             </h3>
             <span className="text-xs sm:text-sm font-bold text-[#1A120B] dark:text-[#FAF7F2] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs whitespace-nowrap inline-flex items-center justify-center">
               {filteredAppointments.length} Records
@@ -773,7 +767,7 @@ export function DoctorDashboardClient({
 
           <div className="flex items-center gap-1.5 p-1.5 bg-[#F4EFE6] rounded-2xl border border-[#E9DFD1] overflow-x-auto max-w-full">
             {[
-              { id: "all", label: "Waiting / Active" },
+              { id: "all", label: "All Patients" },
               { id: "active", label: "Active Queue" },
               { id: "procedure", label: `Procedure (${procedureCount})` },
               { id: "online", label: `Online (${onlinePatientCount})` },
