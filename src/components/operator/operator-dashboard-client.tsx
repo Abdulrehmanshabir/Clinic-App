@@ -977,7 +977,7 @@ export function OperatorDashboardClient({
                           Online
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD] text-base font-bold font-mono whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E0F2FE] text-[#1A120B] border border-[#BAE6FD] text-base font-bold font-mono whitespace-nowrap">
                           <PhoneCall className="w-4 h-4" />
                           Call Booking
                         </span>
@@ -1158,7 +1158,7 @@ export function OperatorDashboardClient({
               }}
               className="absolute right-3.5 top-3.5"
             />
-            <div className="w-10 h-10 rounded-2xl bg-[#E0F2FE] text-[#0369A1] mx-auto flex items-center justify-center border border-[#BAE6FD] shadow-xs">
+            <div className="slip-success-icon w-10 h-10 rounded-2xl mx-auto flex items-center justify-center border shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
@@ -1179,7 +1179,7 @@ export function OperatorDashboardClient({
                   {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
                 </p>
                 <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{clinicDate}</p>
-                <div className="inline-block mt-1 px-3 py-0.5 rounded-full bg-[#E0F2FE] text-[#0369A1] text-[11px] font-black border border-[#BAE6FD]">
+                <div className="slip-status-pill inline-block mt-1 px-3 py-0.5 rounded-full text-[11px] font-black border">
                   Status: In Doctor Queue
                 </div>
               </div>
@@ -1341,7 +1341,7 @@ export function OperatorDashboardClient({
               }}
               className="absolute right-3.5 top-3.5"
             />
-            <div className="w-10 h-10 rounded-2xl bg-[#E0F2FE] text-[#0369A1] mx-auto flex items-center justify-center border border-[#BAE6FD] shadow-xs">
+            <div className="slip-success-icon w-10 h-10 rounded-2xl mx-auto flex items-center justify-center border shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
@@ -1361,7 +1361,7 @@ export function OperatorDashboardClient({
                   {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
                 </p>
                 <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{clinicDate}</p>
-                <div className="inline-block mt-1 px-3 py-0.5 rounded-full bg-[#E0F2FE] text-[#0369A1] text-[11px] font-black border border-[#BAE6FD]">
+                <div className="slip-status-pill inline-block mt-1 px-3 py-0.5 rounded-full text-[11px] font-black border">
                   Status: In Doctor Queue
                 </div>
               </div>
@@ -1560,7 +1560,7 @@ export function OperatorDashboardClient({
               }}
               className="absolute right-3.5 top-3.5"
             />
-            <div className="w-10 h-10 rounded-2xl bg-[#E0F2FE] text-[#0369A1] mx-auto flex items-center justify-center border border-[#BAE6FD] shadow-xs">
+            <div className="slip-success-icon w-10 h-10 rounded-2xl mx-auto flex items-center justify-center border shadow-xs">
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
@@ -1578,7 +1578,7 @@ export function OperatorDashboardClient({
                   {clinicSettings?.tagline || "Expert Laser and Skin Clinic"}
                 </p>
                 <p className="text-xs sm:text-sm text-[#1A120B] font-mono font-black mt-1">{createdCallReservation.date}</p>
-                <div className="inline-block mt-1 px-3 py-0.5 rounded-full bg-[#E0F2FE] text-[#0369A1] text-[11px] font-black border border-[#BAE6FD]">
+                <div className="slip-status-pill inline-block mt-1 px-3 py-0.5 rounded-full text-[11px] font-black border">
                   Status: Awaiting Physical Arrival
                 </div>
               </div>
