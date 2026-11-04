@@ -55,9 +55,9 @@ const APPOINTMENT_STATUS_PRIORITY: Record<AppointmentStatus, number> = {
   in_consultation: 0,
   called: 1,
   waiting: 2,
-  completed: 3,
+  no_show: 3,
   cancelled: 4,
-  no_show: 5,
+  completed: 5,
 };
 
 function toTimestamp(value: string | null | undefined): number {

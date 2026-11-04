@@ -185,17 +185,29 @@ async function logAudit(
   action: string,
   entityType: string,
   entityId?: string | null,
-  details?: Record<string, unknown>
+  details?: Record<string, unknown>,
+  options?: {
+    supabase?: Awaited<ReturnType<typeof createClient>>;
+    userId?: string | null;
+    userEmail?: string | null;
+  }
 ) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const supabase = options?.supabase ?? (await createClient());
+    let userId = options?.userId;
+    let userEmail = options?.userEmail;
+
+    if (userId === undefined) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      userId = user?.id ?? null;
+      userEmail = user?.email ?? null;
+    }
 
     await supabase.from("audit_logs").insert({
-      user_id: user?.id || null,
-      user_email: user?.email || null,
+      user_id: userId ?? null,
+      user_email: userEmail ?? null,
       action,
       entity_type: entityType,
       entity_id: entityId || null,
@@ -476,21 +488,31 @@ export async function quickBookToken(formData: {
 
   const supabase = await createClient();
   const today = formData.appointment_date || getTodayDateString();
-
-  // 1. Find or create patient record (name & phone only)
-  let patientId: string | null = null;
   const rawPhone = formData.phone?.trim() || "";
 
-  if (rawPhone.length > 0) {
-    const { data: existing } = await supabase
-      .from("patients")
-      .select("id")
-      .eq("phone", rawPhone)
-      .maybeSingle();
-    if (existing) {
-      patientId = existing.id;
-    }
+  // Run independent reads in parallel so issuing a token stays fast.
+  const patientLookupPromise =
+    rawPhone.length > 0
+      ? supabase.from("patients").select("id").eq("phone", rawPhone).maybeSingle()
+      : Promise.resolve({ data: null, error: null });
+  const [existingPatientRes, activeSession, authRes] = await Promise.all([
+    patientLookupPromise,
+    getActiveSessionForDate(supabase, today),
+    supabase.auth.getUser(),
+  ]);
+
+  // A clinic session must be started before any token can be issued
+  if (!activeSession) {
+    return {
+      success: false,
+      error: "Please start a clinic session (date & time) before issuing a token.",
+    };
   }
+
+  const actingUser = authRes.data.user;
+
+  // 1. Find or create patient record (name & phone only)
+  let patientId: string | null = existingPatientRes.data?.id ?? null;
 
   if (!patientId) {
     const phoneToSave = rawPhone.length > 0 ? rawPhone : `+92-${Date.now().toString().slice(-7)}`;
@@ -519,15 +541,6 @@ export async function quickBookToken(formData: {
     } else {
       patientId = newPat.id;
     }
-  }
-
-  // 2. A clinic session must be started before any token can be issued
-  const activeSession = await getActiveSessionForDate(supabase, today);
-  if (!activeSession) {
-    return {
-      success: false,
-      error: "Please start a clinic session (date & time) before issuing a token.",
-    };
   }
 
   const { nextPos, tokenNumber, lastSlotTime } = await getNextSessionToken(
@@ -592,27 +605,38 @@ export async function quickBookToken(formData: {
     return { success: false, error: appErr.message };
   }
 
-  // 4. Insert Token
-  const { data: tokenRecord } = await supabase
-    .from("tokens")
-    .insert({
-      appointment_id: appointment.id,
-      token_number: tokenNumber,
-      token_date: today,
-      queue_position: nextPos,
-    })
-    .select()
-    .single();
+  // 4. Insert Token + write audit log in parallel
+  const [{ data: tokenRecord }] = await Promise.all([
+    supabase
+      .from("tokens")
+      .insert({
+        appointment_id: appointment.id,
+        token_number: tokenNumber,
+        token_date: today,
+        queue_position: nextPos,
+      })
+      .select()
+      .single(),
+    logAudit(
+      "QUICK_TOKEN_BOOK",
+      "appointments",
+      appointment.id,
+      {
+        patient: formData.full_name,
+        token: tokenNumber,
+        time: calculatedTime,
+      },
+      {
+        supabase,
+        userId: actingUser?.id ?? null,
+        userEmail: actingUser?.email ?? null,
+      }
+    ),
+  ]);
 
   const token = tokenRecord
     ? { token_num: tokenRecord.token_number, queue_pos: tokenRecord.queue_position }
     : { token_num: tokenNumber, queue_pos: nextPos };
-
-  await logAudit("QUICK_TOKEN_BOOK", "appointments", appointment.id, {
-    patient: formData.full_name,
-    token: token.token_num,
-    time: calculatedTime,
-  });
 
   revalidatePath("/doctor");
   revalidatePath("/operator");
@@ -647,12 +671,21 @@ export async function bookCallAppointment(formData: {
   }
 
   const supabase = await createClient();
+  const today = getTodayDateString();
+  const dateToUse = formData.appointment_date || today;
+  const rawPhone = formData.phone?.trim() || "";
+
+  // Run independent reads in parallel so booking stays fast.
+  const patientLookupPromise = rawPhone
+    ? supabase.from("patients").select("id").eq("phone", rawPhone).maybeSingle()
+    : Promise.resolve({ data: null, error: null });
+  const [activeSession, existingPatientRes, authRes] = await Promise.all([
+    getActiveSessionForDate(supabase, today),
+    patientLookupPromise,
+    supabase.auth.getUser(),
+  ]);
 
   // A clinic session must be started before any call appointment can be booked
-  const activeSession = await getActiveSessionForDate(
-    supabase,
-    getTodayDateString()
-  );
   if (!activeSession) {
     return {
       success: false,
@@ -660,22 +693,10 @@ export async function bookCallAppointment(formData: {
     };
   }
 
-  const dateToUse = formData.appointment_date || getTodayDateString();
-  const rawPhone = formData.phone?.trim() || "";
+  const actingUser = authRes.data.user;
 
   // 1. Find or create patient record (skip lookup when no phone is provided)
-  let patientId: string | null = null;
-  if (rawPhone) {
-    const { data: existing } = await supabase
-      .from("patients")
-      .select("id")
-      .eq("phone", rawPhone)
-      .maybeSingle();
-
-    if (existing) {
-      patientId = existing.id;
-    }
-  }
+  let patientId: string | null = existingPatientRes.data?.id ?? null;
 
   if (!patientId) {
     const { data: newPat, error: patErr } = await supabase
@@ -753,13 +774,23 @@ export async function bookCallAppointment(formData: {
     return { success: false, error: appErr.message };
   }
 
-  await logAudit("BOOK_CALL_APPOINTMENT", "appointments", appointment.id, {
-    patient: formData.full_name,
-    phone: rawPhone,
-    time: formData.appointment_time,
-    date: dateToUse,
-    is_online: wantsOnline,
-  });
+  await logAudit(
+    "BOOK_CALL_APPOINTMENT",
+    "appointments",
+    appointment.id,
+    {
+      patient: formData.full_name,
+      phone: rawPhone,
+      time: formData.appointment_time,
+      date: dateToUse,
+      is_online: wantsOnline,
+    },
+    {
+      supabase,
+      userId: actingUser?.id ?? null,
+      userEmail: actingUser?.email ?? null,
+    }
+  );
 
   revalidatePath("/doctor");
   revalidatePath("/operator");
