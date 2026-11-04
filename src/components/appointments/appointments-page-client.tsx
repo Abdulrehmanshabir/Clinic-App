@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { type ActiveSession, type Appointment, type ClinicShift, type Service, type Profile } from "@/types/database";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { formatClinicDate, formatClinicTime, isProcedureAppointment } from "@/lib/utils";
+import { formatClinicDate, formatClinicTime } from "@/lib/utils";
 import {
   Filter,
   Phone,
@@ -28,34 +28,22 @@ interface AppointmentsPageClientProps {
   doctors?: Profile[];
 }
 
-const RECORD_STATUS_ORDER: Record<Appointment["status"], number> = {
-  in_consultation: 0,
-  called: 1,
-  waiting: 2,
-  completed: 3,
-  cancelled: 4,
-  no_show: 5,
-};
-
 function sortAppointmentRecords(rows: Appointment[]): Appointment[] {
   return [...rows].sort((a, b) => {
-    const statusDiff =
-      RECORD_STATUS_ORDER[a.status] - RECORD_STATUS_ORDER[b.status];
-    if (statusDiff !== 0) return statusDiff;
-
-    const procedureDiff =
-      (isProcedureAppointment(a) ? 1 : 0) -
-      (isProcedureAppointment(b) ? 1 : 0);
-    if (procedureDiff !== 0) return procedureDiff;
-
     const posA = a.token?.queue_position ?? Number.MAX_SAFE_INTEGER;
     const posB = b.token?.queue_position ?? Number.MAX_SAFE_INTEGER;
     if (posA !== posB) return posA - posB;
 
-    return (a.token?.token_number || "").localeCompare(
+    const tokenDiff = (a.token?.token_number || "").localeCompare(
       b.token?.token_number || "",
       undefined,
       { numeric: true }
+    );
+    if (tokenDiff !== 0) return tokenDiff;
+
+    return (
+      a.appointment_time.localeCompare(b.appointment_time) ||
+      a.created_at.localeCompare(b.created_at)
     );
   });
 }
