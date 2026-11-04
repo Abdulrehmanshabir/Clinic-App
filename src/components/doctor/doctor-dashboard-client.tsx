@@ -371,8 +371,7 @@ export function DoctorDashboardClient({
         return (
           !isProcedureAppointment(a) &&
           a.status !== "completed" &&
-          a.status !== "cancelled" &&
-          a.status !== "no_show"
+          a.status !== "cancelled"
         );
       }
       if (activeFilter === "active") {

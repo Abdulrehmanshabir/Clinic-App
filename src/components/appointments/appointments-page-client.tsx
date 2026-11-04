@@ -111,6 +111,7 @@ export function AppointmentsPageClient({
   }, [isSearching, searchQuery, filterDate, clinicDate, initialAppointments]);
 
   const filteredAppointments = appointments.filter((app) => {
+    if (app.status !== "completed") return false;
     if (!isSearching && filterDate && app.appointment_date !== filterDate) return false;
     if (filterType === "walk_in" && app.appointment_type !== "walk_in") return false;
     if (filterType === "scheduled" && app.appointment_type !== "scheduled") return false;
@@ -321,7 +322,7 @@ export function AppointmentsPageClient({
             Patient Visit Records
           </h2>
           <p className="text-sm sm:text-base text-[#8C6843] dark:text-[#E5C158] font-bold mt-1">
-            Today&apos;s patient records are shown by default. Search to find previous patients.
+            Today&apos;s completed patient records are shown by default. Search to find previous patients.
           </p>
         </div>
 
