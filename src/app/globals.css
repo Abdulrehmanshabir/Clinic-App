@@ -913,24 +913,24 @@ textarea.placeholder-soft::placeholder {
 
 /* 13b. Final Slip Success Icon & Status Pill (consistent across walk-in, procedure & call slips) */
 .slip-success-icon {
-  background-color: #E0F2FE !important;
-  border-color: #7DD3FC !important;
-  color: #0284C7 !important;
+  background-color: #0284C7 !important;
+  border-color: #0284C7 !important;
+  color: #FFFFFF !important;
 }
 .dark .slip-success-icon {
-  background-color: #082F49 !important;
+  background-color: #0369A1 !important;
   border-color: #0EA5E9 !important;
-  color: #38BDF8 !important;
+  color: #FFFFFF !important;
 }
 .slip-status-pill {
-  background-color: #E0F2FE !important;
-  border-color: #7DD3FC !important;
-  color: #0369A1 !important;
+  background-color: #0284C7 !important;
+  border-color: #0284C7 !important;
+  color: #FFFFFF !important;
 }
 .dark .slip-status-pill {
-  background-color: #082F49 !important;
+  background-color: #0369A1 !important;
   border-color: #0EA5E9 !important;
-  color: #7DD3FC !important;
+  color: #FFFFFF !important;
 }
 
 /* 13. Modals Backdrop in Dark Blue Mode */
