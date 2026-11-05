@@ -34,6 +34,7 @@ import {
   Power,
   Sun,
   Moon,
+  Volume2,
 } from "lucide-react";
 import { formatClinicTime, getClinicTimeString, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { SHIFT_LABELS, getAppointmentShift, getShiftTokenPrefix } from "@/lib/session";
@@ -79,6 +80,10 @@ export function OperatorDashboardClient({
 
   // Doctor Break state for Receptionist view
   const [doctorBreak, setDoctorBreakState] = useState<DoctorBreakInfo | null>(initialDoctorBreak || null);
+
+  // Many browsers block audio until the user interacts once. Track that here
+  // so we can show an "Enable Bell Sound" prompt on the reception device.
+  const [soundEnabled, setSoundEnabled] = useState(false);
 
   // Clinic session (morning / evening shift) state
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(initialActiveSession || null);
@@ -235,23 +240,25 @@ export function OperatorDashboardClient({
 
   // Unlock audio automatically on the operator's first interaction so the doctor's bell can play
   React.useEffect(() => {
-    const onGesture = () => {
-      void unlockAudio();
+    let cancelled = false;
+    const tryUnlock = () => {
+      void unlockAudio().then((ok) => {
+        if (!cancelled && ok) setSoundEnabled(true);
+      });
     };
     const onVisible = () => {
-      if (document.visibilityState === "visible") {
-        void unlockAudio();
-      }
+      if (document.visibilityState === "visible") tryUnlock();
     };
-    window.addEventListener("pointerdown", onGesture);
-    window.addEventListener("keydown", onGesture);
-    window.addEventListener("touchstart", onGesture, { passive: true });
+    window.addEventListener("pointerdown", tryUnlock);
+    window.addEventListener("keydown", tryUnlock);
+    window.addEventListener("touchstart", tryUnlock, { passive: true });
     document.addEventListener("visibilitychange", onVisible);
-    void unlockAudio();
+    tryUnlock();
     return () => {
-      window.removeEventListener("pointerdown", onGesture);
-      window.removeEventListener("keydown", onGesture);
-      window.removeEventListener("touchstart", onGesture);
+      cancelled = true;
+      window.removeEventListener("pointerdown", tryUnlock);
+      window.removeEventListener("keydown", tryUnlock);
+      window.removeEventListener("touchstart", tryUnlock);
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
@@ -733,6 +740,27 @@ export function OperatorDashboardClient({
               >
                 <Play className="w-3.5 h-3.5 text-white" />
                 <span>Start Session</span>
+              </button>
+            )}
+
+            {!soundEnabled && (
+              <button
+                type="button"
+                onClick={async () => {
+                  const ok = await unlockAudio();
+                  setSoundEnabled(ok);
+                  if (ok) {
+                    playCallBell();
+                    success("Bell Sound Enabled", "This device will now ring for calls and breaks.");
+                  } else {
+                    error("Sound Blocked", "Please allow audio for this site, then tap again.");
+                  }
+                }}
+                title="Tap once so this device can play bell sounds"
+                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#7C2D12] via-[#C2410C] to-[#F97316] hover:from-[#9A3412] hover:via-[#EA580C] hover:to-[#FB923C] text-white border-2 border-[#7C2D12] dark:border-[#FDBA74] font-bold text-xs shadow-sm transition-all duration-200 flex items-center gap-1.5 cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
+              >
+                <Volume2 className="w-3.5 h-3.5 text-white" />
+                <span>Enable Bell Sound</span>
               </button>
             )}
           </div>
