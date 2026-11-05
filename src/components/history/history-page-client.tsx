@@ -205,8 +205,10 @@ export function HistoryPageClient({
               ) : (
                 initialAppointments.map((app) => (
                   <tr key={app.id} className="hover:bg-slate-900/40 transition">
-                    <td className="px-5 py-3.5 font-mono font-bold text-teal-400">
-                      {app.token?.token_number || "T-000"}
+                    <td className="px-5 py-3.5">
+                      <span className="inline-flex items-center justify-center font-mono font-bold text-teal-400 border-2 border-[#A8835A] rounded-lg px-2.5 py-0.5">
+                        {app.token?.token_number || "T-000"}
+                      </span>
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="font-bold text-white">{app.patient?.full_name}</div>

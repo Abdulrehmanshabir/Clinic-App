@@ -241,7 +241,7 @@ export function AppointmentsPageClient({
                       {/* Token */}
                       <td className="px-6 py-4 text-center font-mono font-bold">
                         {app.token ? (
-                          <span className="text-[#1A120B] dark:text-[#FAF7F2] text-base bg-[#F4EFE6] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border border-[#E8DFD1] dark:border-[#2E3C51] inline-block shadow-2xs font-mono font-black">
+                          <span className="text-[#1A120B] dark:text-[#FAF7F2] text-base bg-[#F4EFE6] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#D4AF37] inline-block shadow-2xs font-mono font-black">
                             {app.token.token_number}
                           </span>
                         ) : (

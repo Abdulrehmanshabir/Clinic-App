@@ -572,7 +572,7 @@ export function DoctorDashboardClient({
                   <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-ping" />
                   Currently In Room
                 </span>
-                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] dark:border-[#2D3E58] shadow-sm shrink-0 whitespace-nowrap">
+                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#8C6843] dark:border-[#D4AF37] shadow-sm shrink-0 whitespace-nowrap">
                   {activeConsultation.token?.token_number}
                 </span>
               </div>
@@ -678,7 +678,7 @@ export function DoctorDashboardClient({
                       : "Next In Line (Waiting)"}
                   </span>
                 </div>
-                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] dark:border-[#2D3E58] shadow-sm shrink-0 whitespace-nowrap">
+                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#8C6843] dark:border-[#D4AF37] shadow-sm shrink-0 whitespace-nowrap">
                   {nextPatientInLine.token?.token_number}
                 </span>
               </div>
@@ -846,7 +846,7 @@ export function DoctorDashboardClient({
                     {/* Token / Type */}
                     <td className="px-6 py-4 text-center">
                       {app.token ? (
-                        <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E8DFD1] inline-block shadow-2xs">
+                        <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#D4AF37] inline-block shadow-2xs">
                           {app.token.token_number}
                         </span>
                       ) : isOnlineAppointment(app) ? (

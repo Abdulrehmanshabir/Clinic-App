@@ -979,7 +979,7 @@ export function OperatorDashboardClient({
                     {/* Token / Type */}
                     <td className="px-6 py-4 text-center">
                       {app.token ? (
-                        <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E8DFD1] inline-block shadow-2xs">
+                        <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#D4AF37] inline-block shadow-2xs">
                           {app.token.token_number}
                         </span>
                       ) : isOnlineAppointment(app) ? (
@@ -1198,7 +1198,7 @@ export function OperatorDashboardClient({
               <div className="border-t border-dashed border-[#D8C5AD] mt-3 pt-3 space-y-2.5 text-xs">
                 <div className="flex justify-between items-center gap-2">
                   <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Token Number:</span>
-                  <span className="font-black font-mono text-base sm:text-lg text-[#1A120B] tracking-wider">{createdWalkInToken.token_num}</span>
+                  <span className="inline-flex items-center justify-center rounded-lg border-2 border-[#8C6843] px-2.5 py-0.5 font-black font-mono text-base sm:text-lg text-[#1A120B] tracking-wider">{createdWalkInToken.token_num}</span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
                   <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Name:</span>
@@ -1270,7 +1270,7 @@ export function OperatorDashboardClient({
             <form onSubmit={handleQuickBookWalkIn}>
               <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
                 {/* Next In Line Token (Matching Slip Number Display) */}
-                <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border border-dashed border-[#D8C5AD]">
+                <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border-2 border-dashed border-[#8C6843] dark:border-[#D4AF37]">
                   <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] dark:text-[#E5C158] block mb-0.5">
                     Next In Line Token
                   </span>
@@ -1380,7 +1380,7 @@ export function OperatorDashboardClient({
               <div className="border-t border-dashed border-[#D8C5AD] mt-3 pt-3 space-y-2.5 text-xs">
                 <div className="flex justify-between items-center gap-2">
                   <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Token Number:</span>
-                  <span className="font-black font-mono text-base sm:text-lg text-[#1A120B] tracking-wider">{createdProcedureToken.token_num}</span>
+                  <span className="inline-flex items-center justify-center rounded-lg border-2 border-[#8C6843] px-2.5 py-0.5 font-black font-mono text-base sm:text-lg text-[#1A120B] tracking-wider">{createdProcedureToken.token_num}</span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
                   <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Name:</span>
@@ -1463,7 +1463,7 @@ export function OperatorDashboardClient({
 
             <form onSubmit={handleQuickBookProcedure}>
               <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
-                <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border border-dashed border-[#D8C5AD]">
+                <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border-2 border-dashed border-[#8C6843] dark:border-[#D4AF37]">
                   <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] dark:text-[#E5C158] block mb-0.5">
                     Next In Line Token
                   </span>

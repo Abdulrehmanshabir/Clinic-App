@@ -313,7 +313,7 @@ export function ProceduresSection({
                             {/* Token */}
                             <td className="px-6 py-4 text-center">
                               {app.token ? (
-                                <span className="font-mono font-black text-sm text-[#1A120B] bg-[#FAF7F2] px-3.5 py-1.5 rounded-xl border border-[#E8DFD1] inline-flex items-center justify-center shadow-2xs">
+                                <span className="font-mono font-black text-sm text-[#1A120B] bg-[#FAF7F2] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#D4AF37] inline-flex items-center justify-center shadow-2xs">
                                   {app.token.token_number}
                                 </span>
                               ) : (

@@ -78,7 +78,7 @@ export function QueuePageClient({
                     className="p-5 rounded-2xl bg-indigo-950/30 border-2 border-indigo-500/50 shadow-xl flex items-center justify-between"
                   >
                     <div>
-                      <div className="text-3xl font-mono font-black text-indigo-300">
+                      <div className="inline-flex items-center justify-center text-3xl font-mono font-black text-indigo-300 border-2 border-[#A8835A] rounded-2xl px-3.5 py-1.5">
                         {app.token?.token_number}
                       </div>
                       <div className="text-base font-bold text-white mt-1">
@@ -116,7 +116,7 @@ export function QueuePageClient({
                     }`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center font-mono font-extrabold text-teal-400 text-base">
+                      <div className="min-w-[2.5rem] h-10 px-2 rounded-xl bg-slate-900 border-2 border-[#A8835A] flex items-center justify-center font-mono font-extrabold text-teal-400 text-base">
                         {app.token?.token_number}
                       </div>
                       <div>
@@ -157,7 +157,7 @@ export function QueuePageClient({
               completedQueue.slice(0, 10).map((app) => (
                 <div key={app.id} className="p-3.5 flex items-center justify-between">
                   <div>
-                    <div className="font-mono font-bold text-slate-300 text-sm">
+                    <div className="inline-flex items-center justify-center font-mono font-bold text-slate-300 text-sm border-2 border-[#A8835A] rounded-lg px-2.5 py-0.5">
                       {app.token?.token_number}
                     </div>
                     <div className="text-xs font-semibold text-slate-400">

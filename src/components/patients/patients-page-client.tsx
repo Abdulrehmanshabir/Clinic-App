@@ -207,7 +207,7 @@ export function PatientsPageClient({ initialPatients }: PatientsPageClientProps)
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="font-mono font-bold text-teal-400 text-sm px-2 py-0.5 rounded bg-teal-500/10 border border-teal-500/20">
+                          <span className="font-mono font-bold text-teal-400 text-sm px-2 py-0.5 rounded-lg bg-teal-500/10 border-2 border-[#A8835A]">
                             {visit.token?.token_number || "T-000"}
                           </span>
                           <div>
