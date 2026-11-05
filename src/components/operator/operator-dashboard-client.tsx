@@ -842,6 +842,7 @@ export function OperatorDashboardClient({
           value={onlinePatientCount}
           icon={Globe}
           variant="sky"
+          className="order-7 md:order-5"
           active={filter === "online"}
           onClick={() => setFilter("online")}
         />
@@ -850,6 +851,7 @@ export function OperatorDashboardClient({
           value={onlinePatientCompleteCount}
           icon={UserCheck}
           variant="emerald"
+          className="order-8 md:order-6"
           active={filter === "online_complete"}
           onClick={() => setFilter("online_complete")}
         />
@@ -858,6 +860,7 @@ export function OperatorDashboardClient({
           value={procedureCount}
           icon={Sparkles}
           variant="yellow"
+          className="order-5 md:order-7"
           active={filter === "procedure"}
           onClick={() => setFilter("procedure")}
         />
@@ -866,6 +869,7 @@ export function OperatorDashboardClient({
           value={completeProcedureCount}
           icon={CheckCheck}
           variant="red"
+          className="order-6 md:order-8"
           active={filter === "complete_procedure"}
           onClick={() => setFilter("complete_procedure")}
         />

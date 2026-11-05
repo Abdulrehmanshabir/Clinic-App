@@ -524,6 +524,7 @@ export function DoctorDashboardClient({
           value={onlinePatientCount}
           icon={Globe}
           variant="sky"
+          className="order-7 md:order-5"
           active={activeFilter === "online"}
           onClick={() => setActiveFilter("online")}
         />
@@ -532,6 +533,7 @@ export function DoctorDashboardClient({
           value={onlinePatientCompleteCount}
           icon={UserCheck}
           variant="emerald"
+          className="order-8 md:order-6"
           active={activeFilter === "online_complete"}
           onClick={() => setActiveFilter("online_complete")}
         />
@@ -540,6 +542,7 @@ export function DoctorDashboardClient({
           value={procedureCount}
           icon={Sparkles}
           variant="yellow"
+          className="order-5 md:order-7"
           active={activeFilter === "procedure"}
           onClick={() => setActiveFilter("procedure")}
         />
@@ -548,6 +551,7 @@ export function DoctorDashboardClient({
           value={completeProcedureCount}
           icon={CheckCheck}
           variant="red"
+          className="order-6 md:order-8"
           active={activeFilter === "complete_procedure"}
           onClick={() => setActiveFilter("complete_procedure")}
         />

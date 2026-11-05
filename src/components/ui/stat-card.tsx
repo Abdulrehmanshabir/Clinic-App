@@ -11,6 +11,7 @@ interface StatCardProps {
   active?: boolean;
   dark?: boolean;
   theme?: "default" | "dark" | "stone";
+  className?: string;
 }
 
 const variantStyles: Record<string, string> = {
@@ -102,6 +103,7 @@ export function StatCard({
   onClick,
   active = false,
   theme = "default",
+  className,
 }: StatCardProps) {
   const isStone = theme === "stone";
   const isLightCard = !isStone && (variant === "yellow" || variant === "peach");
@@ -126,7 +128,7 @@ export function StatCard({
             ? "shadow-lg shadow-[#111111]/20 scale-[1.02]"
             : "shadow-xl scale-[1.02]"
           : ""
-      }`}
+      } ${className || ""}`}
     >
       <div className="flex items-center justify-between">
         <div>
