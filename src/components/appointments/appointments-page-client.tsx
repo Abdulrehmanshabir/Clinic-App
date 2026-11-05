@@ -260,9 +260,6 @@ export function AppointmentsPageClient({
                       {/* Patient Name */}
                       <td className="px-6 py-4 text-center">
                         <div className="font-bold text-[#1A120B] dark:text-[#FAF7F2] text-base">{app.patient?.full_name}</div>
-                        <div className="text-xs text-[#8C7A6B] dark:text-[#94A3B8] font-mono font-bold">
-                          {app.patient?.patient_number}
-                        </div>
                       </td>
 
                       {/* Phone Number */}
