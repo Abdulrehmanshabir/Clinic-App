@@ -238,14 +238,21 @@ export function OperatorDashboardClient({
     const onGesture = () => {
       void unlockAudio();
     };
-    window.addEventListener("pointerdown", onGesture, { once: true });
-    window.addEventListener("keydown", onGesture, { once: true });
-    window.addEventListener("touchstart", onGesture, { once: true, passive: true });
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        void unlockAudio();
+      }
+    };
+    window.addEventListener("pointerdown", onGesture);
+    window.addEventListener("keydown", onGesture);
+    window.addEventListener("touchstart", onGesture, { passive: true });
+    document.addEventListener("visibilitychange", onVisible);
     void unlockAudio();
     return () => {
       window.removeEventListener("pointerdown", onGesture);
       window.removeEventListener("keydown", onGesture);
       window.removeEventListener("touchstart", onGesture);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 
@@ -259,11 +266,14 @@ export function OperatorDashboardClient({
       next[app.id] = { status: app.status, updated_at: app.updated_at };
       const prev = previous?.[app.id];
 
-      if (
+      const becameCalled =
         prev &&
         app.status === "called" &&
-        (prev.status !== "called" || prev.updated_at !== app.updated_at)
-      ) {
+        (prev.status !== "called" || prev.updated_at !== app.updated_at);
+      const startedConsultation =
+        prev && app.status === "in_consultation" && prev.status !== "in_consultation";
+
+      if (becameCalled || startedConsultation) {
         calledNow = true;
       }
     }

@@ -30,11 +30,18 @@ export async function unlockAudio(): Promise<boolean> {
   return ctx.state === "running";
 }
 
-function strike(ctx: AudioContext, frequency: number, start: number, duration: number, volume: number) {
+function strike(
+  ctx: AudioContext,
+  frequency: number,
+  start: number,
+  duration: number,
+  volume: number,
+  type: OscillatorType = "sine"
+) {
   const oscillator = ctx.createOscillator();
   const gain = ctx.createGain();
 
-  oscillator.type = "sine";
+  oscillator.type = type;
   oscillator.frequency.setValueAtTime(frequency, start);
 
   gain.gain.setValueAtTime(0.0001, start);
@@ -48,14 +55,15 @@ function strike(ctx: AudioContext, frequency: number, start: number, duration: n
   oscillator.stop(start + duration + 0.05);
 }
 
+// Call Bell: soft descending "ding-dong" doorbell (sine wave)
 export function playCallBell() {
   const ctx = getAudioContext();
   if (!ctx) return;
 
   const ring = () => {
     const now = ctx.currentTime;
-    strike(ctx, 880, now, 0.55, 0.28);
-    strike(ctx, 660, now + 0.22, 0.75, 0.24);
+    strike(ctx, 1046.5, now, 0.55, 0.3, "sine");
+    strike(ctx, 783.99, now + 0.32, 0.95, 0.26, "sine");
   };
 
   if (ctx.state === "suspended") {
@@ -65,15 +73,16 @@ export function playCallBell() {
   }
 }
 
+// Break Bell: sharp triple "beep-beep-beep" alert (square wave)
 export function playBreakBell() {
   const ctx = getAudioContext();
   if (!ctx) return;
 
   const ring = () => {
     const now = ctx.currentTime;
-    strike(ctx, 523.25, now, 0.5, 0.24);
-    strike(ctx, 659.25, now + 0.18, 0.55, 0.24);
-    strike(ctx, 783.99, now + 0.36, 0.9, 0.26);
+    for (let i = 0; i < 3; i++) {
+      strike(ctx, 880, now + i * 0.22, 0.12, 0.16, "square");
+    }
   };
 
   if (ctx.state === "suspended") {

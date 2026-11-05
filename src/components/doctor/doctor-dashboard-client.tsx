@@ -183,6 +183,10 @@ export function DoctorDashboardClient({
     try {
       const res = await startConsultation(appointment.id);
       if (res.success) {
+        sendCallBell({
+          token: appointment.token?.token_number,
+          patient: appointment.patient?.full_name,
+        });
         success("Patient In Room", `Now consulting: ${appointment.patient?.full_name} (${appointment.token?.token_number || "Token"})`);
         router.refresh();
       } else {
@@ -353,6 +357,10 @@ export function DoctorDashboardClient({
 
     const startRes = await startConsultation(nextApp.id);
     if (startRes.success) {
+      sendCallBell({
+        token: nextApp.token?.token_number,
+        patient: nextApp.patient?.full_name,
+      });
       success("Next Patient Called", `Now consulting: ${nextApp.patient?.full_name} (${nextApp.token?.token_number})`);
       setSelectedAppointment(nextApp);
       setIsConsultationOpen(false);
