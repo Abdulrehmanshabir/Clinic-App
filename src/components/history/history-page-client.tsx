@@ -167,7 +167,7 @@ export function HistoryPageClient({
       </div>
 
       {/* KPI Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 auto-rows-fr gap-4">
         <StatCard title="Total Consultations" value={initialSummary.total} icon={Users} variant="default" />
         <StatCard title="Completed" value={initialSummary.completed} icon={CheckCircle2} variant="emerald" />
         <StatCard title="Waiting / Left" value={initialSummary.waiting} icon={Clock} variant="amber" />

@@ -133,7 +133,7 @@ export function ConsultationModal({
               {appointment.patient?.full_name}
             </h3>
             {/* Token with exact outline from 7 Total Procedures badge on Dr Dashboard */}
-            <span className="font-mono font-black text-xs sm:text-base px-2.5 sm:px-3.5 py-1 rounded-2xl bg-[#FAF7F2] dark:bg-[#1A2230] text-[#1A120B] dark:text-[#FAF7F2] border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs shrink-0 tracking-wide">
+            <span className="font-mono font-black text-xs sm:text-base px-2.5 sm:px-3.5 py-1 rounded-2xl bg-[#FAF7F2] dark:bg-[#1A2230] text-[#1A120B] dark:text-[#FAF7F2] border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs shrink-0 tracking-wide whitespace-nowrap">
               {appointment.token?.token_number || "No Token"}
             </span>
           </div>

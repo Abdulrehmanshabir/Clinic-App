@@ -7,6 +7,18 @@
   --foreground: #1E1915;
 }
 
+/* Prevent iOS Safari from auto-inflating text, so layouts match Android */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Tokens, phone numbers, times and dates must never break onto a second line */
+.font-mono {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 html.dark {
   --background: #0B1120;
   --foreground: #F8FAFC;
@@ -21,7 +33,7 @@ button,
 table {
   color: #1E1915;
   background-color: transparent;
-  font-family: "Times New Roman", Times, Baskerville, Georgia, serif;
+  font-family: "Times New Roman", "Liberation Serif", "Nimbus Roman", "Noto Serif", Georgia, serif;
 }
 
 body {

@@ -809,7 +809,7 @@ export function OperatorDashboardClient({
       )}
 
       {/* KPI Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-fr gap-3.5 sm:gap-4">
         <StatCard
           title={activeSession ? `${SHIFT_LABELS[activeSession.shift]} Patients` : "Today Total Patients"}
           value={summary.total}

@@ -46,7 +46,7 @@ export function ReportsPageClient({ initialAppointments }: ReportsPageClientProp
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 auto-rows-fr gap-4">
         <StatCard title="Total Volume" value={totalPatients} icon={Users} variant="default" />
         <StatCard title="Completed Consults" value={completedAppointments.length} icon={TrendingUp} variant="emerald" />
         <StatCard title="Est. Revenue ($)" value={`$${totalRevenue.toFixed(2)}`} icon={DollarSign} variant="indigo" />

@@ -479,7 +479,7 @@ export function DoctorDashboardClient({
       )}
 
       {/* KPI Stats Grid - 8 Full Color Boxes */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-fr gap-3.5 sm:gap-4">
         {/* Row 1: Core Queue Metrics */}
         <StatCard
           title={
@@ -572,7 +572,7 @@ export function DoctorDashboardClient({
                   <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-ping" />
                   Currently In Room
                 </span>
-                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] dark:border-[#2D3E58] shadow-sm">
+                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] dark:border-[#2D3E58] shadow-sm shrink-0 whitespace-nowrap">
                   {activeConsultation.token?.token_number}
                 </span>
               </div>
@@ -678,7 +678,7 @@ export function DoctorDashboardClient({
                       : "Next In Line (Waiting)"}
                   </span>
                 </div>
-                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] dark:border-[#2D3E58] shadow-sm">
+                <span className="font-mono font-black text-2xl sm:text-3xl text-[#1A120B] tracking-tight bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur px-4 py-1.5 rounded-2xl border-2 border-[#D8C5AD] dark:border-[#2D3E58] shadow-sm shrink-0 whitespace-nowrap">
                   {nextPatientInLine.token?.token_number}
                 </span>
               </div>

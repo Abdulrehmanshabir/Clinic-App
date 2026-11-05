@@ -120,7 +120,7 @@ export function StatCard({
   return (
     <div
       onClick={onClick}
-      className={`relative p-5 rounded-2xl border-2 transition-all duration-200 aesthetic-card-shadow ${
+      className={`relative h-full p-5 rounded-2xl border-2 transition-all duration-200 aesthetic-card-shadow ${
         currentStyles
       } ${onClick ? "cursor-pointer select-none aesthetic-card-hover" : ""} ${
         active
@@ -130,9 +130,9 @@ export function StatCard({
           : ""
       } ${className || ""}`}
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className={`text-base sm:text-lg font-bold tracking-tight stat-card-title ${
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <p className={`text-base sm:text-lg font-bold tracking-tight leading-snug stat-card-title ${
             isStone ? "text-[#111111]" : isLightCard ? lightTextClass : "text-white"
           }`}>
             {title}
@@ -144,7 +144,7 @@ export function StatCard({
             isStone ? "text-[#4A453E]" : isLightCard ? (variant === "peach" ? "text-[#7C3F1D]" : "text-[#4A3B00]") : "text-white/80"
           }`}>{subtitle}</p>}
         </div>
-        <div className={`p-3 rounded-2xl flex items-center justify-center ${currentIconBg}`}>
+        <div className={`p-3 rounded-2xl flex items-center justify-center shrink-0 ${currentIconBg}`}>
           <Icon className={`w-5 h-5 ${isLightCard ? lightTextClass : "text-white"}`} />
         </div>
       </div>
