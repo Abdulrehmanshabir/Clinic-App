@@ -518,28 +518,12 @@ export function DoctorDashboardClient({
           onClick={() => setActiveFilter("completed")}
         />
 
-        {/* Row 2: Procedures & Online Metrics (User Request) */}
-        <StatCard
-          title="Procedure"
-          value={procedureCount}
-          icon={Sparkles}
-          variant="peach"
-          active={activeFilter === "procedure"}
-          onClick={() => setActiveFilter("procedure")}
-        />
-        <StatCard
-          title="Complete Procedure"
-          value={completeProcedureCount}
-          icon={CheckCheck}
-          variant="gray"
-          active={activeFilter === "complete_procedure"}
-          onClick={() => setActiveFilter("complete_procedure")}
-        />
+        {/* Row 2: Online & Procedure Metrics */}
         <StatCard
           title="Online Patient"
           value={onlinePatientCount}
           icon={Globe}
-          variant="teal"
+          variant="sky"
           active={activeFilter === "online"}
           onClick={() => setActiveFilter("online")}
         />
@@ -547,9 +531,25 @@ export function DoctorDashboardClient({
           title="Online Patient Complete"
           value={onlinePatientCompleteCount}
           icon={UserCheck}
-          variant="orange"
+          variant="emerald"
           active={activeFilter === "online_complete"}
           onClick={() => setActiveFilter("online_complete")}
+        />
+        <StatCard
+          title="Procedure"
+          value={procedureCount}
+          icon={Sparkles}
+          variant="yellow"
+          active={activeFilter === "procedure"}
+          onClick={() => setActiveFilter("procedure")}
+        />
+        <StatCard
+          title="Complete Procedure"
+          value={completeProcedureCount}
+          icon={CheckCheck}
+          variant="red"
+          active={activeFilter === "complete_procedure"}
+          onClick={() => setActiveFilter("complete_procedure")}
         />
       </div>
 

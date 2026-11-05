@@ -836,28 +836,12 @@ export function OperatorDashboardClient({
           onClick={() => setFilter("completed")}
         />
 
-        {/* Row 2: Procedures & Online Metrics */}
-        <StatCard
-          title="Procedure"
-          value={procedureCount}
-          icon={Sparkles}
-          variant="peach"
-          active={filter === "procedure"}
-          onClick={() => setFilter("procedure")}
-        />
-        <StatCard
-          title="Complete Procedure"
-          value={completeProcedureCount}
-          icon={CheckCheck}
-          variant="gray"
-          active={filter === "complete_procedure"}
-          onClick={() => setFilter("complete_procedure")}
-        />
+        {/* Row 2: Online & Procedure Metrics */}
         <StatCard
           title="Online Patient"
           value={onlinePatientCount}
           icon={Globe}
-          variant="teal"
+          variant="sky"
           active={filter === "online"}
           onClick={() => setFilter("online")}
         />
@@ -865,9 +849,25 @@ export function OperatorDashboardClient({
           title="Online Patient Complete"
           value={onlinePatientCompleteCount}
           icon={UserCheck}
-          variant="orange"
+          variant="emerald"
           active={filter === "online_complete"}
           onClick={() => setFilter("online_complete")}
+        />
+        <StatCard
+          title="Procedure"
+          value={procedureCount}
+          icon={Sparkles}
+          variant="yellow"
+          active={filter === "procedure"}
+          onClick={() => setFilter("procedure")}
+        />
+        <StatCard
+          title="Complete Procedure"
+          value={completeProcedureCount}
+          icon={CheckCheck}
+          variant="red"
+          active={filter === "complete_procedure"}
+          onClick={() => setFilter("complete_procedure")}
         />
       </div>
 
