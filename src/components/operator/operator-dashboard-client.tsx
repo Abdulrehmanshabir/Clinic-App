@@ -266,14 +266,11 @@ export function OperatorDashboardClient({
       next[app.id] = { status: app.status, updated_at: app.updated_at };
       const prev = previous?.[app.id];
 
-      const becameCalled =
+      if (
         prev &&
         app.status === "called" &&
-        (prev.status !== "called" || prev.updated_at !== app.updated_at);
-      const startedConsultation =
-        prev && app.status === "in_consultation" && prev.status !== "in_consultation";
-
-      if (becameCalled || startedConsultation) {
+        (prev.status !== "called" || prev.updated_at !== app.updated_at)
+      ) {
         calledNow = true;
       }
     }
