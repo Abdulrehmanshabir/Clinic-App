@@ -251,8 +251,8 @@ export function AppointmentsPageClient({
 
                       {/* Date & Time */}
                       <td className="px-6 py-4 text-center text-[#1A120B] dark:text-[#FAF7F2]">
-                        <div className="font-bold text-base text-[#1A120B] dark:text-[#FAF7F2]">{formatClinicDate(app.appointment_date)}</div>
-                        <div className="text-sm text-[#8C7A6B] dark:text-[#94A3B8] font-mono mt-0.5 font-bold">
+                        <div className="font-bold text-base text-[#1A120B] dark:text-[#FAF7F2] whitespace-nowrap">{formatClinicDate(app.appointment_date)}</div>
+                        <div className="text-sm text-[#8C7A6B] dark:text-[#94A3B8] font-mono mt-0.5 font-bold whitespace-nowrap">
                           {formatClinicTime(app.appointment_time)}
                         </div>
                       </td>

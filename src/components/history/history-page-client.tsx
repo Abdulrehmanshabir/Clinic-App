@@ -214,7 +214,7 @@ export function HistoryPageClient({
                       <div className="font-bold text-white">{app.patient?.full_name}</div>
                       <div className="text-xs text-slate-400">{app.patient?.patient_number}</div>
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-slate-300">
+                    <td className="px-5 py-3.5 text-xs text-slate-300 whitespace-nowrap">
                       {formatClinicTime(app.appointment_time)}
                     </td>
                     <td className="px-5 py-3.5 text-slate-200 font-medium">

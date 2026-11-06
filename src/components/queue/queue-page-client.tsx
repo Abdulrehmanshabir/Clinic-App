@@ -124,7 +124,7 @@ export function QueuePageClient({
                           {app.patient?.full_name}
                         </div>
                         <div className="text-xs text-slate-400 flex items-center gap-2">
-                          <span>{formatClinicTime(app.appointment_time)}</span>
+                          <span className="whitespace-nowrap">{formatClinicTime(app.appointment_time)}</span>
                           <span>• {app.service?.name}</span>
                         </div>
                       </div>

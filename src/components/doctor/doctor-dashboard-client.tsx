@@ -961,7 +961,7 @@ export function DoctorDashboardClient({
 
                         {/* Reserved / Arrival Time */}
                         <td className="px-6 py-4 text-center">
-                          <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] text-base font-bold text-[#1A120B] inline-flex items-center gap-1.5 shadow-2xs">
+                          <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] text-base font-bold text-[#1A120B] inline-flex items-center gap-1.5 shadow-2xs whitespace-nowrap">
                             <Clock className="w-4 h-4 text-[#A8835A]" />
                             {formatClinicTime(app.appointment_time)}
                           </span>
@@ -1017,7 +1017,7 @@ export function DoctorDashboardClient({
                             setSelectedAppointment(app);
                             setIsConsultationOpen(true);
                           }}
-                          className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1.5 shadow-2xs"
+                          className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition inline-flex items-center gap-1.5 shadow-2xs whitespace-nowrap"
                           title="View Notes"
                         >
                           <Eye className="w-3.5 h-3.5 text-[#A8835A]" />
