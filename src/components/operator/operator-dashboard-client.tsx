@@ -355,6 +355,15 @@ export function OperatorDashboardClient({
     ).length;
   }, [scopedAppointments]);
 
+  const recordsSectionRef = React.useRef<HTMLDivElement>(null);
+
+  const handleCardFilter = (id: string) => {
+    setFilter(id);
+    window.requestAnimationFrame(() => {
+      recordsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
   const nextEstimatedToken = React.useMemo(() => {
     if (!activeSession) return "Start Session";
     const sessionTokenCount = scopedAppointments.filter(
@@ -816,7 +825,7 @@ export function OperatorDashboardClient({
           icon={Users}
           variant="yellow"
           active={filter === "all"}
-          onClick={() => setFilter("all")}
+          onClick={() => handleCardFilter("all")}
         />
         <StatCard
           title="Active Waiting"
@@ -824,7 +833,7 @@ export function OperatorDashboardClient({
           icon={Clock}
           variant="rose"
           active={filter === "active"}
-          onClick={() => setFilter("active")}
+          onClick={() => handleCardFilter("active")}
         />
         <StatCard
           title="Call Bookings"
@@ -832,7 +841,7 @@ export function OperatorDashboardClient({
           icon={PhoneCall}
           variant="sky"
           active={filter === "call_bookings"}
-          onClick={() => setFilter("call_bookings")}
+          onClick={() => handleCardFilter("call_bookings")}
         />
         <StatCard
           title="Completed"
@@ -840,7 +849,7 @@ export function OperatorDashboardClient({
           icon={CheckCircle2}
           variant="emerald"
           active={filter === "completed"}
-          onClick={() => setFilter("completed")}
+          onClick={() => handleCardFilter("completed")}
         />
 
         {/* Row 2: Online & Procedure Metrics */}
@@ -851,7 +860,7 @@ export function OperatorDashboardClient({
           variant="sky"
           className="order-7 md:order-5"
           active={filter === "online"}
-          onClick={() => setFilter("online")}
+          onClick={() => handleCardFilter("online")}
         />
         <StatCard
           title="Online Patient Complete"
@@ -860,7 +869,7 @@ export function OperatorDashboardClient({
           variant="emerald"
           className="order-8 md:order-6"
           active={filter === "online_complete"}
-          onClick={() => setFilter("online_complete")}
+          onClick={() => handleCardFilter("online_complete")}
         />
         <StatCard
           title="Procedure"
@@ -869,7 +878,7 @@ export function OperatorDashboardClient({
           variant="yellow"
           className="order-5 md:order-7"
           active={filter === "procedure"}
-          onClick={() => setFilter("procedure")}
+          onClick={() => handleCardFilter("procedure")}
         />
         <StatCard
           title="Complete Procedure"
@@ -878,12 +887,12 @@ export function OperatorDashboardClient({
           variant="red"
           className="order-6 md:order-8"
           active={filter === "complete_procedure"}
-          onClick={() => setFilter("complete_procedure")}
+          onClick={() => handleCardFilter("complete_procedure")}
         />
       </div>
 
       {/* Live Reception Queue Table */}
-      <div className="rounded-3xl border border-[#E8DFD1] bg-[#FCFAF6] overflow-hidden aesthetic-card-shadow">
+      <div ref={recordsSectionRef} className="rounded-3xl border border-[#E8DFD1] bg-[#FCFAF6] overflow-hidden aesthetic-card-shadow scroll-mt-24">
         <div className="px-7 py-5 border-b border-[#E8DFD1] bg-[#FAF7F2] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <h3 className="text-base sm:text-lg font-serif font-bold text-[#1A120B] dark:text-[#FAF7F2]">
