@@ -35,6 +35,7 @@ import {
   UserX,
   XCircle,
   Phone,
+  MapPin,
   Coffee,
   Loader2,
   Globe,
@@ -811,13 +812,13 @@ export function DoctorDashboardClient({
                   <>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Price</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
-                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Address / Phone</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
                   </>
                 ) : (
                   <>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
-                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Address / Phone</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
                   </>
@@ -896,9 +897,14 @@ export function DoctorDashboardClient({
                           </div>
                         </td>
 
-                        {/* Phone Number */}
+                        {/* Address / Phone */}
                         <td className="px-6 py-4 text-center">
-                          {app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
+                          {app.patient?.address?.trim() ? (
+                            <div className="inline-flex max-w-[240px] items-start gap-1.5 text-left text-[#1A120B] text-sm font-bold bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1]">
+                              <MapPin className="mt-0.5 w-4 h-4 shrink-0 text-[#A8835A]" />
+                              <span className="break-words">{app.patient.address}</span>
+                            </div>
+                          ) : app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
                             <div className="inline-flex items-center gap-1.5 text-[#1A120B] font-mono text-base font-bold bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1]">
                               <Phone className="w-4 h-4 text-[#A8835A]" />
                               {app.patient.phone}
@@ -945,9 +951,14 @@ export function DoctorDashboardClient({
                           </div>
                         </td>
 
-                        {/* Phone Number */}
+                        {/* Address / Phone */}
                         <td className="px-6 py-4 text-center">
-                          {app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
+                          {app.patient?.address?.trim() ? (
+                            <div className="inline-flex max-w-[240px] items-start gap-1.5 text-left text-[#1A120B] text-sm font-bold bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1]">
+                              <MapPin className="mt-0.5 w-4 h-4 shrink-0 text-[#A8835A]" />
+                              <span className="break-words">{app.patient.address}</span>
+                            </div>
+                          ) : app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
                             <div className="inline-flex items-center gap-1.5 text-[#1A120B] font-mono text-base font-bold bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1]">
                               <Phone className="w-4 h-4 text-[#A8835A]" />
                               {app.patient.phone}

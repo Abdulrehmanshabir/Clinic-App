@@ -23,6 +23,7 @@ import {
   RotateCcw,
   PhoneCall,
   Phone,
+  MapPin,
   Calendar,
   Printer,
   Eye,
@@ -152,7 +153,7 @@ export function OperatorDashboardClient({
     queue_pos: number;
     patient_name: string;
     time: string;
-    phone?: string;
+    address?: string;
   } | null>(null);
 
   const [createdCallReservation, setCreatedCallReservation] = useState<{
@@ -169,19 +170,19 @@ export function OperatorDashboardClient({
     queue_pos: number;
     patient_name: string;
     time: string;
-    phone?: string;
+    address?: string;
     service_name?: string;
     service_price?: number;
   } | null>(null);
 
   // Form states for walk-in token
   const [patientName, setPatientName] = useState("");
-  const [patientPhone, setPatientPhone] = useState("");
+  const [patientAddress, setPatientAddress] = useState("");
   const [isSubmittingWalkIn, setIsSubmittingWalkIn] = useState(false);
 
   // Form states for procedure token
   const [procedureName, setProcedureName] = useState("");
-  const [procedurePhone, setProcedurePhone] = useState("");
+  const [procedureAddress, setProcedureAddress] = useState("");
   const [procedureServiceId, setProcedureServiceId] = useState("");
   const [isSubmittingProcedure, setIsSubmittingProcedure] = useState(false);
 
@@ -470,7 +471,7 @@ export function OperatorDashboardClient({
     try {
       const res = await quickBookToken({
         full_name: patientName.trim(),
-        phone: patientPhone.trim() || undefined,
+        address: patientAddress.trim() || undefined,
         appointment_date: clinicDate,
       });
 
@@ -480,14 +481,14 @@ export function OperatorDashboardClient({
           queue_pos: res.data.token?.queue_pos || 1,
           patient_name: patientName.trim(),
           time: res.data.appointment_time,
-          phone: patientPhone.trim() || undefined,
+          address: patientAddress.trim() || undefined,
         });
         success(
           "Walk-In Token Issued! 🎉",
           `Assigned ${res.data.token?.token_num || "Token"} to ${patientName.trim()}`
         );
         setPatientName("");
-        setPatientPhone("");
+        setPatientAddress("");
         router.refresh();
       } else {
         error("Booking Failed", res.error || "Could not issue token");
@@ -519,7 +520,7 @@ export function OperatorDashboardClient({
     try {
       const res = await quickBookToken({
         full_name: procedureName.trim(),
-        phone: procedurePhone.trim() || undefined,
+        address: procedureAddress.trim() || undefined,
         appointment_date: clinicDate,
         service_id: procedureServiceId,
       });
@@ -531,7 +532,7 @@ export function OperatorDashboardClient({
           queue_pos: res.data.token?.queue_pos || 1,
           patient_name: procedureName.trim(),
           time: res.data.appointment_time,
-          phone: procedurePhone.trim() || undefined,
+          address: procedureAddress.trim() || undefined,
           service_name: service?.name,
           service_price: service?.price,
         });
@@ -540,7 +541,7 @@ export function OperatorDashboardClient({
           `Assigned ${res.data.token?.token_num || "Token"} to ${procedureName.trim()}`
         );
         setProcedureName("");
-        setProcedurePhone("");
+        setProcedureAddress("");
         setProcedureServiceId("");
         router.refresh();
       } else {
@@ -972,7 +973,7 @@ export function OperatorDashboardClient({
                   <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Price</th>
                 )}
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Phone Number</th>
+                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Address / Phone</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Status</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Action</th>
@@ -1046,9 +1047,14 @@ export function OperatorDashboardClient({
                       </div>
                     </td>
 
-                    {/* Phone Number */}
+                    {/* Address / Phone */}
                     <td className="px-6 py-4 text-center">
-                      {app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
+                      {app.patient?.address?.trim() ? (
+                        <div className="inline-flex max-w-[240px] items-start gap-1.5 text-left text-[#1A120B] text-sm font-bold bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1]">
+                          <MapPin className="mt-0.5 w-4 h-4 shrink-0 text-[#A8835A]" />
+                          <span className="break-words">{app.patient.address}</span>
+                        </div>
+                      ) : app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
                         <div className="inline-flex items-center gap-1.5 text-[#1A120B] font-mono text-base font-bold bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1]">
                           <Phone className="w-4 h-4 text-[#A8835A]" />
                           {app.patient.phone}
@@ -1230,10 +1236,10 @@ export function OperatorDashboardClient({
                   <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Name:</span>
                   <span className="font-black text-[#1A120B] text-base sm:text-lg font-serif">{createdWalkInToken.patient_name}</span>
                 </div>
-                {createdWalkInToken.phone && (
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Phone Number:</span>
-                    <span className="font-black font-mono text-sm sm:text-base text-[#1A120B]">{createdWalkInToken.phone}</span>
+                {createdWalkInToken.address && (
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="shrink-0 text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Address:</span>
+                    <span className="font-black text-sm sm:text-base text-[#1A120B] text-right break-words">{createdWalkInToken.address}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center gap-2">
@@ -1320,17 +1326,17 @@ export function OperatorDashboardClient({
                   />
                 </div>
 
-                {/* Phone Number Input */}
+                {/* Address Input */}
                 <div>
                   <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
-                    Phone Number
+                    Address
                   </label>
                   <input
-                    type="tel"
-                    placeholder="Enter phone number"
-                    value={patientPhone}
-                    onChange={(e) => setPatientPhone(e.target.value)}
-                    className="w-full h-10 px-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
+                    type="text"
+                    placeholder="Enter patient address"
+                    value={patientAddress}
+                    onChange={(e) => setPatientAddress(e.target.value)}
+                    className="w-full h-10 px-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                   />
                 </div>
 
@@ -1412,10 +1418,10 @@ export function OperatorDashboardClient({
                   <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Name:</span>
                   <span className="font-black text-[#1A120B] text-base sm:text-lg font-serif">{createdProcedureToken.patient_name}</span>
                 </div>
-                {createdProcedureToken.phone && (
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Phone Number:</span>
-                    <span className="font-black font-mono text-sm sm:text-base text-[#1A120B]">{createdProcedureToken.phone}</span>
+                {createdProcedureToken.address && (
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="shrink-0 text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Address:</span>
+                    <span className="font-black text-sm sm:text-base text-[#1A120B] text-right break-words">{createdProcedureToken.address}</span>
                   </div>
                 )}
                 {createdProcedureToken.service_name && (
@@ -1514,14 +1520,14 @@ export function OperatorDashboardClient({
 
                 <div>
                   <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
-                    Phone Number <span className="font-semibold text-xs opacity-70">(Optional)</span>
+                    Address <span className="font-semibold text-xs opacity-70">(Optional)</span>
                   </label>
                   <input
-                    type="tel"
-                    placeholder="Enter phone number (optional)"
-                    value={procedurePhone}
-                    onChange={(e) => setProcedurePhone(e.target.value)}
-                    className="w-full h-10 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
+                    type="text"
+                    placeholder="Enter patient address (optional)"
+                    value={procedureAddress}
+                    onChange={(e) => setProcedureAddress(e.target.value)}
+                    className="w-full h-10 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                   />
                 </div>
 

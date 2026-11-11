@@ -16,6 +16,7 @@ import {
   User,
   X,
   Star,
+  MapPin,
 } from "lucide-react";
 import { markPatientNext } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
@@ -291,7 +292,7 @@ export function ProceduresSection({
                         <th className="px-6 py-4 text-center font-black">Token</th>
                         <th className="px-6 py-4 text-center font-black">Procedure Fee</th>
                         <th className="px-6 py-4 text-left font-black">Patient Name</th>
-                        <th className="px-6 py-4 text-center font-black">Phone</th>
+                        <th className="px-6 py-4 text-center font-black">Address / Phone</th>
                         {isDoctorView && (
                           <th className="px-6 py-4 text-center font-black">Queue Action</th>
                         )}
@@ -337,13 +338,20 @@ export function ProceduresSection({
                               </div>
                             </td>
 
-                            {/* Phone */}
+                            {/* Address / Phone */}
                             <td className="px-6 py-4 text-center">
-                              <span className="font-mono text-xs text-[#7A634E] font-bold">
-                                {app.patient?.phone && !app.patient.phone.startsWith("+92-")
-                                  ? app.patient.phone
-                                  : "—"}
-                              </span>
+                              {app.patient?.address?.trim() ? (
+                                <span className="inline-flex max-w-[220px] items-start gap-1 text-left text-xs text-[#7A634E] font-bold">
+                                  <MapPin className="mt-0.5 w-3.5 h-3.5 shrink-0 text-[#A8835A]" />
+                                  <span className="break-words">{app.patient.address}</span>
+                                </span>
+                              ) : (
+                                <span className="font-mono text-xs text-[#7A634E] font-bold">
+                                  {app.patient?.phone && !app.patient.phone.startsWith("+92-")
+                                    ? app.patient.phone
+                                    : "—"}
+                                </span>
+                              )}
                             </td>
 
                             {/* Queue Action (before Status) */}

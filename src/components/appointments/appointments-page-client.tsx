@@ -7,6 +7,7 @@ import { formatClinicDate, formatClinicTime } from "@/lib/utils";
 import {
   Filter,
   Phone,
+  MapPin,
   PhoneCall,
   UserCheck,
   Search,
@@ -120,9 +121,10 @@ export function AppointmentsPageClient({
       const q = searchQuery.toLowerCase().trim();
       const nameMatch = app.patient?.full_name?.toLowerCase().includes(q);
       const phoneMatch = app.patient?.phone?.toLowerCase().includes(q);
+      const addressMatch = app.patient?.address?.toLowerCase().includes(q);
       const tokenMatch = app.token?.token_number?.toLowerCase().includes(q);
       const idMatch = app.patient?.patient_number?.toLowerCase().includes(q);
-      if (!nameMatch && !phoneMatch && !tokenMatch && !idMatch) return false;
+      if (!nameMatch && !phoneMatch && !addressMatch && !tokenMatch && !idMatch) return false;
     }
     return true;
   });
@@ -212,7 +214,7 @@ export function AppointmentsPageClient({
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Token</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Date & Time</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Patient Name</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Phone Number</th>
+                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Address / Phone</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Booking Type</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Status</th>
               </tr>
@@ -262,9 +264,14 @@ export function AppointmentsPageClient({
                         <div className="font-bold text-[#1A120B] dark:text-[#FAF7F2] text-base">{app.patient?.full_name}</div>
                       </td>
 
-                      {/* Phone Number */}
+                      {/* Address / Phone */}
                       <td className="px-6 py-4 text-center">
-                        {app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
+                        {app.patient?.address?.trim() ? (
+                          <div className="inline-flex max-w-[240px] items-start gap-1.5 text-left text-[#1A120B] dark:text-[#FAF7F2] text-sm font-bold bg-[#F4EFE6] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1] dark:border-[#2E3C51]">
+                            <MapPin className="mt-0.5 w-4 h-4 shrink-0 text-[#A8835A] dark:text-[#D4AF37]" />
+                            <span className="break-words">{app.patient.address}</span>
+                          </div>
+                        ) : app.patient?.phone && !app.patient.phone.startsWith("+92-") ? (
                           <div className="inline-flex items-center gap-1.5 text-[#1A120B] dark:text-[#FAF7F2] font-mono text-base font-bold bg-[#F4EFE6] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border border-[#E9DFD1] dark:border-[#2E3C51]">
                             <Phone className="w-4 h-4 text-[#A8835A] dark:text-[#D4AF37]" />
                             {app.patient.phone}

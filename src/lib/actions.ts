@@ -478,6 +478,7 @@ export async function searchAppointments(query: string) {
 export async function quickBookToken(formData: {
   full_name: string;
   phone?: string;
+  address?: string;
   appointment_date?: string;
   appointment_time?: string;
   service_id?: string;
@@ -521,6 +522,7 @@ export async function quickBookToken(formData: {
       .insert({
         full_name: formData.full_name.trim(),
         phone: phoneToSave,
+        address: formData.address?.trim() || undefined,
         gender: "female",
       })
       .select("id, full_name, patient_number")
@@ -596,7 +598,8 @@ export async function quickBookToken(formData: {
         id,
         patient_number,
         full_name,
-        phone
+        phone,
+        address
       )
     `)
     .single();

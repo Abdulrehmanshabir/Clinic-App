@@ -81,6 +81,7 @@ const APPOINTMENT_DETAILS_SELECT = `
     patient_number,
     full_name,
     phone,
+    address,
     gender,
     age,
     date_of_birth
