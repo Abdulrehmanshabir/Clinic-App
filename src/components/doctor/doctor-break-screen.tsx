@@ -15,12 +15,15 @@ import {
   ShieldCheck,
   Moon,
   BellRing,
+  ChevronDown,
 } from "lucide-react";
 
 interface DoctorBreakScreenProps {
   breakInfo: DoctorBreakInfo;
-  onEndBreak: () => Promise<void>;
-  isLoading: boolean;
+  onEndBreak?: () => Promise<void>;
+  isLoading?: boolean;
+  mode?: "doctor" | "operator";
+  onMinimize?: () => void;
 }
 
 function getBreakIcon(breakType: string, className: string) {
@@ -45,8 +48,11 @@ function pad(value: number) {
 export function DoctorBreakScreen({
   breakInfo,
   onEndBreak,
-  isLoading,
+  isLoading = false,
+  mode = "doctor",
+  onMinimize,
 }: DoctorBreakScreenProps) {
+  const isOperator = mode === "operator";
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -57,11 +63,13 @@ export function DoctorBreakScreen({
 
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = `On Break • ${breakInfo.break_type} | Lumière`;
+    document.title = isOperator
+      ? `Doctor On Break • ${breakInfo.break_type} | Lumière`
+      : `On Break • ${breakInfo.break_type} | Lumière`;
     return () => {
       document.title = previousTitle;
     };
-  }, [breakInfo.break_type]);
+  }, [breakInfo.break_type, isOperator]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -132,7 +140,7 @@ export function DoctorBreakScreen({
               Lumière Skin &amp; Aesthetic
             </p>
             <p className="mt-0.5 text-xs font-bold text-[#5C4D3E] dark:text-[#94A3B8] sm:text-sm">
-              Break Mode · Doctor Console
+              {isOperator ? "Break Mode · Reception Desk" : "Break Mode · Doctor Console"}
             </p>
           </div>
         </div>
@@ -164,13 +172,15 @@ export function DoctorBreakScreen({
             </div>
 
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#8C6843] dark:text-[#E5C158] sm:text-[11px]">
-              Break in progress
+              {isOperator ? "Doctor on break" : "Break in progress"}
             </p>
             <h1 className="mt-2.5 font-serif text-3xl font-bold tracking-tight text-[#1A120B] dark:text-white sm:mt-3 sm:text-5xl">
               {breakInfo.break_type}
             </h1>
             <p className="mx-auto mt-3 max-w-md text-sm font-semibold text-[#6B5B4A] dark:text-[#94A3B8] sm:text-base">
-              The clinic is paused. Reception has been notified — take your time and recharge.
+              {isOperator
+                ? "The doctor is on a break. The live queue is paused — please continue assisting waiting patients until the doctor resumes."
+                : "The clinic is paused. Reception has been notified — take your time and recharge."}
             </p>
 
             {/* Live elapsed timer */}
@@ -207,7 +217,7 @@ export function DoctorBreakScreen({
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:mt-7 sm:gap-2.5">
               <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#A7F3D0] bg-[#ECFDF5] px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#065F46] shadow-sm dark:border-[#34D399]/50 dark:bg-[#022C22] dark:text-[#A7F3D0] sm:text-[11px]">
                 <BellRing className="h-3.5 w-3.5" />
-                Reception notified
+                {isOperator ? "Doctor unavailable" : "Reception notified"}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#E2D3BE] bg-white px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#8C6843] shadow-2xs dark:border-[#334155] dark:bg-[#131B2A] dark:text-[#CBD5E1] sm:text-[11px]">
                 <PauseCircle className="h-3.5 w-3.5" />
@@ -215,28 +225,59 @@ export function DoctorBreakScreen({
               </span>
             </div>
 
-            {/* End break action */}
-            <button
-              type="button"
-              onClick={onEndBreak}
-              disabled={isLoading}
-              className="mt-7 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-[#166534] bg-[#15803D] px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-[#15803D]/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#166534] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#34D399] dark:bg-gradient-to-r dark:from-[#10B981] dark:to-[#059669] dark:hover:from-[#059669] dark:hover:to-[#047857] sm:mt-8 sm:py-4 sm:text-base"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Resuming Clinic...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="h-5 w-5" />
-                  <span>End Break &amp; Resume Clinic</span>
-                </>
-              )}
-            </button>
-            <p className="mt-3 text-[10px] font-semibold text-[#8C7A6B] dark:text-[#64748B] sm:text-[11px]">
-              Ending the break reopens the live queue for reception.
-            </p>
+            {/* Action: doctor can end break, operator can only minimize */}
+            {isOperator ? (
+              <div className="mt-7 sm:mt-8">
+                <div className="flex items-center justify-center gap-2.5 rounded-2xl border-2 border-[#E2D3BE] bg-white/75 px-4 py-3.5 text-xs font-bold text-[#6B5B4A] dark:border-[#243248] dark:bg-[#131B2A] dark:text-[#CBD5E1] sm:text-sm">
+                  <span className="relative flex h-2.5 w-2.5 shrink-0">
+                    <span
+                      className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#8C6843]/60 dark:bg-[#D4AF37]/60"
+                      style={{ animationDuration: "1.8s" }}
+                    />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#8C6843] dark:bg-[#D4AF37]" />
+                  </span>
+                  Waiting for the doctor to resume the clinic…
+                </div>
+
+                {onMinimize && (
+                  <button
+                    type="button"
+                    onClick={onMinimize}
+                    className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-[#D8C5AD] bg-[#FAF7F2] px-6 py-3 text-xs font-bold text-[#5C4D3E] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#EAE1D3] active:scale-[0.98] dark:border-[#2D3E58] dark:bg-[#131B2A] dark:text-[#CBD5E1] dark:hover:bg-[#1A2438] sm:text-sm"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                    <span>Minimize &amp; Continue Working</span>
+                  </button>
+                )}
+                <p className="mt-3 text-[10px] font-semibold text-[#8C7A6B] dark:text-[#64748B] sm:text-[11px]">
+                  Only the doctor can end the break.
+                </p>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={onEndBreak}
+                  disabled={isLoading}
+                  className="mt-7 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-[#166534] bg-[#15803D] px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-[#15803D]/25 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#166534] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#34D399] dark:bg-gradient-to-r dark:from-[#10B981] dark:to-[#059669] dark:hover:from-[#059669] dark:hover:to-[#047857] sm:mt-8 sm:py-4 sm:text-base"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <span>Resuming Clinic...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-5 w-5" />
+                      <span>End Break &amp; Resume Clinic</span>
+                    </>
+                  )}
+                </button>
+                <p className="mt-3 text-[10px] font-semibold text-[#8C7A6B] dark:text-[#64748B] sm:text-[11px]">
+                  Ending the break reopens the live queue for reception.
+                </p>
+              </>
+            )}
           </div>
         </div>
       </main>
@@ -244,7 +285,9 @@ export function DoctorBreakScreen({
       {/* Footer */}
       <footer className="relative z-10 flex items-center justify-center gap-1.5 px-6 pb-5 text-center text-[10px] font-semibold text-[#8C7A6B] dark:text-[#64748B] sm:pb-6 sm:text-xs">
         <ShieldCheck className="h-3.5 w-3.5" />
-        Break status stays synced across the doctor console, reception and queue display.
+        {isOperator
+          ? "Reception view · synced live with the doctor console and queue display."
+          : "Break status stays synced across the doctor console, reception and queue display."}
       </footer>
     </div>
   );

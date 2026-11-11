@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Modal } from "@/components/ui/modal";
 import { ModalCloseButton } from "@/components/ui/modal-close-button";
 import { DoctorBreakBanner } from "@/components/doctor/doctor-break-banner";
+import { DoctorBreakScreen } from "@/components/doctor/doctor-break-screen";
 import { quickBookToken, bookCallAppointment, checkInCallAppointment, updateAppointmentStatus, startSession, endSession } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
@@ -79,6 +80,7 @@ export function OperatorDashboardClient({
 
   // Doctor Break state for Receptionist view
   const [doctorBreak, setDoctorBreakState] = useState<DoctorBreakInfo | null>(initialDoctorBreak || null);
+  const [isBreakScreenMinimized, setIsBreakScreenMinimized] = useState(false);
 
   // Clinic session (morning / evening shift) state
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(initialActiveSession || null);
@@ -92,6 +94,11 @@ export function OperatorDashboardClient({
   React.useEffect(() => {
     setDoctorBreakState(initialDoctorBreak || null);
   }, [initialDoctorBreak]);
+
+  // Re-show the full-screen alert whenever a new break starts
+  React.useEffect(() => {
+    setIsBreakScreenMinimized(false);
+  }, [doctorBreak?.started_at, doctorBreak?.on_break]);
 
   React.useEffect(() => {
     setActiveSession(initialActiveSession || null);
@@ -807,6 +814,15 @@ export function OperatorDashboardClient({
           </button>
         </div>
       </div>
+
+      {/* Full-screen Doctor Break Mode for Operator */}
+      {doctorBreak?.on_break && !isBreakScreenMinimized && (
+        <DoctorBreakScreen
+          mode="operator"
+          breakInfo={doctorBreak}
+          onMinimize={() => setIsBreakScreenMinimized(true)}
+        />
+      )}
 
       {/* Doctor Break Alert Banner for Operator */}
       {doctorBreak?.on_break && (
