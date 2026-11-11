@@ -12,8 +12,6 @@ import {
   Loader2,
   MessageSquare,
   PauseCircle,
-  ShieldCheck,
-  Moon,
   BellRing,
   ChevronDown,
 } from "lucide-react";
@@ -91,22 +89,6 @@ export function DoctorBreakScreen({
   const minutes = pad(Math.floor((elapsedSeconds % 3600) / 60));
   const seconds = pad(elapsedSeconds % 60);
 
-  const liveClock = now
-    ? now.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      })
-    : "--:--";
-
-  const liveDate = now
-    ? now.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-      })
-    : "";
-
   const hasNote = Boolean(breakInfo.custom_reason && breakInfo.custom_reason.trim().length > 0);
 
   const timerTiles = [
@@ -129,34 +111,8 @@ export function DoctorBreakScreen({
         <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/55 blur-3xl dark:bg-[#0E1626]/80" />
       </div>
 
-      {/* Top bar */}
-      <header className="relative z-10 flex items-center justify-between gap-4 px-5 py-4 sm:px-10 sm:py-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border-2 border-[#8C6843]/35 bg-white/80 text-[#8C6843] shadow-sm dark:border-[#D4AF37]/40 dark:bg-[#131B2A] dark:text-[#D4AF37]">
-            <Moon className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-[0.24em] text-[#8C6843] dark:text-[#D4AF37] sm:text-[10px]">
-              Lumière Skin &amp; Aesthetic
-            </p>
-            <p className="mt-0.5 text-xs font-bold text-[#5C4D3E] dark:text-[#94A3B8] sm:text-sm">
-              {isOperator ? "Break Mode · Reception Desk" : "Break Mode · Doctor Console"}
-            </p>
-          </div>
-        </div>
-
-        <div className="text-right">
-          <p className="font-mono text-base font-bold tabular-nums text-[#1A120B] dark:text-white sm:text-lg">
-            {liveClock}
-          </p>
-          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#8C7A6B] dark:text-[#64748B] sm:text-[10px]">
-            {liveDate}
-          </p>
-        </div>
-      </header>
-
       {/* Center card */}
-      <main className="relative z-10 flex flex-1 items-center justify-center overflow-y-auto px-4 py-4 sm:py-8">
+      <main className="relative z-10 flex flex-1 items-center justify-center overflow-y-auto px-4 py-6 sm:py-10">
         <div className="animate-luxury-card w-full max-w-2xl">
           <div className="relative overflow-hidden rounded-[2.25rem] border-2 border-[#E2D3BE] bg-[#FCFAF6]/95 px-5 py-8 text-center shadow-[0_30px_80px_-24px_rgba(140,104,67,0.35)] backdrop-blur-xl dark:border-[#243248] dark:bg-[#0E1626]/95 dark:shadow-[0_30px_80px_-24px_rgba(0,0,0,0.85)] sm:rounded-[2.5rem] sm:px-12 sm:py-12">
             {/* Icon medallion */}
@@ -281,14 +237,6 @@ export function DoctorBreakScreen({
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="relative z-10 flex items-center justify-center gap-1.5 px-6 pb-5 text-center text-[10px] font-semibold text-[#8C7A6B] dark:text-[#64748B] sm:pb-6 sm:text-xs">
-        <ShieldCheck className="h-3.5 w-3.5" />
-        {isOperator
-          ? "Reception view · synced live with the doctor console and queue display."
-          : "Break status stays synced across the doctor console, reception and queue display."}
-      </footer>
     </div>
   );
 }
