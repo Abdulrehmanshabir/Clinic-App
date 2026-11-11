@@ -332,7 +332,12 @@ export function DoctorDashboardClient({
   // Called patient always comes first, then the normal waiting queue
   const waitingQueue = useMemo(() => {
     return scopedAppointments
-      .filter((a) => (a.status === "waiting" || a.status === "called") && a.token != null && !isProcedureAppointment(a))
+      .filter(
+        (a) =>
+          (a.status === "waiting" || a.status === "called") &&
+          a.token != null &&
+          (!isProcedureAppointment(a) || a.status === "called")
+      )
       .sort((a, b) => {
         const calledDiff =
           (a.status === "called" ? 0 : 1) - (b.status === "called" ? 0 : 1);
@@ -380,7 +385,10 @@ export function DoctorDashboardClient({
     const filtered = scopedAppointments.filter((a) => {
       if (activeFilter === "all") return !isProcedureAppointment(a);
       if (activeFilter === "active") {
-        return (a.status === "in_consultation" || a.status === "waiting" || a.status === "called") && a.token != null && !isProcedureAppointment(a);
+        if (isProcedureAppointment(a)) {
+          return (a.status === "called" || a.status === "in_consultation") && a.token != null;
+        }
+        return (a.status === "in_consultation" || a.status === "waiting" || a.status === "called") && a.token != null;
       }
       if (activeFilter === "call_bookings") {
         return a.appointment_type === "scheduled" && a.token == null && a.status !== "no_show" && a.status !== "completed";
