@@ -6,7 +6,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ConsultationModal } from "@/components/doctor/consultation-modal";
 import { DoctorBreakModal } from "@/components/doctor/doctor-break-modal";
-import { DoctorBreakBanner } from "@/components/doctor/doctor-break-banner";
+import { DoctorBreakScreen } from "@/components/doctor/doctor-break-screen";
 import { ProceduresSection } from "@/components/procedures/procedures-section";
 import {
   startConsultation,
@@ -478,13 +478,12 @@ export function DoctorDashboardClient({
         )}
       </div>
 
-      {/* Active Break Banner (Displayed when Doctor is on break) */}
+      {/* Full-screen Break Mode (Doctor is on break) */}
       {doctorBreak?.on_break && (
-        <DoctorBreakBanner
+        <DoctorBreakScreen
           breakInfo={doctorBreak}
           onEndBreak={handleEndBreak}
           isLoading={isBreakLoading}
-          isDoctorView={true}
         />
       )}
 
