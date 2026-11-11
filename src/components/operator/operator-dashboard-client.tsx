@@ -301,7 +301,8 @@ export function OperatorDashboardClient({
 
     for (let i = 0; i < scopedAppointments.length; i++) {
       const a = scopedAppointments[i];
-      if (!isProcedureAppointment(a) && a.token != null) total++;
+      if (isProcedureAppointment(a)) continue;
+      if (a.token != null) total++;
       if (a.status === "waiting" && a.token != null) waiting++;
       else if (a.status === "called" && a.token != null) called++;
       else if (a.status === "in_consultation") in_consultation++;
@@ -669,7 +670,7 @@ export function OperatorDashboardClient({
   const filteredList = React.useMemo(() => {
     const filtered = scopedAppointments.filter((a) => {
       if (filter === "all") return !isProcedureAppointment(a);
-      if (filter === "active") return (a.status === "waiting" || a.status === "called" || a.status === "in_consultation") && a.token != null;
+      if (filter === "active") return (a.status === "waiting" || a.status === "called" || a.status === "in_consultation") && a.token != null && !isProcedureAppointment(a);
       if (filter === "call_bookings") return a.appointment_type === "scheduled" && a.token == null && a.status !== "no_show" && a.status !== "completed";
       if (filter === "procedure") return isProcedureAppointment(a);
       if (filter === "complete_procedure") return isProcedureAppointment(a) && a.status === "completed";
