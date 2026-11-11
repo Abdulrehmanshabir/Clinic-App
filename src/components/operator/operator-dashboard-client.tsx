@@ -8,6 +8,7 @@ import { Modal } from "@/components/ui/modal";
 import { ModalCloseButton } from "@/components/ui/modal-close-button";
 import { DoctorBreakBanner } from "@/components/doctor/doctor-break-banner";
 import { DoctorBreakScreen } from "@/components/doctor/doctor-break-screen";
+import { VoiceInputButton } from "@/components/ui/voice-input-button";
 import { quickBookToken, bookCallAppointment, checkInCallAppointment, updateAppointmentStatus, startSession, endSession } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
@@ -178,6 +179,7 @@ export function OperatorDashboardClient({
   // Form states for walk-in token
   const [patientName, setPatientName] = useState("");
   const [patientAddress, setPatientAddress] = useState("");
+  const [voiceLanguage, setVoiceLanguage] = useState<"en-US" | "ur-PK">("en-US");
   const [isSubmittingWalkIn, setIsSubmittingWalkIn] = useState(false);
 
   // Form states for procedure token
@@ -1311,33 +1313,79 @@ export function OperatorDashboardClient({
                   </span>
                 </div>
 
-                {/* Patient Name Input */}
+                {/* Patient Name Input with Voice */}
                 <div className="border-t border-dashed border-[#D8C5AD] pt-3">
-                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
-                    Patient Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter patient name"
-                    value={patientName}
-                    onChange={(e) => setPatientName(e.target.value)}
-                    className="w-full h-10 px-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
-                  />
+                  <div className="mb-1.5 ml-3 mr-1 flex items-center justify-between gap-2">
+                    <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158]">
+                      Patient Name
+                    </label>
+                    <div
+                      className="flex items-center gap-0.5 rounded-lg border border-[#E9DFD1] bg-[#F4EFE6] p-0.5"
+                      title="Voice input language"
+                    >
+                      {[
+                        { code: "en-US" as const, label: "EN" },
+                        { code: "ur-PK" as const, label: "UR" },
+                      ].map((option) => (
+                        <button
+                          key={option.code}
+                          type="button"
+                          onClick={() => setVoiceLanguage(option.code)}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-black tracking-wide transition-all cursor-pointer ${
+                            voiceLanguage === option.code
+                              ? "bg-[#8C6843] text-white shadow-2xs"
+                              : "text-[#8C6843] hover:bg-[#EAE1D3]"
+                          }`}
+                          aria-pressed={voiceLanguage === option.code}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter or speak patient name"
+                      value={patientName}
+                      onChange={(e) => setPatientName(e.target.value)}
+                      className="w-full h-10 pl-4 pr-12 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                    />
+                    <VoiceInputButton
+                      lang={voiceLanguage}
+                      label="patient name"
+                      onTranscript={(text) => setPatientName(text)}
+                      onError={(message) => error("Voice Input", message)}
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2"
+                    />
+                  </div>
+                  <p className="mt-1 ml-3 text-[10px] font-semibold text-[#8C7A6B] dark:text-[#64748B]">
+                    Tap the mic to dictate the patient name
+                  </p>
                 </div>
 
-                {/* Address Input */}
+                {/* Address Input with Voice */}
                 <div>
                   <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Address
                   </label>
-                  <input
-                    type="text"
-                    placeholder="Enter patient address"
-                    value={patientAddress}
-                    onChange={(e) => setPatientAddress(e.target.value)}
-                    className="w-full h-10 px-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Enter or speak patient address"
+                      value={patientAddress}
+                      onChange={(e) => setPatientAddress(e.target.value)}
+                      className="w-full h-10 pl-4 pr-12 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                    />
+                    <VoiceInputButton
+                      lang={voiceLanguage}
+                      label="patient address"
+                      onTranscript={(text) => setPatientAddress(text)}
+                      onError={(message) => error("Voice Input", message)}
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2"
+                    />
+                  </div>
                 </div>
 
               </div>
