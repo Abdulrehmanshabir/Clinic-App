@@ -25,6 +25,7 @@ interface SpeechRecognitionLike {
   lang: string;
   continuous: boolean;
   interimResults: boolean;
+  maxAlternatives: number;
   onstart: (() => void) | null;
   onend: (() => void) | null;
   onresult: ((event: SpeechRecognitionEventLike) => void) | null;
@@ -49,6 +50,7 @@ interface VoiceInputButtonProps {
   onTranscript: (text: string) => void;
   onError?: (message: string) => void;
   lang?: string;
+  fallbackLang?: string;
   label?: string;
   className?: string;
   disabled?: boolean;
@@ -57,7 +59,8 @@ interface VoiceInputButtonProps {
 export function VoiceInputButton({
   onTranscript,
   onError,
-  lang = "en-US",
+  lang = "ur-PK",
+  fallbackLang = "en-US",
   label = "input",
   className,
   disabled = false,
@@ -94,29 +97,40 @@ export function VoiceInputButton({
     recognitionRef.current?.stop();
   };
 
-  const toggleListening = () => {
-    if (disabled || !isSupported) return;
-    if (isListening) {
-      stopListening();
-      return;
-    }
-
+  const startRecognition = (recognitionLang: string, allowFallback: boolean) => {
     const SpeechRecognitionImpl = getSpeechRecognition();
     if (!SpeechRecognitionImpl) return;
 
     const recognition = new SpeechRecognitionImpl();
-    recognition.lang = lang;
+    recognition.lang = recognitionLang;
     recognition.continuous = false;
     recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => {
-      setIsListening(false);
-      recognitionRef.current = null;
+      if (recognitionRef.current === recognition) {
+        setIsListening(false);
+        recognitionRef.current = null;
+      }
     };
     recognition.onerror = (event) => {
-      setIsListening(false);
-      recognitionRef.current = null;
+      if (recognitionRef.current === recognition) {
+        setIsListening(false);
+        recognitionRef.current = null;
+      }
+
+      if (
+        event.error === "language-not-supported" &&
+        allowFallback &&
+        fallbackLang &&
+        fallbackLang !== recognitionLang
+      ) {
+        onError?.("Urdu voice is not supported on this browser. Switching to English — please speak again.");
+        window.setTimeout(() => startRecognition(fallbackLang, false), 250);
+        return;
+      }
+
       handleError(event.error);
     };
     recognition.onresult = (event) => {
@@ -134,8 +148,23 @@ export function VoiceInputButton({
     } catch {
       recognitionRef.current = null;
       setIsListening(false);
+      if (allowFallback && fallbackLang && fallbackLang !== recognitionLang) {
+        window.setTimeout(() => startRecognition(fallbackLang, false), 250);
+        return;
+      }
       onError?.("Voice input could not start. Please try again.");
     }
+  };
+
+  const toggleListening = () => {
+    if (disabled || !isSupported) return;
+    if (recognitionRef.current) {
+      setIsListening(false);
+      stopListening();
+      return;
+    }
+
+    startRecognition(lang, true);
   };
 
   const tooltip = !isSupported

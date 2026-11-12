@@ -179,7 +179,6 @@ export function OperatorDashboardClient({
   // Form states for walk-in token
   const [patientName, setPatientName] = useState("");
   const [patientAddress, setPatientAddress] = useState("");
-  const [voiceLanguage, setVoiceLanguage] = useState<"en-US" | "ur-PK">("en-US");
   const [isSubmittingWalkIn, setIsSubmittingWalkIn] = useState(false);
 
   // Form states for procedure token
@@ -1315,34 +1314,9 @@ export function OperatorDashboardClient({
 
                 {/* Patient Name Input with Voice */}
                 <div className="border-t border-dashed border-[#D8C5AD] pt-3">
-                  <div className="mb-1.5 ml-3 mr-1 flex items-center justify-between gap-2">
-                    <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158]">
-                      Patient Name
-                    </label>
-                    <div
-                      className="flex items-center gap-0.5 rounded-lg border border-[#E9DFD1] bg-[#F4EFE6] p-0.5"
-                      title="Voice input language"
-                    >
-                      {[
-                        { code: "en-US" as const, label: "EN" },
-                        { code: "ur-PK" as const, label: "UR" },
-                      ].map((option) => (
-                        <button
-                          key={option.code}
-                          type="button"
-                          onClick={() => setVoiceLanguage(option.code)}
-                          className={`px-2 py-0.5 rounded-md text-[10px] font-black tracking-wide transition-all cursor-pointer ${
-                            voiceLanguage === option.code
-                              ? "bg-[#8C6843] text-white shadow-2xs"
-                              : "text-[#8C6843] hover:bg-[#EAE1D3]"
-                          }`}
-                          aria-pressed={voiceLanguage === option.code}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
+                    Patient Name
+                  </label>
                   <div className="relative">
                     <input
                       type="text"
@@ -1353,7 +1327,6 @@ export function OperatorDashboardClient({
                       className="w-full h-10 pl-4 pr-12 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                     />
                     <VoiceInputButton
-                      lang={voiceLanguage}
                       label="patient name"
                       onTranscript={(text) => setPatientName(text)}
                       onError={(message) => error("Voice Input", message)}
@@ -1361,7 +1334,7 @@ export function OperatorDashboardClient({
                     />
                   </div>
                   <p className="mt-1 ml-3 text-[10px] font-semibold text-[#8C7A6B] dark:text-[#64748B]">
-                    Tap the mic to dictate the patient name
+                    Tap the mic and speak — Urdu or English
                   </p>
                 </div>
 
@@ -1379,7 +1352,6 @@ export function OperatorDashboardClient({
                       className="w-full h-10 pl-4 pr-12 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                     />
                     <VoiceInputButton
-                      lang={voiceLanguage}
                       label="patient address"
                       onTranscript={(text) => setPatientAddress(text)}
                       onError={(message) => error("Voice Input", message)}
