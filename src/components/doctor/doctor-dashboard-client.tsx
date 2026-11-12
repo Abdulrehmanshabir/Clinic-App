@@ -351,35 +351,6 @@ export function DoctorDashboardClient({
   // Next patient in line
   const nextPatientInLine = waitingQueue[0] || null;
 
-  const handleCompleteAndCallNextFromModal = async (
-    currentData: { appointment_id?: string; doctor_notes?: string; treatment_notes?: string | null; follow_up_date?: string | null },
-    nextApp: Appointment
-  ) => {
-    if (!selectedAppointment) return;
-    const { completeConsultation } = await import("@/lib/actions");
-    const completeRes = await completeConsultation({
-      ...currentData,
-      appointment_id: selectedAppointment.id,
-    });
-
-    if (!completeRes.success) {
-      error("Error", completeRes.error || "Could not complete current consultation");
-      return;
-    }
-
-    const startRes = await startConsultation(nextApp.id);
-    if (startRes.success) {
-      success("Next Patient Called", `Now consulting: ${nextApp.patient?.full_name} (${nextApp.token?.token_number})`);
-      setSelectedAppointment(nextApp);
-      setIsConsultationOpen(false);
-      router.refresh();
-    } else {
-      error("Error", startRes.error || "Completed previous, but failed to start next patient");
-      setIsConsultationOpen(false);
-      router.refresh();
-    }
-  };
-
   // Filter queue list based on selected view
   const filteredAppointments = useMemo(() => {
     const filtered = scopedAppointments.filter((a) => {
@@ -1042,6 +1013,21 @@ export function DoctorDashboardClient({
                           <Eye className="w-3.5 h-3.5 text-[#A8835A]" />
                           View Notes
                         </button>
+                        {app.status === "completed" && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsNotesReadOnly(false);
+                              setSelectedAppointment(app);
+                              setIsConsultationOpen(true);
+                            }}
+                            className="w-9 h-9 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#8C6843] border border-[#D8C5AD] transition inline-flex items-center justify-center shadow-2xs cursor-pointer"
+                            title="Edit Notes"
+                            aria-label="Edit patient notes"
+                          >
+                            <FileEdit className="w-4 h-4" />
+                          </button>
+                        )}
                         {app.status === "no_show" && (
                           <button
                             type="button"
@@ -1080,11 +1066,9 @@ export function DoctorDashboardClient({
       {/* Doctor Consultation Modal */}
       <ConsultationModal
         appointment={selectedAppointment}
-        nextAppointment={nextPatientInLine}
         isOpen={isConsultationOpen}
         onClose={() => setIsConsultationOpen(false)}
         onSuccess={() => router.refresh()}
-        onCompleteAndCallNext={handleCompleteAndCallNextFromModal}
         readOnly={isNotesReadOnly}
       />
 
