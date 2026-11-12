@@ -1021,7 +1021,7 @@ export function DoctorDashboardClient({
                               setSelectedAppointment(app);
                               setIsConsultationOpen(true);
                             }}
-                            className="w-9 h-9 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#8C6843] border border-[#D8C5AD] transition inline-flex items-center justify-center shadow-2xs cursor-pointer"
+                            className="w-9 h-9 rounded-xl bg-[#FAF7F1] text-[#8C6843] border border-[#D8C5AD] dark:bg-[#1A2234] dark:text-[#F8FAFC] dark:border-[#2D3D54] inline-flex items-center justify-center shadow-2xs cursor-pointer"
                             title="Edit Notes"
                             aria-label="Edit patient notes"
                           >
