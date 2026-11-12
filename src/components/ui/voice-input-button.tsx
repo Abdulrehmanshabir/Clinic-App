@@ -89,8 +89,8 @@ export function VoiceInputButton({
   const handleError = useCallback(
     (code?: string) => {
       const messages: Record<string, string> = {
-        "not-allowed": "Microphone permission denied. Please allow mic access in your browser.",
-        "service-not-allowed": "Microphone access is blocked by the browser.",
+        "not-allowed": "Microphone permission denied. Tap the lock icon in the address bar → Site settings → Microphone → Allow, then reload.",
+        "service-not-allowed": "Microphone is blocked by the browser. Allow microphone access in site settings, then reload. If it still fails, try Chrome or Safari.",
         "no-speech": "No speech detected. Please try again.",
         "audio-capture": "No microphone found. Please check your device.",
         "network": "Voice recognition needs an internet connection.",
@@ -170,7 +170,7 @@ export function VoiceInputButton({
     }
   };
 
-  const toggleListening = () => {
+  const toggleListening = async () => {
     if (disabled) return;
     if (!isSupported) {
       onError?.("Voice input is not supported in this browser. Please use Chrome or Safari.");
@@ -184,6 +184,25 @@ export function VoiceInputButton({
       setIsListening(false);
       stopListening();
       return;
+    }
+
+    if (navigator.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop());
+      } catch (err) {
+        const name = err instanceof Error ? err.name : "";
+        if (name === "NotAllowedError" || name === "SecurityError") {
+          onError?.(
+            "Microphone is blocked. Tap the lock icon in the address bar → Site settings → Microphone → Allow, then reload. In-app browsers may not support voice."
+          );
+        } else if (name === "NotFoundError") {
+          onError?.("No microphone found on this device.");
+        } else {
+          onError?.("Could not access the microphone. Please allow microphone permission and try again.");
+        }
+        return;
+      }
     }
 
     startRecognition(
@@ -207,10 +226,10 @@ export function VoiceInputButton({
       aria-label={tooltip}
       aria-pressed={isListening}
       className={cn(
-        "relative inline-flex h-9 w-9 sm:h-8 sm:w-8 shrink-0 touch-manipulation items-center justify-center rounded-xl border-2 transition-all duration-200 cursor-pointer",
+        "relative inline-flex h-10 w-10 shrink-0 touch-manipulation items-center justify-center rounded-xl border-2 transition-all duration-200 cursor-pointer",
         isListening
           ? "border-[#DC2626] bg-[#DC2626] text-white shadow-md shadow-[#DC2626]/25"
-          : "border-[#D8C5AD] bg-[#FAF7F2] text-[#8C6843] hover:border-[#8C6843] hover:bg-[#F0E6D8] dark:border-[#2D3E58] dark:bg-[#131B2A] dark:text-[#D4AF37] dark:hover:border-[#D4AF37] dark:hover:bg-[#1A2438]",
+          : "border-[#BCA58C] bg-[#FAF7F2] text-[#8C6843] hover:border-[#8C6843] hover:bg-[#F0E6D8] dark:border-[#2D3E58] dark:bg-[#131B2A] dark:text-[#D4AF37] dark:hover:border-[#D4AF37] dark:hover:bg-[#1A2438]",
         disabled && "cursor-not-allowed opacity-40",
         !isSupported && "opacity-60",
         className

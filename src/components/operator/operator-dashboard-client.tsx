@@ -1318,21 +1318,20 @@ export function OperatorDashboardClient({
                   <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Patient Name
                   </label>
-                  <div className="relative">
+                  <div className="flex items-center gap-2">
                     <input
                       type="text"
                       required
                       placeholder="Enter or speak patient name"
                       value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
-                      className="w-full h-10 pl-4 pr-12 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                      className="flex-1 min-w-0 h-10 px-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                     />
                     <VoiceInputButton
                       label="patient name"
                       latinOutput
                       onTranscript={(text) => setPatientName(text)}
                       onError={(message) => error("Voice Input", message)}
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2"
                     />
                   </div>
                   <p className="mt-1 ml-3 text-[10px] font-semibold text-[#8C7A6B] dark:text-[#64748B]">
@@ -1345,20 +1344,19 @@ export function OperatorDashboardClient({
                   <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
                     Address
                   </label>
-                  <div className="relative">
+                  <div className="flex items-center gap-2">
                     <input
                       type="text"
                       placeholder="Enter or speak patient address"
                       value={patientAddress}
                       onChange={(e) => setPatientAddress(e.target.value)}
-                      className="w-full h-10 pl-4 pr-12 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                      className="flex-1 min-w-0 h-10 px-4 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                     />
                     <VoiceInputButton
                       label="patient address"
                       latinOutput
                       onTranscript={(text) => setPatientAddress(text)}
                       onError={(message) => error("Voice Input", message)}
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2"
                     />
                   </div>
                 </div>
