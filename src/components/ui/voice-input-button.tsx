@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Mic } from "lucide-react";
+import { isUrdu, romanize } from "urdu-text-utils";
 import { cn } from "@/lib/utils";
 
 function toTitleCase(value: string) {
@@ -54,22 +55,24 @@ interface VoiceInputButtonProps {
   onTranscript: (text: string) => void;
   onError?: (message: string) => void;
   lang?: string;
-  fallbackLang?: string;
+  fallbackLangs?: string[];
   label?: string;
   className?: string;
   disabled?: boolean;
   titleCase?: boolean;
+  latinOutput?: boolean;
 }
 
 export function VoiceInputButton({
   onTranscript,
   onError,
-  lang = "en-US",
-  fallbackLang = "en-US",
+  lang = "ur-PK",
+  fallbackLangs = ["en-IN", "en-US"],
   label = "input",
   className,
   disabled = false,
   titleCase = false,
+  latinOutput = false,
 }: VoiceInputButtonProps) {
   const [isSupported, setIsSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -91,7 +94,7 @@ export function VoiceInputButton({
         "no-speech": "No speech detected. Please try again.",
         "audio-capture": "No microphone found. Please check your device.",
         "network": "Voice recognition needs an internet connection.",
-        "language-not-supported": "This voice language is not supported. Switch to EN and try again.",
+        "language-not-supported": "This voice language is not supported on your browser.",
         "aborted": "Voice input stopped.",
       };
       onError?.(messages[code ?? ""] || "Voice input failed. Please try again.");
@@ -103,7 +106,7 @@ export function VoiceInputButton({
     recognitionRef.current?.stop();
   };
 
-  const startRecognition = (recognitionLang: string, allowFallback: boolean) => {
+  const startRecognition = (recognitionLang: string, nextLangs: string[]) => {
     const SpeechRecognitionImpl = getSpeechRecognition();
     if (!SpeechRecognitionImpl) return;
 
@@ -126,15 +129,13 @@ export function VoiceInputButton({
         recognitionRef.current = null;
       }
 
-      if (
-        event.error === "language-not-supported" &&
-        allowFallback &&
-        fallbackLang &&
-        fallbackLang !== recognitionLang
-      ) {
-        onError?.("This voice language is not supported on this browser. Trying another language — please speak again.");
-        window.setTimeout(() => startRecognition(fallbackLang, false), 250);
-        return;
+      if (event.error === "language-not-supported") {
+        const [nextLang, ...rest] = nextLangs;
+        if (nextLang) {
+          onError?.("Urdu voice is not supported on this browser. Trying another language — please speak again.");
+          startRecognition(nextLang, rest);
+          return;
+        }
       }
 
       handleError(event.error);
@@ -145,7 +146,10 @@ export function VoiceInputButton({
         transcript += event.results[index][0]?.transcript ?? "";
       }
       let cleaned = transcript.replace(/\s+/g, " ").trim();
-      if (cleaned && titleCase) {
+      if (cleaned && latinOutput) {
+        cleaned = isUrdu(cleaned) ? romanize(cleaned) : cleaned;
+        cleaned = toTitleCase(cleaned);
+      } else if (cleaned && titleCase) {
         cleaned = toTitleCase(cleaned);
       }
       if (cleaned) onTranscript(cleaned);
@@ -157,8 +161,9 @@ export function VoiceInputButton({
     } catch {
       recognitionRef.current = null;
       setIsListening(false);
-      if (allowFallback && fallbackLang && fallbackLang !== recognitionLang) {
-        window.setTimeout(() => startRecognition(fallbackLang, false), 250);
+      const [nextLang, ...rest] = nextLangs;
+      if (nextLang) {
+        startRecognition(nextLang, rest);
         return;
       }
       onError?.("Voice input could not start. Please try again.");
@@ -166,36 +171,48 @@ export function VoiceInputButton({
   };
 
   const toggleListening = () => {
-    if (disabled || !isSupported) return;
+    if (disabled) return;
+    if (!isSupported) {
+      onError?.("Voice input is not supported in this browser. Please use Chrome or Safari.");
+      return;
+    }
+    if (typeof window !== "undefined" && !window.isSecureContext) {
+      onError?.("Voice input needs a secure connection. Please open the app over HTTPS.");
+      return;
+    }
     if (recognitionRef.current) {
       setIsListening(false);
       stopListening();
       return;
     }
 
-    startRecognition(lang, true);
+    startRecognition(
+      lang,
+      fallbackLangs.filter((item) => item !== lang)
+    );
   };
 
   const tooltip = !isSupported
-    ? "Voice input is not supported in this browser"
+    ? "Voice input is not supported in this browser. Use Chrome or Safari."
     : isListening
     ? `Stop listening for ${label}`
-    : `Speak ${label}`;
+    : `Speak ${label} in Urdu or English`;
 
   return (
     <button
       type="button"
       onClick={toggleListening}
-      disabled={disabled || !isSupported}
+      disabled={disabled}
       title={tooltip}
       aria-label={tooltip}
       aria-pressed={isListening}
       className={cn(
-        "relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border-2 transition-all duration-200 cursor-pointer",
+        "relative inline-flex h-9 w-9 sm:h-8 sm:w-8 shrink-0 touch-manipulation items-center justify-center rounded-xl border-2 transition-all duration-200 cursor-pointer",
         isListening
           ? "border-[#DC2626] bg-[#DC2626] text-white shadow-md shadow-[#DC2626]/25"
           : "border-[#D8C5AD] bg-[#FAF7F2] text-[#8C6843] hover:border-[#8C6843] hover:bg-[#F0E6D8] dark:border-[#2D3E58] dark:bg-[#131B2A] dark:text-[#D4AF37] dark:hover:border-[#D4AF37] dark:hover:bg-[#1A2438]",
-        (disabled || !isSupported) && "cursor-not-allowed opacity-40",
+        disabled && "cursor-not-allowed opacity-40",
+        !isSupported && "opacity-60",
         className
       )}
     >
