@@ -2,7 +2,12 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Mic } from "lucide-react";
+import { isUrdu, romanize } from "urdu-text-utils";
 import { cn } from "@/lib/utils";
+
+function toTitleCase(value: string) {
+  return value.replace(/\b([a-z])/g, (letter) => letter.toUpperCase());
+}
 
 interface SpeechRecognitionResultLike {
   isFinal: boolean;
@@ -54,6 +59,7 @@ interface VoiceInputButtonProps {
   label?: string;
   className?: string;
   disabled?: boolean;
+  latinOutput?: boolean;
 }
 
 export function VoiceInputButton({
@@ -64,6 +70,7 @@ export function VoiceInputButton({
   label = "input",
   className,
   disabled = false,
+  latinOutput = false,
 }: VoiceInputButtonProps) {
   const [isSupported, setIsSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -138,7 +145,10 @@ export function VoiceInputButton({
       for (let index = event.resultIndex; index < event.results.length; index++) {
         transcript += event.results[index][0]?.transcript ?? "";
       }
-      const cleaned = transcript.replace(/\s+/g, " ").trim();
+      let cleaned = transcript.replace(/\s+/g, " ").trim();
+      if (cleaned && latinOutput && isUrdu(cleaned)) {
+        cleaned = toTitleCase(romanize(cleaned));
+      }
       if (cleaned) onTranscript(cleaned);
     };
 

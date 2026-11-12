@@ -456,6 +456,13 @@ export function OperatorDashboardClient({
     }
   };
 
+  const closeWalkInModal = () => {
+    setPatientName("");
+    setPatientAddress("");
+    setCreatedWalkInToken(null);
+    setIsWalkInModalOpen(false);
+  };
+
   // 1. Handle Walk-in Token Booking (Immediate physical arrival)
   const handleQuickBookWalkIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -767,6 +774,9 @@ export function OperatorDashboardClient({
                 error("Start Session First", "Please start a clinic session (date & time) before issuing a token.");
                 return;
               }
+              setPatientName("");
+              setPatientAddress("");
+              setCreatedWalkInToken(null);
               setIsWalkInModalOpen(true);
             }}
             title={canIssueToken ? "Issue a walk-in token" : "Start a session first"}
@@ -1186,20 +1196,14 @@ export function OperatorDashboardClient({
       {/* Modal 1: Walk-In Quick Token Issue */}
       <Modal
         isOpen={isWalkInModalOpen}
-        onClose={() => {
-          setCreatedWalkInToken(null);
-          setIsWalkInModalOpen(false);
-        }}
+        onClose={closeWalkInModal}
         hideDefaultHeader={true}
         maxWidth="md"
       >
         {createdWalkInToken ? (
           <div className="p-5 text-center py-4 space-y-3 relative">
             <ModalCloseButton
-              onClick={() => {
-                setCreatedWalkInToken(null);
-                setIsWalkInModalOpen(false);
-              }}
+              onClick={closeWalkInModal}
               className="absolute right-3.5 top-3.5"
             />
             <div className="slip-success-icon w-10 h-10 rounded-2xl mx-auto flex items-center justify-center border shadow-xs">
@@ -1271,10 +1275,7 @@ export function OperatorDashboardClient({
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setCreatedWalkInToken(null);
-                  setIsWalkInModalOpen(false);
-                }}
+                onClick={closeWalkInModal}
                 className="px-7 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] text-xs font-bold transition shadow-md"
               >
                 Done & Return
@@ -1284,7 +1285,7 @@ export function OperatorDashboardClient({
         ) : (
           <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
             <ModalCloseButton
-              onClick={() => setIsWalkInModalOpen(false)}
+              onClick={closeWalkInModal}
               className="absolute right-3.5 top-3.5"
             />
 
@@ -1328,13 +1329,14 @@ export function OperatorDashboardClient({
                     />
                     <VoiceInputButton
                       label="patient name"
+                      latinOutput
                       onTranscript={(text) => setPatientName(text)}
                       onError={(message) => error("Voice Input", message)}
                       className="absolute right-1.5 top-1/2 -translate-y-1/2"
                     />
                   </div>
                   <p className="mt-1 ml-3 text-[10px] font-semibold text-[#8C7A6B] dark:text-[#64748B]">
-                    Tap the mic and speak — Urdu or English
+                    Tap the mic and speak — name is written in English
                   </p>
                 </div>
 
@@ -1353,6 +1355,7 @@ export function OperatorDashboardClient({
                     />
                     <VoiceInputButton
                       label="patient address"
+                      latinOutput
                       onTranscript={(text) => setPatientAddress(text)}
                       onError={(message) => error("Voice Input", message)}
                       className="absolute right-1.5 top-1/2 -translate-y-1/2"
@@ -1366,7 +1369,7 @@ export function OperatorDashboardClient({
               <div className="mt-4 pt-3.5 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
                 <button
                   type="button"
-                  onClick={() => setIsWalkInModalOpen(false)}
+                  onClick={closeWalkInModal}
                   className="px-6 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs font-bold transition border border-[#E9DFD1]"
                 >
                   Cancel
