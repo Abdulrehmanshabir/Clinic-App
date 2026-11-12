@@ -191,7 +191,7 @@ export function ConsultationModal({
               <button
                 type="submit"
                 disabled={isSavingNotes}
-                className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-[#5C3D22] via-[#8C6843] to-[#B08A5C] hover:from-[#6F4E2E] hover:via-[#A07A50] hover:to-[#C29A6B] text-white font-bold text-xs shadow-md shadow-[#8C6843]/25 transition-all duration-200 flex items-center gap-2 border border-[#4A3018] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                className="px-6 py-2.5 rounded-2xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-md shadow-[#1E1915]/20 transition-all duration-200 flex items-center gap-2 border border-[#2B1E14] cursor-pointer hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
                 {isSavingNotes ? (
                   <>
@@ -200,7 +200,7 @@ export function ConsultationModal({
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4" />
+                    <Save className="w-4 h-4 text-[#D8C5AD]" />
                     <span>Save Notes</span>
                   </>
                 )}
