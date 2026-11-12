@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Mic } from "lucide-react";
-import { isUrdu, romanize } from "urdu-text-utils";
 import { cn } from "@/lib/utils";
 
 function toTitleCase(value: string) {
@@ -59,18 +58,18 @@ interface VoiceInputButtonProps {
   label?: string;
   className?: string;
   disabled?: boolean;
-  latinOutput?: boolean;
+  titleCase?: boolean;
 }
 
 export function VoiceInputButton({
   onTranscript,
   onError,
-  lang = "ur-PK",
+  lang = "en-US",
   fallbackLang = "en-US",
   label = "input",
   className,
   disabled = false,
-  latinOutput = false,
+  titleCase = false,
 }: VoiceInputButtonProps) {
   const [isSupported, setIsSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -133,7 +132,7 @@ export function VoiceInputButton({
         fallbackLang &&
         fallbackLang !== recognitionLang
       ) {
-        onError?.("Urdu voice is not supported on this browser. Switching to English — please speak again.");
+        onError?.("This voice language is not supported on this browser. Trying another language — please speak again.");
         window.setTimeout(() => startRecognition(fallbackLang, false), 250);
         return;
       }
@@ -146,8 +145,8 @@ export function VoiceInputButton({
         transcript += event.results[index][0]?.transcript ?? "";
       }
       let cleaned = transcript.replace(/\s+/g, " ").trim();
-      if (cleaned && latinOutput && isUrdu(cleaned)) {
-        cleaned = toTitleCase(romanize(cleaned));
+      if (cleaned && titleCase) {
+        cleaned = toTitleCase(cleaned);
       }
       if (cleaned) onTranscript(cleaned);
     };

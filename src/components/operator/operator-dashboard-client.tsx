@@ -1328,8 +1328,9 @@ export function OperatorDashboardClient({
                       className="w-full h-10 pl-4 pr-12 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                     />
                     <VoiceInputButton
+                      lang="en-US"
                       label="patient name"
-                      latinOutput
+                      titleCase
                       onTranscript={(text) => setPatientName(text)}
                       onError={(message) => error("Voice Input", message)}
                       className="absolute right-1.5 top-1/2 -translate-y-1/2"
@@ -1354,8 +1355,9 @@ export function OperatorDashboardClient({
                       className="w-full h-10 pl-4 pr-12 py-2 rounded-xl bg-[#FAF7F2] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
                     />
                     <VoiceInputButton
+                      lang="en-US"
                       label="patient address"
-                      latinOutput
+                      titleCase
                       onTranscript={(text) => setPatientAddress(text)}
                       onError={(message) => error("Voice Input", message)}
                       className="absolute right-1.5 top-1/2 -translate-y-1/2"
