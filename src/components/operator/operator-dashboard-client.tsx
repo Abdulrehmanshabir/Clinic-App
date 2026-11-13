@@ -9,7 +9,6 @@ import { ModalCloseButton } from "@/components/ui/modal-close-button";
 import { DoctorBreakBanner } from "@/components/doctor/doctor-break-banner";
 import { DoctorBreakScreen } from "@/components/doctor/doctor-break-screen";
 import { VoiceInputButton } from "@/components/ui/voice-input-button";
-import { TokenTiming } from "@/components/ui/visit-timing";
 import { quickBookToken, bookCallAppointment, checkInCallAppointment, updateAppointmentStatus, startSession, endSession } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
@@ -1018,12 +1017,9 @@ export function OperatorDashboardClient({
                     {/* Token / Type */}
                     <td className="px-6 py-4 text-center">
                       {app.token ? (
-                        <>
-                          <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#D4AF37] inline-block shadow-2xs">
-                            {app.token.token_number}
-                          </span>
-                          <TokenTiming appointment={app} />
-                        </>
+                        <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#D4AF37] inline-block shadow-2xs">
+                          {app.token.token_number}
+                        </span>
                       ) : isOnlineAppointment(app) ? (
                         <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] text-base font-bold font-mono whitespace-nowrap">
                           <Globe className="w-4 h-4" />

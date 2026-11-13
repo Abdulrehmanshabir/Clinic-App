@@ -46,7 +46,7 @@ import {
 } from "lucide-react";
 import { formatClinicClock, formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { LiveDuration } from "@/components/ui/live-duration";
-import { TokenTiming, getConsultationStart } from "@/components/ui/visit-timing";
+import { getConsultationEnd, getConsultationStart } from "@/components/ui/visit-timing";
 import { getAppointmentShift, SHIFT_LABELS } from "@/lib/session";
 
 interface DoctorDashboardClientProps {
@@ -827,7 +827,9 @@ export function DoctorDashboardClient({
                   <>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Address / Phone</th>
-                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Reserved Time</th>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">
+                      {activeFilter === "completed" ? "Completed Time" : "Reserved Time"}
+                    </th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
                   </>
                 )}
@@ -864,12 +866,9 @@ export function DoctorDashboardClient({
                     {/* Token / Type */}
                     <td className="px-6 py-4 text-center">
                       {app.token ? (
-                        <>
-                          <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#D4AF37] inline-block shadow-2xs">
-                            {app.token.token_number}
-                          </span>
-                          <TokenTiming appointment={app} />
-                        </>
+                        <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#D4AF37] inline-block shadow-2xs">
+                          {app.token.token_number}
+                        </span>
                       ) : isOnlineAppointment(app) ? (
                         <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] text-base font-bold font-mono">
                           <Globe className="w-4 h-4" />
@@ -981,12 +980,19 @@ export function DoctorDashboardClient({
                           )}
                         </td>
 
-                        {/* Reserved / Arrival Time */}
+                        {/* Reserved / Arrival Time — completed rows show the end time */}
                         <td className="px-6 py-4 text-center">
-                          <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] text-base font-bold text-[#1A120B] inline-flex items-center gap-1.5 shadow-2xs whitespace-nowrap">
-                            <Clock className="w-4 h-4 text-[#A8835A]" />
-                            {formatClinicTime(app.appointment_time)}
-                          </span>
+                          {app.status === "completed" ? (
+                            <span className="px-3.5 py-1.5 rounded-xl bg-[#ECFDF5] dark:bg-[#123024] border border-[#A7F3D0] dark:border-[#15803D] text-base font-bold text-[#047857] dark:text-[#4ADE80] inline-flex items-center gap-1.5 shadow-2xs whitespace-nowrap">
+                              <CheckCircle2 className="w-4 h-4" />
+                              Ended {formatClinicClock(getConsultationEnd(app))}
+                            </span>
+                          ) : (
+                            <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] text-base font-bold text-[#1A120B] inline-flex items-center gap-1.5 shadow-2xs whitespace-nowrap">
+                              <Clock className="w-4 h-4 text-[#A8835A]" />
+                              {formatClinicTime(app.appointment_time)}
+                            </span>
+                          )}
                         </td>
 
                         {/* Queue Action (before Status) */}
