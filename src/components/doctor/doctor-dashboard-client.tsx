@@ -41,11 +41,8 @@ import {
   Globe,
   Trash2,
   Star,
-  Timer,
-  Hourglass,
 } from "lucide-react";
 import { formatClinicClock, formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
-import { LiveDuration } from "@/components/ui/live-duration";
 import { getConsultationStart, getConsultationEnd } from "@/components/ui/visit-timing";
 import { getAppointmentShift, SHIFT_LABELS } from "@/lib/session";
 
@@ -593,17 +590,7 @@ export function DoctorDashboardClient({
                   <Clock className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
                   {formatClinicTime(activeConsultation.appointment_time)}
                 </span>
-                {activeStartedAt && (
-                  <span className="px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] dark:bg-[#2A1F3D] backdrop-blur border border-[#D8B4FE] dark:border-[#6B21A8] font-black text-[#7E22CE] dark:text-[#E9D5FF] flex items-center gap-1.5 shadow-2xs">
-                    <Timer className="w-4 h-4" />
-                    In room <LiveDuration since={activeStartedAt} className="font-mono" />
-                  </span>
-                )}
-                {activeStartedAt && (
-                  <span className="px-3.5 py-1.5 rounded-xl bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur border border-[#E9DFD1] dark:border-[#2D3E58] font-bold text-[#5C4D3E] dark:text-[#CBD5E1] flex items-center gap-1.5 shadow-2xs">
-                    Started {formatClinicClock(activeStartedAt)}
-                  </span>
-                )}
+                
               </div>
             </div>
 
@@ -710,12 +697,7 @@ export function DoctorDashboardClient({
                   <Clock className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
                   Arrival: {formatClinicTime(nextPatientInLine.appointment_time)}
                 </span>
-                {nextWaitingSince && (
-                  <span className="px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] dark:bg-[#3A2A12] backdrop-blur border border-[#FCD34D] dark:border-[#B45309] font-black text-[#92400E] dark:text-[#FDE68A] flex items-center gap-1.5 shadow-2xs">
-                    <Hourglass className="w-4 h-4" />
-                    Waiting <LiveDuration since={nextWaitingSince} className="font-mono" />
-                  </span>
-                )}
+                
               </div>
             </div>
 
@@ -828,7 +810,7 @@ export function DoctorDashboardClient({
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Address / Phone</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">
-                      {activeFilter === "completed" ? "Completed Time" : "Reserved Time"}
+                      {activeFilter === "completed" ? "Completed" : "Reserved"}
                     </th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
                   </>
@@ -983,8 +965,8 @@ export function DoctorDashboardClient({
                         {/* Reserved / Arrival Time — completed rows show the end time */}
                         <td className="px-6 py-4 text-center">
                           {app.status === "completed" ? (
-                            <span className="px-3.5 py-1.5 rounded-xl bg-[#ECFDF5] dark:bg-[#123024] border border-[#A7F3D0] dark:border-[#15803D] text-base font-bold text-[#047857] dark:text-[#4ADE80] inline-flex items-center gap-1.5 shadow-2xs whitespace-nowrap">
-                              <CheckCircle2 className="w-4 h-4" />
+                            <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] text-base font-bold text-[#1A120B] inline-flex items-center gap-1.5 shadow-2xs whitespace-nowrap">
+                              <Clock className="w-4 h-4 text-[#A8835A]" />
                               {formatClinicClock(getConsultationEnd(app))}
                             </span>
                           ) : (
