@@ -43,7 +43,7 @@ import {
   Star,
 } from "lucide-react";
 import { formatClinicClock, formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
-import { getConsultationStart, getConsultationEnd } from "@/components/ui/visit-timing";
+import { getConsultationEnd } from "@/components/ui/visit-timing";
 import { getAppointmentShift, SHIFT_LABELS } from "@/lib/session";
 
 interface DoctorDashboardClientProps {
@@ -354,11 +354,6 @@ export function DoctorDashboardClient({
   // Next patient in line
   const nextPatientInLine = waitingQueue[0] || null;
 
-  const activeStartedAt = activeConsultation
-    ? getConsultationStart(activeConsultation)
-    : null;
-  const nextWaitingSince =
-    nextPatientInLine?.token?.created_at || nextPatientInLine?.created_at || null;
 
   // Filter queue list based on selected view
   const filteredAppointments = useMemo(() => {

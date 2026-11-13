@@ -1,8 +1,7 @@
 "use client";
 
 import type { Appointment } from "@/types/database";
-import { formatClinicClock, formatDuration, getVisitDurationMs } from "@/lib/utils";
-import { LiveDuration } from "@/components/ui/live-duration";
+import { formatClinicClock } from "@/lib/utils";
 
 /**
  * Returns the start time of a consultation if it exists, otherwise falls back to the
@@ -34,16 +33,10 @@ export function TokenTiming({ appointment }: { appointment: Appointment }) {
   if (!appointment.token) return null;
 
   const issuedAt = appointment.token.created_at || appointment.created_at;
-  const startedAt = getConsultationStart(appointment);
-  const completedAt = getConsultationEnd(appointment);
 
   return (
     <div className="mt-1.5 space-y-0.5 text-[11px] font-bold leading-tight text-[#8C6843] dark:text-[#E5C158]">
       <div>Issued {formatClinicClock(issuedAt)}</div>
-
-      
-
-      
     </div>
   );
 }
