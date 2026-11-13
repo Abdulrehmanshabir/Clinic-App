@@ -46,7 +46,7 @@ import {
 } from "lucide-react";
 import { formatClinicClock, formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { LiveDuration } from "@/components/ui/live-duration";
-import { getConsultationEnd, getConsultationStart } from "@/components/ui/visit-timing";
+import { getConsultationStart, getConsultationEnd } from "@/components/ui/visit-timing";
 import { getAppointmentShift, SHIFT_LABELS } from "@/lib/session";
 
 interface DoctorDashboardClientProps {
@@ -985,7 +985,7 @@ export function DoctorDashboardClient({
                           {app.status === "completed" ? (
                             <span className="px-3.5 py-1.5 rounded-xl bg-[#ECFDF5] dark:bg-[#123024] border border-[#A7F3D0] dark:border-[#15803D] text-base font-bold text-[#047857] dark:text-[#4ADE80] inline-flex items-center gap-1.5 shadow-2xs whitespace-nowrap">
                               <CheckCircle2 className="w-4 h-4" />
-                              Ended {formatClinicClock(getConsultationEnd(app))}
+                              {formatClinicClock(getConsultationEnd(app))}
                             </span>
                           ) : (
                             <span className="px-3.5 py-1.5 rounded-xl bg-[#F4EFE6] border border-[#E9DFD1] text-base font-bold text-[#1A120B] inline-flex items-center gap-1.5 shadow-2xs whitespace-nowrap">
