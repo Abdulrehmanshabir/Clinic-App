@@ -41,8 +41,12 @@ import {
   Globe,
   Trash2,
   Star,
+  Timer,
+  Hourglass,
 } from "lucide-react";
-import { formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
+import { formatClinicClock, formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
+import { LiveDuration } from "@/components/ui/live-duration";
+import { TokenTiming, getConsultationStart } from "@/components/ui/visit-timing";
 import { getAppointmentShift, SHIFT_LABELS } from "@/lib/session";
 
 interface DoctorDashboardClientProps {
@@ -54,6 +58,8 @@ interface DoctorDashboardClientProps {
   initialDoctorBreak?: DoctorBreakInfo | null;
   services?: Service[];
 }
+
+
 
 export function DoctorDashboardClient({
   initialAppointments,
@@ -351,6 +357,12 @@ export function DoctorDashboardClient({
   // Next patient in line
   const nextPatientInLine = waitingQueue[0] || null;
 
+  const activeStartedAt = activeConsultation
+    ? getConsultationStart(activeConsultation)
+    : null;
+  const nextWaitingSince =
+    nextPatientInLine?.token?.created_at || nextPatientInLine?.created_at || null;
+
   // Filter queue list based on selected view
   const filteredAppointments = useMemo(() => {
     const filtered = scopedAppointments.filter((a) => {
@@ -581,6 +593,17 @@ export function DoctorDashboardClient({
                   <Clock className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
                   {formatClinicTime(activeConsultation.appointment_time)}
                 </span>
+                {activeStartedAt && (
+                  <span className="px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] dark:bg-[#2A1F3D] backdrop-blur border border-[#D8B4FE] dark:border-[#6B21A8] font-black text-[#7E22CE] dark:text-[#E9D5FF] flex items-center gap-1.5 shadow-2xs">
+                    <Timer className="w-4 h-4" />
+                    In room <LiveDuration since={activeStartedAt} className="font-mono" />
+                  </span>
+                )}
+                {activeStartedAt && (
+                  <span className="px-3.5 py-1.5 rounded-xl bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur border border-[#E9DFD1] dark:border-[#2D3E58] font-bold text-[#5C4D3E] dark:text-[#CBD5E1] flex items-center gap-1.5 shadow-2xs">
+                    Started {formatClinicClock(activeStartedAt)}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -687,6 +710,12 @@ export function DoctorDashboardClient({
                   <Clock className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
                   Arrival: {formatClinicTime(nextPatientInLine.appointment_time)}
                 </span>
+                {nextWaitingSince && (
+                  <span className="px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] dark:bg-[#3A2A12] backdrop-blur border border-[#FCD34D] dark:border-[#B45309] font-black text-[#92400E] dark:text-[#FDE68A] flex items-center gap-1.5 shadow-2xs">
+                    <Hourglass className="w-4 h-4" />
+                    Waiting <LiveDuration since={nextWaitingSince} className="font-mono" />
+                  </span>
+                )}
               </div>
             </div>
 
@@ -835,9 +864,12 @@ export function DoctorDashboardClient({
                     {/* Token / Type */}
                     <td className="px-6 py-4 text-center">
                       {app.token ? (
-                        <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#D4AF37] inline-block shadow-2xs">
-                          {app.token.token_number}
-                        </span>
+                        <>
+                          <span className="font-mono font-black text-base text-[#1A120B] bg-[#F4EFE6] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#D4AF37] inline-block shadow-2xs">
+                            {app.token.token_number}
+                          </span>
+                          <TokenTiming appointment={app} />
+                        </>
                       ) : isOnlineAppointment(app) ? (
                         <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] text-base font-bold font-mono">
                           <Globe className="w-4 h-4" />

@@ -33,6 +33,46 @@ export function formatClinicTime(timeStr: string | null | undefined): string {
   return timeStr;
 }
 
+export function formatClinicClock(value: string | Date | null | undefined): string {
+  if (!value) return "--:--";
+  const date = typeof value === "string" ? new Date(value) : value;
+  if (isNaN(date.getTime())) {
+    return typeof value === "string" ? formatClinicTime(value) : "--:--";
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: CLINIC_TIME_ZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+}
+
+export function formatDuration(ms: number): string {
+  if (!Number.isFinite(ms) || ms <= 0) return "0s";
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return `${hours}h ${String(minutes).padStart(2, "0")}m`;
+  }
+  if (minutes > 0) {
+    return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
+  }
+  return `${seconds}s`;
+}
+
+export function getVisitDurationMs(
+  start: string | null | undefined,
+  end?: string | null
+): number {
+  if (!start) return 0;
+  const startMs = new Date(start).getTime();
+  const endMs = end ? new Date(end).getTime() : Date.now();
+  if (Number.isNaN(startMs) || Number.isNaN(endMs)) return 0;
+  return Math.max(0, endMs - startMs);
+}
+
 export function isOnlineAppointment(
   app: Pick<Appointment, "is_online" | "notes"> | null | undefined
 ): boolean {

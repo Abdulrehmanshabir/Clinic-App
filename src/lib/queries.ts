@@ -90,7 +90,8 @@ const APPOINTMENT_DETAILS_SELECT = `
     id,
     token_number,
     token_date,
-    queue_position
+    queue_position,
+    created_at
   ),
   service:services (
     id,
