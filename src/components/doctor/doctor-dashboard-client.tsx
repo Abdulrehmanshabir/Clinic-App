@@ -41,6 +41,7 @@ import {
   Globe,
   Trash2,
   Star,
+  RotateCcw,
 } from "lucide-react";
 import { formatClinicClock, formatClinicTime, isOnlineAppointment, isProcedureAppointment, sortAppointmentsForDashboard } from "@/lib/utils";
 import { getConsultationEnd } from "@/components/ui/visit-timing";
@@ -269,6 +270,26 @@ export function DoctorDashboardClient({
       const res = await updateAppointmentStatus(appointmentId, "no_show");
       if (res.success) {
         success("Patient Marked Absent", `${patientName || "Patient"} marked as Absent / Skipped`);
+        router.refresh();
+      } else {
+        error("Action Failed", res.error);
+        router.refresh();
+      }
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const handleReQueue = async (appointmentId: string, patientName?: string) => {
+    setLoadingAction(appointmentId);
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === appointmentId ? { ...a, status: "waiting" } : a))
+    );
+
+    try {
+      const res = await updateAppointmentStatus(appointmentId, "waiting");
+      if (res.success) {
+        success("Patient Returned", `${patientName || "Patient"} returned to Waiting queue`);
         router.refresh();
       } else {
         error("Action Failed", res.error);
@@ -1044,20 +1065,36 @@ export function DoctorDashboardClient({
                           </button>
                         )}
                         {app.status === "no_show" && (
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteAbsent(app.id, app.patient?.full_name)}
-                            disabled={deletingId === app.id}
-                            className="absent-delete-btn w-9 h-9 rounded-xl border transition-colors inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                            title="Delete absent patient from Total"
-                            aria-label="Delete absent patient"
-                          >
-                            {deletingId === app.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-[18px] h-[18px]" strokeWidth={2.25} />
-                            )}
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleReQueue(app.id, app.patient?.full_name)}
+                              disabled={loadingAction === app.id}
+                              className="w-9 h-9 rounded-xl bg-[#FAF7F1] text-[#8C6843] border border-[#D8C5AD] dark:bg-[#1A2234] dark:text-[#F8FAFC] dark:border-[#2D3D54] inline-flex items-center justify-center shadow-2xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Return patient to waiting queue"
+                              aria-label="Return patient to waiting queue"
+                            >
+                              {loadingAction === app.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <RotateCcw className="w-4 h-4" strokeWidth={2.25} />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteAbsent(app.id, app.patient?.full_name)}
+                              disabled={deletingId === app.id}
+                              className="absent-delete-btn w-9 h-9 rounded-xl border transition-colors inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                              title="Delete absent patient from Total"
+                              aria-label="Delete absent patient"
+                            >
+                              {deletingId === app.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-[18px] h-[18px]" strokeWidth={2.25} />
+                              )}
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>
