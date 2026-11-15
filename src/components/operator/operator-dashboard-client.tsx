@@ -1304,7 +1304,7 @@ export function OperatorDashboardClient({
             <form onSubmit={handleQuickBookWalkIn}>
               <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
                 {/* Next In Line Token (Matching Slip Number Display) */}
-                <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border-2 border-dashed border-[#8C6843] dark:border-[#D4AF37]">
+                <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border-2 border-solid border-[#8C6843] dark:border-[#D4AF37]">
                   <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] dark:text-[#E5C158] block mb-0.5">
                     Next In Line Token
                   </span>
@@ -1516,7 +1516,7 @@ export function OperatorDashboardClient({
 
             <form onSubmit={handleQuickBookProcedure}>
               <div className="py-2.5 space-y-3.5 max-w-[350px] mx-auto w-full">
-                <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border-2 border-dashed border-[#8C6843] dark:border-[#D4AF37]">
+                <div className="text-center py-2 bg-[#FAF7F2] rounded-2xl border-2 border-solid border-[#8C6843] dark:border-[#D4AF37]">
                   <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-[#8C6843] dark:text-[#E5C158] block mb-0.5">
                     Next In Line Token
                   </span>

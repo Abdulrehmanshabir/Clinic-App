@@ -722,7 +722,7 @@ export function DoctorDashboardClient({
                 <button
                   onClick={() => handleCallPatient(nextPatientInLine.id)}
                   disabled={loadingAction === nextPatientInLine.id}
-                  className="flex-1 sm:flex-initial px-4 py-2.5 rounded-2xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition shadow-xs text-center"
+                  className="flex-1 sm:flex-initial px-4 py-2.5 rounded-2xl bg-[#FAF7F2] hover:bg-[#F4EFE6] text-[#1A120B] border border-[#D8C5AD] text-xs font-bold transition shadow-xs text-center whitespace-nowrap"
                 >
                   Call Out Token
                 </button>
@@ -925,13 +925,13 @@ export function DoctorDashboardClient({
                         </td>
 
                         {/* Queue Action for Procedure (before Status) */}
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-6 py-4 text-center whitespace-nowrap">
                           {app.status === "waiting" && app.token ? (
                             <button
                               type="button"
                               onClick={() => handleCallPatient(app.id)}
                               disabled={loadingAction === app.id}
-                              className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50"
+                              className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50 whitespace-nowrap"
                               title="Call this patient before the normal queue"
                             >
                               {loadingAction === app.id ? "Calling..." : "Call Next"}
@@ -994,13 +994,13 @@ export function DoctorDashboardClient({
                         </td>
 
                         {/* Queue Action (before Status) */}
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-6 py-4 text-center whitespace-nowrap">
                           {app.status === "waiting" && app.token ? (
                             <button
                               type="button"
                               onClick={() => handleCallPatient(app.id)}
                               disabled={loadingAction === app.id}
-                              className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50"
+                              className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50 whitespace-nowrap"
                               title="Call this patient before the normal queue"
                             >
                               {loadingAction === app.id ? "Calling..." : "Call Next"}

@@ -356,13 +356,13 @@ export function ProceduresSection({
 
                             {/* Queue Action (before Status) */}
                             {isDoctorView && (
-                              <td className="px-6 py-4 text-center">
+                              <td className="px-6 py-4 text-center whitespace-nowrap">
                                 {app.status === "waiting" && app.token ? (
                                   <button
                                     type="button"
                                     onClick={() => handleCall(app.id)}
                                     disabled={activeLoading === app.id}
-                                    className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50"
+                                    className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50 whitespace-nowrap"
                                     title="Call this patient before the normal queue"
                                   >
                                     {activeLoading === app.id ? "Calling..." : "Call Next"}
