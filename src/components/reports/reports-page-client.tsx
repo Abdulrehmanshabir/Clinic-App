@@ -16,9 +16,9 @@ export function ReportsPageClient({ initialAppointments }: ReportsPageClientProp
     (a) => a.status === "cancelled" || a.status === "no_show"
   );
 
-  // Calculate estimated revenue
+  // Revenue is the fee the doctor recorded per procedure (pending fees excluded)
   const totalRevenue = completedAppointments.reduce((acc, curr) => {
-    return acc + (Number(curr.service?.price) || 0);
+    return acc + (Number(curr.custom_amount) || 0);
   }, 0);
 
   // Group service counts
@@ -49,7 +49,7 @@ export function ReportsPageClient({ initialAppointments }: ReportsPageClientProp
         <div className="grid grid-cols-2 lg:grid-cols-4 auto-rows-fr gap-4">
         <StatCard title="Total Volume" value={totalPatients} icon={Users} variant="default" />
         <StatCard title="Completed Consults" value={completedAppointments.length} icon={TrendingUp} variant="emerald" />
-        <StatCard title="Est. Revenue ($)" value={`$${totalRevenue.toFixed(2)}`} icon={DollarSign} variant="indigo" />
+        <StatCard title="Collected Revenue (Rs)" value={`Rs ${totalRevenue.toLocaleString()}`} icon={DollarSign} variant="indigo" />
         <StatCard title="Cancellations" value={cancelledAppointments.length} icon={Calendar} variant="rose" />
       </div>
 

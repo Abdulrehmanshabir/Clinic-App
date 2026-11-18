@@ -34,13 +34,11 @@ export function SettingsPageClient({
   const [services, setServices] = useState<Service[]>(initialServices);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newProcName, setNewProcName] = useState("");
-  const [newProcPrice, setNewProcPrice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Editing state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
-  const [editPrice, setEditPrice] = useState("");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -56,19 +54,12 @@ export function SettingsPageClient({
       return;
     }
 
-    const priceNum = parseFloat(newProcPrice);
-    if (isNaN(priceNum) || priceNum < 0) {
-      error("Valid Price Required", "Please enter a valid procedure price.");
-      return;
-    }
-
     setIsSubmitting(true);
     try {
-      const res = await createProcedure(newProcName.trim(), priceNum);
+      const res = await createProcedure(newProcName.trim());
       if (res.success && res.data) {
-        success("Procedure Added 🎉", `${newProcName.trim()} is now active at Rs ${priceNum.toLocaleString()}`);
+        success("Procedure Added 🎉", `${newProcName.trim()} is now active.`);
         setNewProcName("");
-        setNewProcPrice("");
         setIsAddModalOpen(false);
         router.refresh();
       } else {
@@ -85,14 +76,12 @@ export function SettingsPageClient({
   const startEditing = (svc: Service) => {
     setEditingId(svc.id);
     setEditName(svc.name);
-    setEditPrice(String(svc.price));
   };
 
   // Cancel editing
   const cancelEditing = () => {
     setEditingId(null);
     setEditName("");
-    setEditPrice("");
   };
 
   // Save edit
@@ -102,17 +91,11 @@ export function SettingsPageClient({
       return;
     }
 
-    const priceNum = parseFloat(editPrice);
-    if (isNaN(priceNum) || priceNum < 0) {
-      error("Valid Price Required", "Please enter a valid price");
-      return;
-    }
-
     setIsSavingEdit(true);
     try {
-      const res = await updateProcedure(serviceId, editName.trim(), priceNum);
+      const res = await updateProcedure(serviceId, editName.trim());
       if (res.success) {
-        success("Procedure Updated", `${editName.trim()} saved at Rs ${priceNum.toLocaleString()}`);
+        success("Procedure Updated", `${editName.trim()} saved.`);
         setEditingId(null);
         router.refresh();
       } else {
@@ -152,11 +135,11 @@ export function SettingsPageClient({
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A120B] dark:text-[#FFFFFF] tracking-tight">
-              Procedure Setting: Procedures &amp; Pricing
+              Procedure Setting: Procedures
             </h2>
           </div>
           <p className="text-sm sm:text-base text-[#8C6843] dark:text-[#E5C158] font-bold mt-1">
-            Configure clinic treatments and procedure fees across doctor and reception desks.
+            Configure clinic treatment names. The doctor enters each patient&apos;s fee at the time of the procedure.
           </p>
         </div>
 
@@ -190,7 +173,7 @@ export function SettingsPageClient({
           </div>
 
           <span className="text-xs text-[#8C7A6B] font-bold">
-            All prices sync automatically to Doctor & Reception desks
+            Fees are entered by the doctor for each patient procedure
           </span>
         </div>
 
@@ -207,7 +190,6 @@ export function SettingsPageClient({
                 <tr>
                   <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">#</th>
                   <th className="px-6 py-5 text-left font-black text-base sm:text-lg text-[#1A120B]">Procedure Name</th>
-                  <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure Fee</th>
                   <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Action</th>
                 </tr>
               </thead>
@@ -241,28 +223,6 @@ export function SettingsPageClient({
                           <div className="font-bold text-[#1A120B] text-base sm:text-lg font-serif">
                             {svc.name}
                           </div>
-                        )}
-                      </td>
-
-                      {/* Procedure Price */}
-                      <td className="px-6 py-4 text-center">
-                        {isEditing ? (
-                          <div className="relative inline-block w-40">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-bold text-xs text-[#8C6843]">
-                              Rs
-                            </span>
-                            <input
-                              type="number"
-                              value={editPrice}
-                              onChange={(e) => setEditPrice(e.target.value)}
-                              className="w-full h-11 pl-9 pr-3 rounded-xl bg-white border-2 border-[#8C6843] text-sm font-mono font-bold text-[#1A120B] focus:outline-none shadow-2xs"
-                              placeholder="Price"
-                            />
-                          </div>
-                        ) : (
-                          <span className="font-mono font-bold text-xs sm:text-sm text-[#8C6843] dark:text-[#34D399] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
-                            Rs {Number(svc.price).toLocaleString()}
-                          </span>
                         )}
                       </td>
 
@@ -369,27 +329,9 @@ export function SettingsPageClient({
                 />
               </div>
 
-              {/* Procedure Price Input */}
-              <div>
-                <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158] mb-1.5 ml-3">
-                  Procedure Price (Fee)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-black text-sm text-[#8C6843] dark:text-[#E5C158]">
-                    Rs
-                  </span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="50"
-                    required
-                    placeholder="Enter fee (e.g. 5000)"
-                    value={newProcPrice}
-                    onChange={(e) => setNewProcPrice(e.target.value)}
-                    className="w-full h-11 pl-11 pr-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] dark:border-[#2D3E58] text-[#1A120B] dark:text-[#FAF7F2] placeholder-soft focus:outline-none focus:border-[#8C6843] dark:focus:border-[#E5C158] focus:bg-[#FFFFFF] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-mono font-bold transition shadow-2xs"
-                  />
-                </div>
-              </div>
+              <p className="text-xs sm:text-sm text-[#8C7A6B] text-center font-semibold leading-relaxed">
+                No fixed fee needed. The doctor will add each patient&apos;s fee in the procedure list.
+              </p>
             </div>
 
             {/* Footer: Cancel & Add Procedure (Matching Walk-In Button Styles) */}

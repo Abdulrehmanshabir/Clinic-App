@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS public.appointments (
     appointment_type TEXT NOT NULL DEFAULT 'walk_in' CHECK (appointment_type IN ('scheduled', 'walk_in')),
     status TEXT NOT NULL DEFAULT 'waiting' CHECK (status IN ('waiting', 'called', 'in_consultation', 'completed', 'cancelled', 'no_show')),
     is_online BOOLEAN NOT NULL DEFAULT false,
+    custom_amount NUMERIC(10, 2),
     notes TEXT,
     created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),

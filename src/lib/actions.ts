@@ -1861,18 +1861,55 @@ export async function updateServicePrice(serviceId: string, price: number) {
   }
 }
 
-export async function createProcedure(name: string, price: number) {
+export async function setAppointmentAmount(
+  appointmentId: string,
+  amount: number | null
+) {
+  try {
+    if (amount !== null && (!Number.isFinite(amount) || amount < 0)) {
+      return { success: false, error: "Enter a valid fee (0 or more)" };
+    }
+
+    const supabase = await createClient();
+    const cleanAmount =
+      amount === null ? null : Math.round(Number(amount) * 100) / 100;
+
+    const { data, error } = await supabase
+      .from("appointments")
+      .update({ custom_amount: cleanAmount })
+      .eq("id", appointmentId)
+      .select("id, custom_amount")
+      .single();
+
+    if (error) return { success: false, error: error.message };
+
+    await logAudit("UPDATE_PROCEDURE_FEE", "appointments", appointmentId, {
+      custom_amount: cleanAmount,
+    });
+
+    revalidatePath("/doctor");
+    revalidatePath("/operator");
+    revalidatePath("/procedures");
+    revalidatePath("/reports");
+    revalidatePath("/history");
+    return { success: true, data };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Could not save fee";
+    return { success: false, error: msg };
+  }
+}
+
+export async function createProcedure(name: string) {
   try {
     if (!name || !name.trim()) {
       return { success: false, error: "Procedure name is required" };
     }
-    const cleanPrice = Number(price) || 0;
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("services")
       .insert({
         name: name.trim(),
-        price: cleanPrice,
+        price: 0,
         duration_minutes: 30,
         is_active: true,
       })
@@ -1894,18 +1931,16 @@ export async function createProcedure(name: string, price: number) {
   }
 }
 
-export async function updateProcedure(serviceId: string, name: string, price: number) {
+export async function updateProcedure(serviceId: string, name: string) {
   try {
     if (!name || !name.trim()) {
       return { success: false, error: "Procedure name is required" };
     }
-    const cleanPrice = Number(price) || 0;
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("services")
       .update({
         name: name.trim(),
-        price: cleanPrice,
         is_active: true,
       })
       .eq("id", serviceId)

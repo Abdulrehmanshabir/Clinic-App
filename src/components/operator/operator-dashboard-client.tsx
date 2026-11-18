@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { type ActiveSession, type Appointment, type ClinicShift, type QueueSummary, type Profile, type Service, type ClinicSettings, type DoctorBreakInfo } from "@/types/database";
+import { type ActiveSession, type Appointment, type AppointmentStatus, type ClinicShift, type QueueSummary, type Profile, type Service, type ClinicSettings, type DoctorBreakInfo } from "@/types/database";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Modal } from "@/components/ui/modal";
@@ -173,7 +173,6 @@ export function OperatorDashboardClient({
     time: string;
     address?: string;
     service_name?: string;
-    service_price?: number;
   } | null>(null);
 
   // Form states for walk-in token
@@ -203,8 +202,6 @@ export function OperatorDashboardClient({
   const canonicalServices = React.useMemo(() => {
     return (services || []).filter((s) => s.is_active !== false);
   }, [services]);
-
-  const selectedProcedureService = canonicalServices.find((s) => s.id === procedureServiceId);
 
   // Sync state with server props
   React.useEffect(() => {
@@ -289,11 +286,39 @@ export function OperatorDashboardClient({
   }, [appointments, ringBell]);
 
   // Supabase Realtime synchronization + cross-device call bell
-  useRealtimeAppointments({
+  const handleStatusChangeRealtime = React.useCallback(
+    (payload: { appointmentId: string; status: AppointmentStatus; completed_at?: string; updated_at?: string }) => {
+      setAppointments((prev) =>
+        prev.map((a) => {
+          if (a.id !== payload.appointmentId) return a;
+          const updated: Appointment = { ...a, status: payload.status };
+          if (payload.updated_at) updated.updated_at = payload.updated_at;
+          if (payload.completed_at) {
+            updated.consultation = {
+              ...(a.consultation || {
+                id: "",
+                appointment_id: a.id,
+                doctor_id: "",
+                started_at: payload.completed_at,
+                created_at: payload.completed_at,
+                updated_at: payload.completed_at,
+              }),
+              completed_at: payload.completed_at,
+            };
+          }
+          return updated;
+        })
+      );
+    },
+    []
+  );
+
+  const { sendStatusChange } = useRealtimeAppointments({
     clinicDate,
     onUpdate: () => {
       router.refresh();
     },
+    onStatusChange: handleStatusChangeRealtime,
     onCallBell: ringBell,
     onBreakBell: ringBreakBell,
   });
@@ -542,7 +567,6 @@ export function OperatorDashboardClient({
           time: res.data.appointment_time,
           address: procedureAddress.trim() || undefined,
           service_name: service?.name,
-          service_price: service?.price,
         });
         success(
           "Procedure Token Issued! ✨",
@@ -644,9 +668,15 @@ export function OperatorDashboardClient({
   // 4. Handle Mark Absent / Skip
   const handleMarkAbsent = async (appointmentId: string, patientName?: string) => {
     setLoadingAction(appointmentId);
+    const nowIso = new Date().toISOString();
     setAppointments((prev) =>
-      prev.map((a) => (a.id === appointmentId ? { ...a, status: "no_show" } : a))
+      prev.map((a) => (a.id === appointmentId ? { ...a, status: "no_show", updated_at: nowIso } : a))
     );
+    sendStatusChange({
+      appointmentId,
+      status: "no_show",
+      updated_at: nowIso,
+    });
 
     try {
       const res = await updateAppointmentStatus(appointmentId, "no_show");
@@ -665,9 +695,15 @@ export function OperatorDashboardClient({
   // 5. Handle Re-Queue (Arrived later)
   const handleReQueue = async (appointmentId: string, patientName?: string) => {
     setLoadingAction(appointmentId);
+    const nowIso = new Date().toISOString();
     setAppointments((prev) =>
-      prev.map((a) => (a.id === appointmentId ? { ...a, status: "waiting" } : a))
+      prev.map((a) => (a.id === appointmentId ? { ...a, status: "waiting", updated_at: nowIso } : a))
     );
+    sendStatusChange({
+      appointmentId,
+      status: "waiting",
+      updated_at: nowIso,
+    });
 
     try {
       const res = await updateAppointmentStatus(appointmentId, "waiting");
@@ -981,7 +1017,7 @@ export function OperatorDashboardClient({
               <tr>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Token</th>
                 {isProcedureView && (
-                  <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Price</th>
+                  <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Fee</th>
                 )}
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Address / Phone</th>
@@ -1042,7 +1078,9 @@ export function OperatorDashboardClient({
                               {app.service.name}
                             </span>
                             <span className="text-[11px] font-mono font-bold text-[#8C6843] dark:!text-[#34D399] mt-0.5">
-                              Rs {Number(app.service.price).toLocaleString()}
+                              {app.custom_amount != null
+                                ? `Rs ${Number(app.custom_amount).toLocaleString()}`
+                                : "Fee pending"}
                             </span>
                           </div>
                         ) : (
@@ -1451,14 +1489,6 @@ export function OperatorDashboardClient({
                     <span className="font-black text-sm sm:text-base text-[#1A120B]">{createdProcedureToken.service_name}</span>
                   </div>
                 )}
-                {createdProcedureToken.service_price != null && (
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Price:</span>
-                    <span className="font-black font-mono text-sm sm:text-base text-[#8C6843] dark:text-[#34D399]">
-                      Rs {Number(createdProcedureToken.service_price).toLocaleString()}
-                    </span>
-                  </div>
-                )}
                 <div className="flex justify-between items-center gap-2">
                   <span className="text-xs sm:text-sm text-[#8C6843] dark:text-[#E5C158] font-black">Patient Mode:</span>
                   <span className="font-black text-sm sm:text-base text-[#1A120B]">Walk-In Procedure</span>
@@ -1553,15 +1583,10 @@ export function OperatorDashboardClient({
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-1.5 ml-3 mr-1">
+                  <div className="mb-1.5 ml-3 mr-1">
                     <label className="block text-sm sm:text-base font-bold text-[#8C6843] dark:text-[#E5C158]">
                       Procedure / Treatment
                     </label>
-                    {selectedProcedureService && (
-                      <span className="font-mono font-black text-xs text-white bg-[#FAF7F2] dark:bg-[#1A2230] px-2.5 py-0.5 rounded-lg border-2 border-[#8C6843] dark:border-[#34D399]">
-                        Rs {Number(selectedProcedureService.price).toLocaleString()}
-                      </span>
-                    )}
                   </div>
                   <div className="relative">
                     <select
@@ -1573,7 +1598,7 @@ export function OperatorDashboardClient({
                       <option value="">Select Procedure</option>
                       {canonicalServices.map((svc) => (
                         <option key={svc.id} value={svc.id}>
-                          {svc.name} — Rs {Number(svc.price).toLocaleString()}
+                          {svc.name}
                         </option>
                       ))}
                     </select>

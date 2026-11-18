@@ -90,6 +90,7 @@ export interface Appointment {
   appointment_type: AppointmentType;
   status: AppointmentStatus;
   is_online?: boolean | null;
+  custom_amount?: number | null;
   notes?: string | null;
   created_by?: string | null;
   created_at: string;

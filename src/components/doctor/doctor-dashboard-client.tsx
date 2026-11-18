@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { type ActiveSession, type Appointment, type QueueSummary, type Profile, type DoctorBreakInfo, type Service } from "@/types/database";
+import React, { useState, useMemo, useCallback } from "react";
+import { type ActiveSession, type Appointment, type AppointmentStatus, type QueueSummary, type Profile, type DoctorBreakInfo, type Service } from "@/types/database";
 import { StatCard } from "@/components/ui/stat-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ConsultationModal } from "@/components/doctor/consultation-modal";
@@ -100,11 +100,39 @@ export function DoctorDashboardClient({
   }, [appointments, initialActiveSession]);
 
   // Supabase Realtime synchronization + cross-device call bell
-  const { sendCallBell, sendBreakBell } = useRealtimeAppointments({
+  const handleStatusChangeRealtime = useCallback(
+    (payload: { appointmentId: string; status: AppointmentStatus; completed_at?: string; updated_at?: string }) => {
+      setAppointments((prev) =>
+        prev.map((a) => {
+          if (a.id !== payload.appointmentId) return a;
+          const updated: Appointment = { ...a, status: payload.status };
+          if (payload.updated_at) updated.updated_at = payload.updated_at;
+          if (payload.completed_at) {
+            updated.consultation = {
+              ...(a.consultation || {
+                id: "",
+                appointment_id: a.id,
+                doctor_id: "",
+                started_at: payload.completed_at,
+                created_at: payload.completed_at,
+                updated_at: payload.completed_at,
+              }),
+              completed_at: payload.completed_at,
+            };
+          }
+          return updated;
+        })
+      );
+    },
+    []
+  );
+
+  const { sendCallBell, sendBreakBell, sendStatusChange } = useRealtimeAppointments({
     clinicDate,
     onUpdate: () => {
       router.refresh();
     },
+    onStatusChange: handleStatusChangeRealtime,
   });
 
   // Memoized live summary calculations for maximum performance & zero lag
@@ -185,15 +213,47 @@ export function DoctorDashboardClient({
 
   const handleStartConsultation = async (appointment: Appointment) => {
     setLoadingAction(appointment.id);
+    const nowIso = new Date().toISOString();
+    const prevInConsultation = appointments.find((a) => a.status === "in_consultation");
+
     setAppointments((prev) =>
       prev.map((a) =>
         a.id === appointment.id
-          ? { ...a, status: "in_consultation" }
+          ? { ...a, status: "in_consultation", updated_at: nowIso }
           : a.status === "in_consultation"
-          ? { ...a, status: "completed" }
+          ? {
+              ...a,
+              status: "completed",
+              updated_at: nowIso,
+              consultation: {
+                ...(a.consultation || {
+                  id: "",
+                  appointment_id: a.id,
+                  doctor_id: "",
+                  started_at: nowIso,
+                  created_at: nowIso,
+                  updated_at: nowIso,
+                }),
+                completed_at: nowIso,
+              },
+            }
           : a
       )
     );
+
+    if (prevInConsultation) {
+      sendStatusChange({
+        appointmentId: prevInConsultation.id,
+        status: "completed",
+        completed_at: nowIso,
+        updated_at: nowIso,
+      });
+    }
+    sendStatusChange({
+      appointmentId: appointment.id,
+      status: "in_consultation",
+      updated_at: nowIso,
+    });
 
     try {
       const res = await startConsultation(appointment.id);
@@ -214,9 +274,35 @@ export function DoctorDashboardClient({
 
   const handleDirectComplete = async (appointmentId: string, patientName?: string) => {
     setLoadingAction(appointmentId);
+    const nowIso = new Date().toISOString();
     setAppointments((prev) =>
-      prev.map((a) => (a.id === appointmentId ? { ...a, status: "completed" } : a))
+      prev.map((a) =>
+        a.id === appointmentId
+          ? {
+              ...a,
+              status: "completed",
+              updated_at: nowIso,
+              consultation: {
+                ...(a.consultation || {
+                  id: "",
+                  appointment_id: a.id,
+                  doctor_id: "",
+                  started_at: nowIso,
+                  created_at: nowIso,
+                  updated_at: nowIso,
+                }),
+                completed_at: nowIso,
+              },
+            }
+          : a
+      )
     );
+    sendStatusChange({
+      appointmentId,
+      status: "completed",
+      completed_at: nowIso,
+      updated_at: nowIso,
+    });
 
     try {
       const res = await completeConsultationDirect(appointmentId);
@@ -238,9 +324,15 @@ export function DoctorDashboardClient({
   const handleCallPatient = async (appointmentId: string) => {
     const calledAppointment = appointments.find((a) => a.id === appointmentId);
     setLoadingAction(appointmentId);
+    const nowIso = new Date().toISOString();
     setAppointments((prev) =>
-      prev.map((a) => (a.id === appointmentId ? { ...a, status: "called" } : a))
+      prev.map((a) => (a.id === appointmentId ? { ...a, status: "called", updated_at: nowIso } : a))
     );
+    sendStatusChange({
+      appointmentId,
+      status: "called",
+      updated_at: nowIso,
+    });
 
     try {
       const res = await markPatientNext(appointmentId);
@@ -262,9 +354,15 @@ export function DoctorDashboardClient({
 
   const handleMarkAbsent = async (appointmentId: string, patientName?: string) => {
     setLoadingAction(appointmentId);
+    const nowIso = new Date().toISOString();
     setAppointments((prev) =>
-      prev.map((a) => (a.id === appointmentId ? { ...a, status: "no_show" } : a))
+      prev.map((a) => (a.id === appointmentId ? { ...a, status: "no_show", updated_at: nowIso } : a))
     );
+    sendStatusChange({
+      appointmentId,
+      status: "no_show",
+      updated_at: nowIso,
+    });
 
     try {
       const res = await updateAppointmentStatus(appointmentId, "no_show");
@@ -282,9 +380,15 @@ export function DoctorDashboardClient({
 
   const handleReQueue = async (appointmentId: string, patientName?: string) => {
     setLoadingAction(appointmentId);
+    const nowIso = new Date().toISOString();
     setAppointments((prev) =>
-      prev.map((a) => (a.id === appointmentId ? { ...a, status: "waiting" } : a))
+      prev.map((a) => (a.id === appointmentId ? { ...a, status: "waiting", updated_at: nowIso } : a))
     );
+    sendStatusChange({
+      appointmentId,
+      status: "waiting",
+      updated_at: nowIso,
+    });
 
     try {
       const res = await updateAppointmentStatus(appointmentId, "waiting");
@@ -816,7 +920,7 @@ export function DoctorDashboardClient({
                 <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Token</th>
                 {isProcedureView ? (
                   <>
-                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Price</th>
+                    <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Procedure & Fee</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Patient Name</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Address / Phone</th>
                     <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B]">Queue Action</th>
@@ -890,7 +994,9 @@ export function DoctorDashboardClient({
                                 {app.service.name}
                               </span>
                               <span className="font-mono font-bold text-xs text-[#8C6843] dark:!text-[#34D399] mt-0.5">
-                                Rs {Number(app.service.price).toLocaleString()}
+                                {app.custom_amount != null
+                                  ? `Rs ${Number(app.custom_amount).toLocaleString()}`
+                                  : "Fee pending"}
                               </span>
                             </div>
                           ) : (

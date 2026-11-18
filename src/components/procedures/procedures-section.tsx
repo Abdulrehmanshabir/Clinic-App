@@ -17,8 +17,11 @@ import {
   X,
   Star,
   MapPin,
+  Plus,
+  Check,
+  Loader2,
 } from "lucide-react";
-import { markPatientNext } from "@/lib/actions";
+import { markPatientNext, setAppointmentAmount } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 
@@ -60,8 +63,49 @@ export function ProceduresSection({
 }: ProceduresSectionProps) {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [localLoadingId, setLocalLoadingId] = useState<string | null>(null);
+  const [editingFeeId, setEditingFeeId] = useState<string | null>(null);
+  const [feeValue, setFeeValue] = useState("");
+  const [savingFeeId, setSavingFeeId] = useState<string | null>(null);
   const router = useRouter();
   const { success, error } = useToast();
+
+  const startEditFee = (app: Appointment) => {
+    setEditingFeeId(app.id);
+    setFeeValue(app.custom_amount != null ? String(app.custom_amount) : "");
+  };
+
+  const cancelEditFee = () => {
+    setEditingFeeId(null);
+    setFeeValue("");
+  };
+
+  const saveFee = async (appointmentId: string) => {
+    const trimmed = feeValue.trim();
+    const amount = trimmed === "" ? null : Number(trimmed);
+    if (amount !== null && (!Number.isFinite(amount) || amount < 0)) {
+      error("Invalid Fee", "Enter a valid fee (0 or more)");
+      return;
+    }
+
+    setSavingFeeId(appointmentId);
+    try {
+      const res = await setAppointmentAmount(appointmentId, amount);
+      if (res.success) {
+        success(
+          "Fee Saved",
+          amount === null ? "Fee cleared" : `Rs ${amount.toLocaleString()} recorded`
+        );
+        cancelEditFee();
+        router.refresh();
+      } else {
+        error("Could Not Save Fee", res.error);
+      }
+    } catch {
+      error("Error", "An unexpected error occurred while saving the fee");
+    } finally {
+      setSavingFeeId(null);
+    }
+  };
 
   const handleCall = async (appointmentId: string) => {
     if (onCallPatient) {
@@ -101,16 +145,19 @@ export function ProceduresSection({
       );
 
       const totalRevenue = svcAppointments.reduce((sum, a) => {
-        const price = a.service?.price != null ? Number(a.service.price) : Number(svc.price ?? 0);
-        return sum + price;
+        return sum + (a.custom_amount != null ? Number(a.custom_amount) : 0);
       }, 0);
+
+      const pendingCount = svcAppointments.filter(
+        (a) => a.custom_amount == null
+      ).length;
 
       return {
         service: svc,
         appointments: svcAppointments,
         patientCount: svcAppointments.length,
-        currentPrice: Number(svc.price ?? 0),
         totalRevenue,
+        pendingCount,
       };
     });
   }, [appointments, activeServices]);
@@ -214,14 +261,14 @@ export function ProceduresSection({
                       {item.service.name}
                     </h4>
 
-                    <div className="flex items-center justify-between pt-1">
-                      <span className="font-mono font-bold text-xs sm:text-sm text-white bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
-                        Rs {item.currentPrice.toLocaleString()}
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <span className="font-mono font-bold text-xs sm:text-sm text-[#8C6843] dark:text-[#34D399] bg-[#FAF7F2] dark:bg-[#1A2230] px-3 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
+                        Collected: Rs {item.totalRevenue.toLocaleString()}
                       </span>
 
-                      {item.patientCount > 0 && (
-                        <span className="text-xs font-mono font-bold text-[#8C6843] dark:text-[#34D399]">
-                          Rs {item.totalRevenue.toLocaleString()}
+                      {item.pendingCount > 0 && (
+                        <span className="text-[11px] font-bold text-[#B45309] dark:text-[#FCD34D] bg-[#FEF3D6] dark:bg-[#3A2A10] border border-[#FDE68A] dark:border-[#7C5A1E] px-2 py-1 rounded-lg whitespace-nowrap">
+                          {item.pendingCount} pending
                         </span>
                       )}
                     </div>
@@ -249,8 +296,8 @@ export function ProceduresSection({
                       <h4 className="text-base sm:text-lg font-serif font-black text-[#1A120B] dark:text-[#F8FAFC]">
                         {activeCategory.service.name}
                       </h4>
-                      <span className="font-mono font-bold text-xs sm:text-sm text-white bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
-                        Rs {activeCategory.currentPrice.toLocaleString()}
+                      <span className="font-mono font-bold text-xs sm:text-sm text-[#8C6843] dark:text-[#34D399] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
+                        Collected: Rs {activeCategory.totalRevenue.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -301,11 +348,6 @@ export function ProceduresSection({
                     </thead>
                     <tbody className="divide-y divide-[#EFE6D8]">
                       {activeCategory.appointments.map((app) => {
-                        const price =
-                          app.service?.price != null
-                            ? Number(app.service.price)
-                            : activeCategory.currentPrice;
-
                         return (
                           <tr
                             key={app.id}
@@ -326,9 +368,74 @@ export function ProceduresSection({
 
                             {/* Procedure Fee */}
                             <td className="px-6 py-4 text-center">
-                              <span className="font-mono font-bold text-xs sm:text-sm text-white bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
-                                Rs {price.toLocaleString()}
-                              </span>
+                              {isDoctorView ? (
+                                editingFeeId === app.id ? (
+                                  <div className="inline-flex items-center gap-1.5">
+                                    <div className="relative">
+                                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-[#8C6843]">
+                                        Rs
+                                      </span>
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        step="50"
+                                        autoFocus
+                                        value={feeValue}
+                                        onChange={(e) => setFeeValue(e.target.value)}
+                                        placeholder="Fee"
+                                        className="w-28 h-9 pl-8 pr-2 rounded-xl bg-white border-2 border-[#8C6843] text-sm font-mono font-bold text-[#1A120B] focus:outline-none shadow-2xs"
+                                      />
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => saveFee(app.id)}
+                                      disabled={savingFeeId === app.id}
+                                      className="h-9 px-2.5 rounded-xl bg-[#15803D] hover:bg-[#166534] text-white text-xs font-bold inline-flex items-center justify-center transition disabled:opacity-50"
+                                      title="Save fee"
+                                    >
+                                      {savingFeeId === app.id ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                      ) : (
+                                        <Check className="w-3.5 h-3.5" />
+                                      )}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={cancelEditFee}
+                                      className="h-9 px-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#EAE1D3] text-[#4A3522] text-xs font-bold border border-[#D8C5AD] inline-flex items-center justify-center transition"
+                                      title="Cancel"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                ) : app.custom_amount != null ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => startEditFee(app)}
+                                    title="Edit fee"
+                                    className="font-mono font-bold text-xs sm:text-sm text-[#8C6843] dark:text-[#34D399] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center hover:bg-[#F2ECE1] dark:hover:bg-[#253245] transition"
+                                  >
+                                    Rs {Number(app.custom_amount).toLocaleString()}
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => startEditFee(app)}
+                                    className="text-xs font-bold text-[#047857] bg-[#ECFDF5] border border-[#A7F3D0] px-3 py-1.5 rounded-xl inline-flex items-center gap-1 hover:bg-[#D1FAE5] transition"
+                                  >
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span>Add Fee</span>
+                                  </button>
+                                )
+                              ) : app.custom_amount != null ? (
+                                <span className="font-mono font-bold text-xs sm:text-sm text-[#8C6843] dark:text-[#34D399] bg-[#FAF7F2] dark:bg-[#1A2230] px-3.5 py-1.5 rounded-xl border-2 border-[#8C6843] dark:border-[#34D399] shadow-2xs inline-flex items-center justify-center">
+                                  Rs {Number(app.custom_amount).toLocaleString()}
+                                </span>
+                              ) : (
+                                <span className="text-[11px] font-bold text-[#B45309] bg-[#FEF3D6] border border-[#FDE68A] px-2.5 py-1 rounded-lg">
+                                  Pending
+                                </span>
+                              )}
                             </td>
 
                             {/* Patient Name */}

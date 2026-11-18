@@ -3,10 +3,19 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import type { AppointmentStatus } from "@/types/database";
+
+export interface RealtimeStatusPayload {
+  appointmentId: string;
+  status: AppointmentStatus;
+  completed_at?: string;
+  updated_at?: string;
+}
 
 interface UseRealtimeAppointmentsProps {
   clinicDate: string;
   onUpdate: () => void;
+  onStatusChange?: (payload: RealtimeStatusPayload) => void;
   onCallBell?: () => void;
   onBreakBell?: () => void;
 }
@@ -14,10 +23,12 @@ interface UseRealtimeAppointmentsProps {
 export function useRealtimeAppointments({
   clinicDate,
   onUpdate,
+  onStatusChange,
   onCallBell,
   onBreakBell,
 }: UseRealtimeAppointmentsProps) {
   const onUpdateRef = useRef(onUpdate);
+  const onStatusChangeRef = useRef(onStatusChange);
   const onCallBellRef = useRef(onCallBell);
   const onBreakBellRef = useRef(onBreakBell);
   const channelRef = useRef<RealtimeChannel | null>(null);
@@ -25,6 +36,10 @@ export function useRealtimeAppointments({
   useEffect(() => {
     onUpdateRef.current = onUpdate;
   }, [onUpdate]);
+
+  useEffect(() => {
+    onStatusChangeRef.current = onStatusChange;
+  }, [onStatusChange]);
 
   useEffect(() => {
     onCallBellRef.current = onCallBell;
@@ -47,7 +62,15 @@ export function useRealtimeAppointments({
           schema: "public",
           table: "appointments",
         },
-        () => {
+        (payload) => {
+          if (payload.new && typeof payload.new === "object" && "id" in payload.new) {
+            const newRow = payload.new as { id: string; status: AppointmentStatus; updated_at?: string };
+            onStatusChangeRef.current?.({
+              appointmentId: newRow.id,
+              status: newRow.status,
+              updated_at: newRow.updated_at,
+            });
+          }
           onUpdateRef.current?.();
         }
       )
@@ -84,6 +107,12 @@ export function useRealtimeAppointments({
           onUpdateRef.current?.();
         }
       )
+      .on("broadcast", { event: "status_change" }, ({ payload }) => {
+        if (payload?.appointmentId && payload?.status) {
+          onStatusChangeRef.current?.(payload as RealtimeStatusPayload);
+        }
+        onUpdateRef.current?.();
+      })
       .on("broadcast", { event: "call_bell" }, () => {
         onCallBellRef.current?.();
       })
@@ -94,10 +123,10 @@ export function useRealtimeAppointments({
 
     channelRef.current = appointmentChannel;
 
-    // Gentle polling fallback (every 8s) to guarantee multi-screen sync without overloading CPU/network
+    // Polling fallback (every 4s) to guarantee multi-screen sync without overloading CPU/network
     const pollInterval = setInterval(() => {
       onUpdateRef.current?.();
-    }, 8000);
+    }, 4000);
 
     return () => {
       clearInterval(pollInterval);
@@ -118,5 +147,11 @@ export function useRealtimeAppointments({
     void channel.send({ type: "broadcast", event: "break_bell", payload });
   }, []);
 
-  return { sendCallBell, sendBreakBell };
+  const sendStatusChange = useCallback((payload: RealtimeStatusPayload) => {
+    const channel = channelRef.current;
+    if (!channel) return;
+    void channel.send({ type: "broadcast", event: "status_change", payload });
+  }, []);
+
+  return { sendCallBell, sendBreakBell, sendStatusChange };
 }
