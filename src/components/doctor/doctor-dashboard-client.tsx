@@ -16,6 +16,7 @@ import {
   deleteNoShowAppointment,
   setDoctorBreak,
   endDoctorBreak,
+  setAppointmentAmount,
 } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
@@ -76,6 +77,7 @@ export function DoctorDashboardClient({
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [feeDrafts, setFeeDrafts] = useState<Record<string, string>>({});
 
   // Doctor Break states
   const [doctorBreak, setDoctorBreakState] = useState<DoctorBreakInfo | null>(initialDoctorBreak || null);
@@ -274,6 +276,26 @@ export function DoctorDashboardClient({
 
   const handleDirectComplete = async (appointmentId: string, patientName?: string) => {
     setLoadingAction(appointmentId);
+
+    const target = appointments.find((a) => a.id === appointmentId);
+    const draft = feeDrafts[appointmentId];
+
+    // For procedures, persist the amount the doctor typed before completing.
+    if (target && isProcedureAppointment(target) && draft !== undefined && draft.trim() !== "") {
+      const amount = Number(draft);
+      if (!Number.isFinite(amount) || amount < 0) {
+        error("Invalid Fee", "Enter a valid fee (0 or more)");
+        setLoadingAction(null);
+        return;
+      }
+      const feeRes = await setAppointmentAmount(appointmentId, amount);
+      if (!feeRes.success) {
+        error("Fee Not Saved", feeRes.error || "Could not save the procedure fee");
+        setLoadingAction(null);
+        return;
+      }
+    }
+
     const nowIso = new Date().toISOString();
     setAppointments((prev) =>
       prev.map((a) =>
@@ -308,6 +330,11 @@ export function DoctorDashboardClient({
       const res = await completeConsultationDirect(appointmentId);
       if (res.success) {
         success("Consultation Completed", `${patientName || "Patient"} marked as completed`);
+        setFeeDrafts((prev) => {
+          const next = { ...prev };
+          delete next[appointmentId];
+          return next;
+        });
         router.refresh();
       } else {
         error("Action Failed", res.error || "Could not complete consultation");
@@ -710,8 +737,50 @@ export function DoctorDashboardClient({
                   <Clock className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
                   {formatClinicTime(activeConsultation.appointment_time)}
                 </span>
-                
               </div>
+
+              {isProcedureAppointment(activeConsultation) && (
+                <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-[#FFF8EA] to-[#FDF3E0] dark:from-[#2A2314] dark:to-[#241F12] border-2 border-[#D4AF37] shadow-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <span className="block text-xs font-black uppercase tracking-wider text-[#8C6843] dark:text-[#E5C158]">
+                        Procedure Amount
+                      </span>
+                      <p className="text-[11px] font-semibold text-[#A8835A] dark:text-[#C9A25E] mt-0.5">
+                        Amount to collect from patient
+                      </p>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-black text-sm text-[#8C6843] dark:text-[#E5C158]">
+                        Rs
+                      </span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="50"
+                        inputMode="numeric"
+                        value={
+                          feeDrafts[activeConsultation.id] ??
+                          (activeConsultation.custom_amount != null
+                            ? String(activeConsultation.custom_amount)
+                            : "")
+                        }
+                        onChange={(e) =>
+                          setFeeDrafts((prev) => ({
+                            ...prev,
+                            [activeConsultation.id]: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter amount"
+                        className="w-44 h-11 pl-10 pr-3 rounded-xl bg-white dark:bg-[#1A2230] border-2 border-[#8C6843] dark:border-[#D4AF37] text-sm font-mono font-black text-[#1A120B] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#8C6843]/25 shadow-2xs"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[11px] font-semibold text-[#8C6843] dark:text-[#C9A25E] mt-2">
+                    This amount saves automatically when you tap Complete Consultation and is shown to the operator.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="mt-6 pt-4 border-t border-[#E8DFD1] dark:border-[#243248] flex flex-wrap items-center justify-between gap-3">
@@ -993,11 +1062,27 @@ export function DoctorDashboardClient({
                               <span className="font-bold text-xs px-2.5 py-1 rounded-xl bg-[#FAF7F2] dark:bg-[#1E293B] border border-[#E8DFD1] dark:border-[#334155] text-[#1A120B] dark:text-white max-w-[150px] truncate">
                                 {app.service.name}
                               </span>
-                              <span className="font-mono font-bold text-xs text-[#8C6843] dark:!text-[#34D399] mt-0.5">
-                                {app.custom_amount != null
-                                  ? `Rs ${Number(app.custom_amount).toLocaleString()}`
-                                  : "Fee pending"}
-                              </span>
+                              {app.status === "in_consultation" ? (
+                                <div className="relative">
+                                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-black text-sm text-[#8C6843] dark:text-[#E5C158]">Rs</span>
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="50"
+                                    inputMode="numeric"
+                                    value={feeDrafts[app.id] ?? (app.custom_amount != null ? String(app.custom_amount) : "")}
+                                    onChange={e => setFeeDrafts(prev => ({ ...prev, [app.id]: e.target.value }))}
+                                    placeholder="Enter amount"
+                                    className="w-24 h-11 pl-10 pr-3 rounded-xl bg-white dark:bg-[#1A2230] border-2 border-[#8C6843] dark:border-[#D4AF37] text-sm font-mono font-black text-[#1A120B] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#8C6843]/25 shadow-2xs"
+                                  />
+                                </div>
+                              ) : (
+                                <span className="font-mono font-bold text-xs text-[#8C6843] dark:!text-[#34D399] mt-0.5">
+                                  {app.custom_amount != null
+                                    ? `Rs ${Number(app.custom_amount).toLocaleString()}`
+                                    : "Fee pending"}
+                                </span>
+                              )}
                             </div>
                           ) : (
                             <span className="text-xs text-[#A89887] font-medium">—</span>
