@@ -722,65 +722,56 @@ export function DoctorDashboardClient({
                 </span>
               </div>
 
-              <div>
+              <div className="flex items-start justify-between gap-3">
                 <h3 className="text-2xl sm:text-3xl font-serif font-black text-[#1A120B] dark:text-[#FFFFFF] leading-tight tracking-tight">
                   {activeConsultation.patient?.full_name}
                 </h3>
+                {isProcedureAppointment(activeConsultation) && (
+                  <span className="shrink-0 pt-1 text-xs font-black uppercase tracking-wider text-[#8C6843] dark:text-[#E5C158] whitespace-nowrap">
+                    Procedure Amount
+                  </span>
+                )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
-                <span className="px-3.5 py-1.5 rounded-xl bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur border border-[#E9DFD1] dark:border-[#2D3E58] font-black text-[#2B1E14] dark:text-[#F8FAFC] flex items-center gap-1.5 shadow-2xs">
-                  <Sparkles className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
-                  {activeConsultation.service?.name || "Skin Consultation"}
-                </span>
-                <span className="px-3.5 py-1.5 rounded-xl bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur border border-[#E9DFD1] dark:border-[#2D3E58] font-black text-[#2B1E14] dark:text-[#F8FAFC] flex items-center gap-1.5 font-mono shadow-2xs">
-                  <Clock className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
-                  {formatClinicTime(activeConsultation.appointment_time)}
-                </span>
-              </div>
-
-              {isProcedureAppointment(activeConsultation) && (
-                <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-[#FFF8EA] to-[#FDF3E0] dark:from-[#2A2314] dark:to-[#241F12] border-2 border-[#D4AF37] shadow-xs">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <span className="block text-xs font-black uppercase tracking-wider text-[#8C6843] dark:text-[#E5C158]">
-                        Procedure Amount
-                      </span>
-                      <p className="text-[11px] font-semibold text-[#A8835A] dark:text-[#C9A25E] mt-0.5">
-                        Amount to collect from patient
-                      </p>
-                    </div>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-black text-sm text-[#8C6843] dark:text-[#E5C158]">
-                        Rs
-                      </span>
-                      <input
-                        type="number"
-                        min="0"
-                        step="50"
-                        inputMode="numeric"
-                        value={
-                          feeDrafts[activeConsultation.id] ??
-                          (activeConsultation.custom_amount != null
-                            ? String(activeConsultation.custom_amount)
-                            : "")
-                        }
-                        onChange={(e) =>
-                          setFeeDrafts((prev) => ({
-                            ...prev,
-                            [activeConsultation.id]: e.target.value,
-                          }))
-                        }
-                        placeholder="Enter amount"
-                        className="w-44 h-11 pl-10 pr-3 rounded-xl bg-white dark:bg-[#1A2230] border-2 border-[#8C6843] dark:border-[#D4AF37] text-sm font-mono font-black text-[#1A120B] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#8C6843]/25 shadow-2xs"
-                      />
-                    </div>
-                  </div>
-                  <p className="text-[11px] font-semibold text-[#8C6843] dark:text-[#C9A25E] mt-2">
-                    This amount saves automatically when you tap Complete Consultation and is shown to the operator.
-                  </p>
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-3.5 py-1.5 rounded-xl bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur border border-[#E9DFD1] dark:border-[#2D3E58] font-black text-[#2B1E14] dark:text-[#F8FAFC] flex items-center gap-1.5 shadow-2xs">
+                    <Sparkles className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
+                    {activeConsultation.service?.name || "Skin Consultation"}
+                  </span>
+                  <span className="px-3.5 py-1.5 rounded-xl bg-white/80 dark:bg-[#1A2234]/80 backdrop-blur border border-[#E9DFD1] dark:border-[#2D3E58] font-black text-[#2B1E14] dark:text-[#F8FAFC] flex items-center gap-1.5 font-mono shadow-2xs">
+                    <Clock className="w-4 h-4 text-[#A8835A] dark:text-[#E5C158]" />
+                    {formatClinicTime(activeConsultation.appointment_time)}
+                  </span>
                 </div>
-              )}
+                {isProcedureAppointment(activeConsultation) && (
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-black text-sm text-[#8C6843] dark:text-[#E5C158]">
+                      Rs
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="50"
+                      inputMode="numeric"
+                      value={
+                        feeDrafts[activeConsultation.id] ??
+                        (activeConsultation.custom_amount != null
+                          ? String(activeConsultation.custom_amount)
+                          : "")
+                      }
+                      onChange={(e) =>
+                        setFeeDrafts((prev) => ({
+                          ...prev,
+                          [activeConsultation.id]: e.target.value,
+                        }))
+                      }
+                      placeholder="Enter amount"
+                      className="w-44 h-11 pl-10 pr-3 rounded-xl bg-white dark:bg-[#1A2230] border-2 border-[#8C6843] dark:border-[#D4AF37] text-sm font-mono font-black text-[#1A120B] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#8C6843]/25 shadow-2xs"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="mt-6 pt-4 border-t border-[#E8DFD1] dark:border-[#243248] flex flex-wrap items-center justify-between gap-3">
