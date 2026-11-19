@@ -93,11 +93,10 @@ export function ProceduresPageClient({
         </div>
       </div>
 
-      {/* Main 7 Procedures Section */}
+      {/* Main Procedures Section */}
       <ProceduresSection
         appointments={appointments}
         services={services}
-        isDoctorView={true}
       />
     </div>
   );

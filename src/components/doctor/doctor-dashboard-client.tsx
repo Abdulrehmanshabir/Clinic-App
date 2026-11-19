@@ -1062,27 +1062,11 @@ export function DoctorDashboardClient({
                               <span className="font-bold text-xs px-2.5 py-1 rounded-xl bg-[#FAF7F2] dark:bg-[#1E293B] border border-[#E8DFD1] dark:border-[#334155] text-[#1A120B] dark:text-white max-w-[150px] truncate">
                                 {app.service.name}
                               </span>
-                              {app.status === "in_consultation" ? (
-                                <div className="relative">
-                                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono font-black text-sm text-[#8C6843] dark:text-[#E5C158]">Rs</span>
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    step="50"
-                                    inputMode="numeric"
-                                    value={feeDrafts[app.id] ?? (app.custom_amount != null ? String(app.custom_amount) : "")}
-                                    onChange={e => setFeeDrafts(prev => ({ ...prev, [app.id]: e.target.value }))}
-                                    placeholder="Enter amount"
-                                    className="w-24 h-11 pl-10 pr-3 rounded-xl bg-white dark:bg-[#1A2230] border-2 border-[#8C6843] dark:border-[#D4AF37] text-sm font-mono font-black text-[#1A120B] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#8C6843]/25 shadow-2xs"
-                                  />
-                                </div>
-                              ) : (
-                                <span className="font-mono font-bold text-xs text-[#8C6843] dark:!text-[#34D399] mt-0.5">
-                                  {app.custom_amount != null
-                                    ? `Rs ${Number(app.custom_amount).toLocaleString()}`
-                                    : "Fee pending"}
-                                </span>
-                              )}
+                              <span className="font-mono font-bold text-xs text-[#8C6843] dark:!text-[#34D399] mt-0.5">
+                                {app.custom_amount != null
+                                  ? `Rs ${Number(app.custom_amount).toLocaleString()}`
+                                  : "Fee pending"}
+                              </span>
                             </div>
                           ) : (
                             <span className="text-xs text-[#A89887] font-medium">—</span>
@@ -1301,9 +1285,6 @@ export function DoctorDashboardClient({
       <ProceduresSection
         appointments={scopedAppointments}
         services={services}
-        isDoctorView={true}
-        onCallPatient={handleCallPatient}
-        loadingAction={loadingAction}
       />
 
       {/* Doctor Consultation Modal */}
