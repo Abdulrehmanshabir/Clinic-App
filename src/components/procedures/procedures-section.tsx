@@ -21,7 +21,11 @@ import {
   Check,
   Loader2,
 } from "lucide-react";
-import { markPatientNext, setAppointmentAmount } from "@/lib/actions";
+import {
+  markPatientNext,
+  setAppointmentAmount,
+  completeConsultationDirect,
+} from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 
@@ -66,6 +70,7 @@ export function ProceduresSection({
   const [editingFeeId, setEditingFeeId] = useState<string | null>(null);
   const [feeValue, setFeeValue] = useState("");
   const [savingFeeId, setSavingFeeId] = useState<string | null>(null);
+  const [completingId, setCompletingId] = useState<string | null>(null);
   const router = useRouter();
   const { success, error } = useToast();
 
@@ -107,6 +112,44 @@ export function ProceduresSection({
     }
   };
 
+  const handleComplete = async (app: Appointment) => {
+    setCompletingId(app.id);
+    try {
+      // Persist an unsaved fee draft before completing so the collected
+      // total and the completed record always reflect the doctor's amount.
+      if (editingFeeId === app.id) {
+        const trimmed = feeValue.trim();
+        const amount = trimmed === "" ? null : Number(trimmed);
+        if (amount !== null && (!Number.isFinite(amount) || amount < 0)) {
+          error("Invalid Fee", "Enter a valid fee (0 or more)");
+          return;
+        }
+        const feeRes = await setAppointmentAmount(app.id, amount);
+        if (!feeRes.success) {
+          error("Fee Not Saved", feeRes.error || "Could not save the procedure fee");
+          return;
+        }
+        cancelEditFee();
+      }
+
+      const res = await completeConsultationDirect(app.id);
+      if (res.success) {
+        success(
+          "Procedure Completed",
+          `${app.patient?.full_name || "Patient"} marked as completed`
+        );
+        router.refresh();
+      } else {
+        error("Could Not Complete", res.error || "Could not complete the procedure");
+        router.refresh();
+      }
+    } catch {
+      error("Error", "An unexpected error occurred while completing the procedure");
+    } finally {
+      setCompletingId(null);
+    }
+  };
+
   const handleCall = async (appointmentId: string) => {
     if (onCallPatient) {
       await onCallPatient(appointmentId);
@@ -145,6 +188,7 @@ export function ProceduresSection({
       );
 
       const totalRevenue = svcAppointments.reduce((sum, a) => {
+        if (a.status !== "completed") return sum;
         return sum + (a.custom_amount != null ? Number(a.custom_amount) : 0);
       }, 0);
 
@@ -464,28 +508,52 @@ export function ProceduresSection({
                             {/* Queue Action (before Status) */}
                             {isDoctorView && (
                               <td className="px-6 py-4 text-center whitespace-nowrap">
-                                {app.status === "waiting" && app.token ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleCall(app.id)}
-                                    disabled={activeLoading === app.id}
-                                    className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50 whitespace-nowrap"
-                                    title="Call this patient before the normal queue"
-                                  >
-                                    {activeLoading === app.id ? "Calling..." : "Call Next"}
-                                  </button>
-                                ) : app.status === "called" ? (
-                                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black shadow-2xs whitespace-nowrap">
-                                    <Star className="w-3.5 h-3.5 fill-current" />
-                                    Next
-                                  </span>
-                                ) : app.status === "in_consultation" ? (
-                                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] text-[#7E22CE] border border-[#D8B4FE] text-xs font-black shadow-2xs whitespace-nowrap">
-                                    In Room
-                                  </span>
-                                ) : (
-                                  <span className="text-xs text-[#A89887] font-medium">—</span>
-                                )}
+                                <div className="inline-flex items-center justify-center gap-2">
+                                  {app.status === "waiting" && app.token ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleCall(app.id)}
+                                      disabled={activeLoading === app.id || completingId === app.id}
+                                      className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#065F46] text-white text-xs font-black tracking-wide border border-[#065F46] shadow-md shadow-[#047857]/25 transition disabled:opacity-50 whitespace-nowrap"
+                                      title="Call this patient before the normal queue"
+                                    >
+                                      {activeLoading === app.id ? "Calling..." : "Call Next"}
+                                    </button>
+                                  ) : app.status === "called" ? (
+                                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] text-xs font-black shadow-2xs whitespace-nowrap">
+                                      <Star className="w-3.5 h-3.5 fill-current" />
+                                      Next
+                                    </span>
+                                  ) : app.status === "in_consultation" ? (
+                                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F3E8FF] text-[#7E22CE] border border-[#D8B4FE] text-xs font-black shadow-2xs whitespace-nowrap">
+                                      In Room
+                                    </span>
+                                  ) : app.status === "completed" ? (
+                                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#E6F4EA] text-[#15803D] border border-[#BBF7D0] text-xs font-black shadow-2xs whitespace-nowrap">
+                                      <Check className="w-3.5 h-3.5" />
+                                      Complete
+                                    </span>
+                                  ) : (
+                                    <span className="text-xs text-[#A89887] font-medium">—</span>
+                                  )}
+
+                                  {app.status !== "completed" && app.status !== "cancelled" && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleComplete(app)}
+                                      disabled={completingId === app.id || activeLoading === app.id}
+                                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] text-xs font-black border border-[#2B1E14] shadow-sm transition disabled:opacity-50 whitespace-nowrap"
+                                      title="Save the fee and mark this procedure as complete"
+                                    >
+                                      {completingId === app.id ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                      ) : (
+                                        <Check className="w-3.5 h-3.5" />
+                                      )}
+                                      Complete
+                                    </button>
+                                  )}
+                                </div>
                               </td>
                             )}
 

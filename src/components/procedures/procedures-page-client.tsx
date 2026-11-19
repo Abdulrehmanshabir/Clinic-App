@@ -39,8 +39,9 @@ export function ProceduresPageClient({
     },
   });
 
-  // Calculate live stats — only doctor-recorded procedure fees count
+  // Calculate live stats — only completed procedure fees count
   const totalRevenue = appointments.reduce((sum, a) => {
+    if (a.status !== "completed") return sum;
     return sum + (a.custom_amount != null ? Number(a.custom_amount) : 0);
   }, 0);
 
