@@ -13,6 +13,7 @@ import { type UserRole } from "@/types/database";
 
 interface SidebarProps {
   role: UserRole;
+  isHeadDoctor?: boolean;
 }
 
 interface NavItem {
@@ -55,11 +56,24 @@ const navItems: NavItem[] = [
   },
 ];
 
-export function Sidebar({ role = "operator" }: SidebarProps) {
+export function Sidebar({ role = "operator", isHeadDoctor = false }: SidebarProps) {
   const pathname = usePathname();
   const currentRole = role || "operator";
 
-  const filteredItems = navItems.filter((item) => item.roles.includes(currentRole));
+  const filteredItems = navItems.filter((item) => {
+    // 1. Role match
+    if (!item.roles.includes(currentRole)) return false;
+
+    // 2. Hide Appointments & Operators from secondary doctors (only Head Doctor gets access)
+    // Operators continue to have access to Appointments as requested
+    if (currentRole === "doctor" && !isHeadDoctor) {
+      if (item.href === "/appointments" || item.href === "/operators") {
+        return false;
+      }
+    }
+
+    return true;
+  });
 
   return (
     <>

@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import { type ClinicSettings, type Profile } from "@/types/database";
-import { createOperatorUser, toggleOperatorStatus, deleteOperatorUser } from "@/lib/actions";
+import { createOperatorUser, toggleOperatorStatus, deleteOperatorUser, resetStaffPassword } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { Modal } from "@/components/ui/modal";
 import { ModalCloseButton } from "@/components/ui/modal-close-button";
-import { UserCog, UserPlus, CheckCircle2, XCircle, Loader2, Trash2, ChevronDown } from "lucide-react";
+import { UserCog, UserPlus, CheckCircle2, XCircle, Loader2, Trash2, ChevronDown, KeyRound, Lock } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { operatorSchema } from "@/lib/validations";
@@ -31,6 +31,9 @@ export function OperatorsPageClient({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [resetStaff, setResetStaff] = useState<Profile | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
 
   const {
     register,
@@ -98,6 +101,31 @@ export function OperatorsPageClient({
       error("Error", "Could not delete staff member");
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetStaff) return;
+    if (!newPassword || newPassword.trim().length < 6) {
+      error("Password Error", "Password must be at least 6 characters long");
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      const res = await resetStaffPassword(resetStaff.id, newPassword.trim());
+      if (res.success) {
+        success("Password Changed", `New password set for ${resetStaff.full_name || resetStaff.email}`);
+        setResetStaff(null);
+        setNewPassword("");
+      } else {
+        error("Reset Failed", res.error);
+      }
+    } catch {
+      error("Error", "Could not reset password");
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -192,6 +220,17 @@ export function OperatorsPageClient({
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => {
+                            setResetStaff(op);
+                            setNewPassword("");
+                          }}
+                          title="Reset password for this staff member"
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs bg-[#FAF7F2] hover:bg-[#EFE6D8] text-[#6B4E31] border border-[#D8C5AD] flex items-center gap-1.5"
+                        >
+                          <KeyRound className="w-3.5 h-3.5 text-[#A8835A]" />
+                          <span>Reset Password</span>
+                        </button>
                         <button
                           onClick={() => handleToggle(op.id, op.is_active)}
                           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs ${
@@ -362,6 +401,90 @@ export function OperatorsPageClient({
                   <UserPlus className="w-4 h-4 text-[#D8C5AD]" />
                 )}
                 <span>{loading ? "Creating..." : "Create Account"}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </Modal>
+
+      {/* Modal: Reset Password Form */}
+      <Modal
+        isOpen={!!resetStaff}
+        onClose={() => {
+          setResetStaff(null);
+          setNewPassword("");
+        }}
+        hideDefaultHeader={true}
+        maxWidth="md"
+      >
+        <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
+          <ModalCloseButton
+            onClick={() => {
+              setResetStaff(null);
+              setNewPassword("");
+            }}
+            className="absolute right-3.5 top-3.5"
+          />
+
+          <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
+            <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
+              Reset Password
+            </h5>
+            <p className="text-sm text-[#8C6843] font-bold mt-0.5">
+              {resetStaff?.full_name || resetStaff?.email}
+            </p>
+            <p className="text-xs font-mono text-[#6B5E51] mt-0.5">
+              Role: <span className="font-bold uppercase text-[#1A120B]">{resetStaff?.role}</span>
+            </p>
+          </div>
+
+          <form onSubmit={handleResetPassword} autoComplete="off">
+            <div className="py-3.5 space-y-3.5 max-w-[350px] mx-auto w-full">
+              <div>
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] mb-1.5 ml-3">
+                  New Password
+                </label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    autoComplete="new-password"
+                    required
+                    minLength={6}
+                    className="w-full h-11 px-4 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold transition shadow-2xs"
+                  />
+                  <Lock className="w-4 h-4 text-[#8C6843] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+                <p className="text-[11px] sm:text-xs text-[#8C7A6B] font-bold mt-1 ml-1">
+                  Minimum 6 characters. The staff member can use this new password to log in immediately.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3.5 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
+              <button
+                type="button"
+                onClick={() => {
+                  setResetStaff(null);
+                  setNewPassword("");
+                }}
+                className="px-6 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs sm:text-sm font-bold transition border border-[#D8C5AD]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isResetting || newPassword.trim().length < 6}
+                className="px-6 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-2.5 disabled:opacity-50 border border-[#2B1E14]"
+              >
+                {isResetting ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-[#D8C5AD]" />
+                ) : (
+                  <KeyRound className="w-4 h-4 text-[#D8C5AD]" />
+                )}
+                <span>{isResetting ? "Updating..." : "Update Password"}</span>
               </button>
             </div>
           </form>

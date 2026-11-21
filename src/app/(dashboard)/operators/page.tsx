@@ -12,8 +12,8 @@ export const metadata = {
 
 export default async function OperatorsPage() {
   const profile = await getCurrentProfile();
-  if (!profile || profile.role !== "doctor") {
-    redirect("/operator");
+  if (!profile || profile.role !== "doctor" || !isHeadDoctorEmail(profile.email)) {
+    redirect(profile?.role === "doctor" ? "/doctor" : "/operator");
   }
 
   const supabase = await createClient();

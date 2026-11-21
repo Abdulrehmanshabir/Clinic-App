@@ -433,6 +433,11 @@ export async function fetchAppointmentsForDate(clinicDate: string) {
     return { success: false, error: "Invalid date", data: [] };
   }
 
+  const acting = await getActingStaffProfile();
+  if (acting && acting.role === "doctor" && !isHeadDoctorEmail(acting.email)) {
+    return { success: false, error: "Access denied. Only the main doctor and operators can view appointment history.", data: [] };
+  }
+
   const data = await getTodayAppointments(clinicDate);
   return { success: true, data };
 }
@@ -440,6 +445,11 @@ export async function fetchAppointmentsForDate(clinicDate: string) {
 export async function searchAppointments(query: string) {
   if (!query || query.trim().length === 0) {
     return { success: true, data: [] };
+  }
+
+  const acting = await getActingStaffProfile();
+  if (acting && acting.role === "doctor" && !isHeadDoctorEmail(acting.email)) {
+    return { success: false, error: "Access denied. Only the main doctor and operators can view appointment history.", data: [] };
   }
 
   const data = await searchAppointmentsAcrossDates(query);
@@ -1597,6 +1607,44 @@ export async function deleteOperatorUser(profileId: string) {
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Failed to delete staff account";
+    return { success: false, error: message };
+  }
+}
+
+export async function resetStaffPassword(profileId: string, newPassword: string) {
+  try {
+    const acting = await getActingStaffProfile();
+    if (!acting || !isHeadDoctorEmail(acting.email)) {
+      return { success: false, error: "Only the main doctor can reset passwords." };
+    }
+
+    if (!profileId) {
+      return { success: false, error: "Staff member ID is required." };
+    }
+
+    const cleanPassword = (newPassword || "").trim();
+    if (cleanPassword.length < 6) {
+      return { success: false, error: "Password must be at least 6 characters long." };
+    }
+
+    const adminSupabase = createAdminClient();
+    const { error: authError } = await adminSupabase.auth.admin.updateUserById(
+      profileId,
+      { password: cleanPassword }
+    );
+
+    if (authError) {
+      return { success: false, error: authError.message };
+    }
+
+    await logAudit("RESET_STAFF_PASSWORD", "profiles", profileId, {
+      reset_by: acting.email,
+    });
+
+    revalidatePath("/operators");
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to reset password";
     return { success: false, error: message };
   }
 }
