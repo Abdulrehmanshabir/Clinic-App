@@ -2,6 +2,8 @@ import { getAllServices, getCurrentProfile } from "@/lib/queries";
 import { ServicesPageClient } from "@/components/services/services-page-client";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Clinical Services | Lumière Skin Clinic",
 };

@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { PatientsPageClient } from "@/components/patients/patients-page-client";
 import { type Patient } from "@/types/database";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Patients Directory | Lumière Skin Clinic",
 };

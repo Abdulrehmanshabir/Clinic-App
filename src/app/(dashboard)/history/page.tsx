@@ -3,6 +3,8 @@ import { getTodayAppointments, calculateQueueSummary, getClinicDayStatus, getCur
 import { HistoryPageClient } from "@/components/history/history-page-client";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Date History & Closing | Lumière Skin Clinic",
 };

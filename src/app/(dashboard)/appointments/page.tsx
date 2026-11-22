@@ -4,6 +4,8 @@ import { isHeadDoctorEmail } from "@/lib/roles";
 import { getTodayDateString } from "@/lib/utils";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Appointments | Glow & Derm Clinic",
 };

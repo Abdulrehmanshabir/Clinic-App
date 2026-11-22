@@ -4,6 +4,8 @@ import { getCurrentProfile } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import { type Appointment } from "@/types/database";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Reports & KPIs | Lumière Skin Clinic",
 };

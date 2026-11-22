@@ -3,6 +3,8 @@ import { getTodayAppointments, getActiveServices, getCurrentProfile } from "@/li
 import { ProceduresPageClient } from "@/components/procedures/procedures-page-client";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Clinical Procedures & Treatments | Lumière Skin Clinic",
 };

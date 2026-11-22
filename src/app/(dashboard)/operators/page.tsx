@@ -6,6 +6,8 @@ import { getTodayDateString } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { type Profile } from "@/types/database";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Operators Management | Lumière Skin Clinic",
 };

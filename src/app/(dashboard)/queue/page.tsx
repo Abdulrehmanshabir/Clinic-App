@@ -2,6 +2,8 @@ import { getTodayDateString } from "@/lib/utils";
 import { getTodayAppointments } from "@/lib/queries";
 import { QueuePageClient } from "@/components/queue/queue-page-client";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Live Queue | Lumière Skin Clinic",
 };
