@@ -134,3 +134,5 @@ npm run dev
 └── supabase/
     └── migrations/             # Reproducible PostgreSQL migrations
 ```
+
+<!-- Re-push trigger -->
