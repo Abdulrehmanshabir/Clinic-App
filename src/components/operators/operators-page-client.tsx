@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import { type ClinicSettings, type Profile } from "@/types/database";
-import { createOperatorUser, toggleOperatorStatus, deleteOperatorUser, resetStaffPassword } from "@/lib/actions";
+import { createOperatorUser, toggleOperatorStatus, deleteOperatorUser, resetStaffPassword, updateStaffEmail } from "@/lib/actions";
 import { useToast } from "@/components/ui/toast";
 import { Modal } from "@/components/ui/modal";
 import { ModalCloseButton } from "@/components/ui/modal-close-button";
-import { UserCog, UserPlus, CheckCircle2, XCircle, Loader2, Trash2, ChevronDown, KeyRound, Lock } from "lucide-react";
+import { UserCog, UserPlus, Loader2, Trash2, ChevronDown, KeyRound, Lock, Pencil, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { operatorSchema } from "@/lib/validations";
@@ -34,6 +34,9 @@ export function OperatorsPageClient({
   const [resetStaff, setResetStaff] = useState<Profile | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [isResetting, setIsResetting] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<Profile | null>(null);
+  const [editEmail, setEditEmail] = useState("");
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
 
   const {
     register,
@@ -129,6 +132,34 @@ export function OperatorsPageClient({
     }
   };
 
+  const handleUpdateEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingStaff) return;
+
+    const cleanEmail = editEmail.trim().toLowerCase();
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      error("Invalid Email", "Please enter a valid email address");
+      return;
+    }
+
+    setIsUpdatingEmail(true);
+    try {
+      const res = await updateStaffEmail(editingStaff.id, cleanEmail);
+      if (res.success) {
+        success("Email Updated", `Email changed for ${editingStaff.full_name || editingStaff.email}`);
+        setEditingStaff(null);
+        setEditEmail("");
+        router.refresh();
+      } else {
+        error("Update Failed", res.error);
+      }
+    } catch {
+      error("Error", "Could not update email");
+    } finally {
+      setIsUpdatingEmail(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -207,19 +238,30 @@ export function OperatorsPageClient({
                     </td>
                     <td className="px-6 py-4 text-center">
                       {op.is_active ? (
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#E6F4EA] text-[#15803D] border border-[#BBF7D0] text-xs font-bold shadow-2xs">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#15803D]" />
+                        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F4EFE6] text-[#1A120B] border border-[#8C6843] text-xs font-black tracking-wide shadow-2xs">
+                          <span className="w-2 h-2 rounded-full bg-[#15803D] ring-2 ring-[#15803D]/20" />
                           Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FEF2F2] text-[#B91C1C] border border-[#FECACA] text-xs font-bold shadow-2xs">
-                          <XCircle className="w-3.5 h-3.5 text-[#B91C1C]" />
+                        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FAF7F2] text-[#8C7A6B] border border-[#D8C5AD] text-xs font-black tracking-wide shadow-2xs">
+                          <span className="w-2 h-2 rounded-full bg-[#C4A482]" />
                           Deactivated
                         </span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingStaff(op);
+                            setEditEmail(op.email || "");
+                          }}
+                          title="Edit staff email"
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs bg-[#FAF7F2] hover:bg-[#EFE6D8] text-[#6B4E31] border border-[#D8C5AD] flex items-center gap-1.5"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-[#A8835A]" />
+                          <span>Edit</span>
+                        </button>
                         <button
                           onClick={() => {
                             setResetStaff(op);
@@ -485,6 +527,91 @@ export function OperatorsPageClient({
                   <KeyRound className="w-4 h-4 text-[#D8C5AD]" />
                 )}
                 <span>{isResetting ? "Updating..." : "Update Password"}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </Modal>
+
+      {/* Modal: Edit Staff Email */}
+      <Modal
+        isOpen={!!editingStaff}
+        onClose={() => {
+          setEditingStaff(null);
+          setEditEmail("");
+        }}
+        hideDefaultHeader={true}
+        maxWidth="md"
+      >
+        <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
+          <ModalCloseButton
+            onClick={() => {
+              setEditingStaff(null);
+              setEditEmail("");
+            }}
+            className="absolute right-3.5 top-3.5"
+          />
+
+          <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
+            <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
+              Edit Staff Email
+            </h5>
+            <p className="text-sm text-[#8C6843] font-bold mt-0.5">
+              {editingStaff?.full_name || editingStaff?.email}
+            </p>
+            <p className="text-xs font-mono text-[#6B5E51] mt-0.5">
+              Role: <span className="font-bold uppercase text-[#1A120B]">{editingStaff?.role}</span>
+            </p>
+          </div>
+
+          <form onSubmit={handleUpdateEmail} autoComplete="off">
+            <div className="py-3.5 space-y-3.5 max-w-[350px] mx-auto w-full">
+              <div>
+                <label className="block text-sm sm:text-base font-bold text-[#8C6843] mb-1.5 ml-3">
+                  Staff Email
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    placeholder="Enter new email address"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    required
+                    className="w-full h-11 pl-4 pr-10 py-2 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] text-[#1A120B] placeholder-soft focus:outline-none focus:border-[#8C6843] focus:ring-2 focus:ring-[#8C6843]/20 text-sm sm:text-base font-semibold font-mono transition shadow-2xs"
+                  />
+                  <Mail className="w-4 h-4 text-[#8C6843] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+                <p className="text-[11px] sm:text-xs text-[#8C7A6B] font-bold mt-1 ml-1">
+                  The staff member will use this new email to sign in.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3.5 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-5">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingStaff(null);
+                  setEditEmail("");
+                }}
+                className="px-6 py-2.5 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs sm:text-sm font-bold transition border border-[#D8C5AD]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isUpdatingEmail || !editEmail.trim()}
+                className="px-6 py-2.5 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs sm:text-sm shadow-md transition flex items-center gap-2.5 disabled:opacity-50 border border-[#2B1E14]"
+              >
+                {isUpdatingEmail ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-[#D8C5AD]" />
+                ) : (
+                  <Pencil className="w-4 h-4 text-[#D8C5AD]" />
+                )}
+                <span>{isUpdatingEmail ? "Updating..." : "Save Email"}</span>
               </button>
             </div>
           </form>

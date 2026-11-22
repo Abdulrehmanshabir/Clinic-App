@@ -1649,6 +1649,72 @@ export async function resetStaffPassword(profileId: string, newPassword: string)
   }
 }
 
+export async function updateStaffEmail(profileId: string, newEmail: string) {
+  try {
+    const acting = await getActingStaffProfile();
+    if (!acting || !isHeadDoctorEmail(acting.email)) {
+      return { success: false, error: "Only the main doctor can update staff emails." };
+    }
+
+    if (!profileId) {
+      return { success: false, error: "Staff member ID is required." };
+    }
+
+    const cleanEmail = (newEmail || "").trim().toLowerCase();
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      return { success: false, error: "Please enter a valid email address." };
+    }
+
+    const adminSupabase = createAdminClient();
+    const { data: target } = await adminSupabase
+      .from("profiles")
+      .select("id, email")
+      .eq("id", profileId)
+      .maybeSingle();
+
+    if (!target) {
+      return { success: false, error: "Staff account not found." };
+    }
+
+    if (isHeadDoctorEmail(target.email)) {
+      return { success: false, error: "The head doctor account cannot be modified." };
+    }
+
+    if ((target.email || "").toLowerCase() === cleanEmail) {
+      return { success: true };
+    }
+
+    const { error: authError } = await adminSupabase.auth.admin.updateUserById(
+      profileId,
+      { email: cleanEmail, email_confirm: true }
+    );
+
+    if (authError) {
+      return { success: false, error: authError.message };
+    }
+
+    const { error: profileError } = await adminSupabase
+      .from("profiles")
+      .update({ email: cleanEmail })
+      .eq("id", profileId);
+
+    if (profileError) {
+      return { success: false, error: profileError.message };
+    }
+
+    await logAudit("UPDATE_STAFF_EMAIL", "profiles", profileId, {
+      previous_email: target.email,
+      new_email: cleanEmail,
+    });
+
+    revalidatePath("/operators");
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to update email";
+    return { success: false, error: message };
+  }
+}
+
 export async function resetMainDoctorPassword(payload: {
   email: string;
   masterKey: string;
