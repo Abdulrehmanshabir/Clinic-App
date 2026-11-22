@@ -208,10 +208,10 @@ export function LoginForm() {
                 </button>
                 <h2 className="text-lg sm:text-xl font-black text-[#1A120B] flex items-center justify-center gap-2">
                   <KeyRound className="w-6 h-6 text-[#8A6338]" />
-                  Main Doctor Password Recovery
+                  Reset Password
                 </h2>
                 <p className="text-xs sm:text-sm text-[#2B1E14] mt-1 font-bold">
-                  Reset master credentials for Head Doctor account
+                  Enter your clinic credentials to set a new password
                 </p>
               </div>
 
@@ -366,10 +366,24 @@ export function LoginForm() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-black text-[#1A120B] mb-1.5 flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-[#8A6338]" />
-                    Password
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-sm font-black text-[#1A120B] flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-[#8A6338]" />
+                      Password
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsForgotOpen(true);
+                        setForgotErrorMessage(null);
+                        setForgotSuccessMessage(null);
+                        setEmailSentNotice(null);
+                      }}
+                      className="text-xs sm:text-sm font-bold text-[#8A6338] hover:text-[#1A120B] underline underline-offset-4 decoration-[#8A6338] hover:decoration-[#1A120B] transition-colors cursor-pointer"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
@@ -390,23 +404,6 @@ export function LoginForm() {
                       ) : (
                         <Eye className="w-5 h-5 text-[#8A6338]" />
                       )}
-                    </button>
-                  </div>
-
-                  {/* Prominent High-Contrast Forgot Password Button */}
-                  <div className="flex items-center justify-end mt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsForgotOpen(true);
-                        setForgotErrorMessage(null);
-                        setForgotSuccessMessage(null);
-                        setEmailSentNotice(null);
-                      }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 hover:bg-white text-[#785328] hover:text-[#382310] border border-[#BFA588] shadow-xs text-xs sm:text-sm font-black transition-all hover:shadow-sm active:scale-[0.98] cursor-pointer"
-                    >
-                      <KeyRound className="w-4 h-4 text-[#785328]" />
-                      <span>Forgot Password? (Main Doctor)</span>
                     </button>
                   </div>
                 </div>
