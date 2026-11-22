@@ -1,13 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { LogOut, Clock, Calendar, UserCheck, KeyRound, Eye, EyeOff, Loader2 } from "lucide-react";
+import { LogOut, Clock, Calendar, UserCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { changeMyPassword } from "@/lib/actions";
-import { useToast } from "@/components/ui/toast";
-import { Modal } from "@/components/ui/modal";
-import { ModalCloseButton } from "@/components/ui/modal-close-button";
 import { type Profile } from "@/types/database";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
@@ -24,50 +20,8 @@ export function Header({
 }: HeaderProps) {
   const router = useRouter();
   const supabase = createClient();
-  const { success } = useToast();
   const [time, setTime] = useState<string>("");
   const [date, setDate] = useState<string>("");
-
-  // Change Password state (for Dr 2, Operator, and Main Doctor)
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSavingPassword, setIsSavingPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordError(null);
-
-    const cleanPass = newPassword.trim();
-    if (cleanPass.length < 6) {
-      setPasswordError("Password must be at least 6 characters long.");
-      return;
-    }
-
-    if (cleanPass !== confirmPassword.trim()) {
-      setPasswordError("Passwords do not match.");
-      return;
-    }
-
-    setIsSavingPassword(true);
-    try {
-      const res = await changeMyPassword(cleanPass);
-      if (res.success) {
-        success("Password Changed", "Your password has been updated successfully.");
-        setIsPasswordModalOpen(false);
-        setNewPassword("");
-        setConfirmPassword("");
-      } else {
-        setPasswordError(res.error || "Failed to update password.");
-      }
-    } catch {
-      setPasswordError("An unexpected error occurred.");
-    } finally {
-      setIsSavingPassword(false);
-    }
-  };
 
   useEffect(() => {
     const updateTime = () => {
@@ -152,20 +106,6 @@ export function Header({
           </div>
 
           <button
-            onClick={() => {
-              setIsPasswordModalOpen(true);
-              setPasswordError(null);
-              setNewPassword("");
-              setConfirmPassword("");
-            }}
-            title="Change My Password"
-            className="px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-2xl text-[#8C7A6B] dark:text-[#94A3B8] hover:text-[#1A120B] dark:hover:text-[#FAF7F2] bg-[#F4EFE6] dark:bg-[#1E293B] hover:bg-[#EFE6D8] dark:hover:bg-[#2D3E58] border border-[#E9DFD1] dark:border-[#2D3E58] transition-all text-xs sm:text-sm flex items-center gap-1.5 font-bold shadow-xs"
-          >
-            <KeyRound className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#A8835A] dark:text-[#D4AF37]" />
-            <span className="hidden lg:inline">Change Password</span>
-          </button>
-
-          <button
             onClick={handleLogout}
             title="Sign Out"
             className="px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-[#8C7A6B] dark:text-[#94A3B8] hover:text-[#991B1B] dark:hover:text-[#F87171] bg-[#F4EFE6] dark:bg-[#1E293B] hover:bg-[#FEE2E2]/70 dark:hover:bg-[#EF4444]/20 border border-[#E9DFD1] dark:border-[#2D3E58] hover:border-[#FECACA] dark:hover:border-[#F87171]/40 transition-all text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 font-black shadow-xs"
@@ -175,121 +115,6 @@ export function Header({
           </button>
         </div>
       </div>
-
-      {/* Change Password Modal (Accessible to any logged-in user: Doctor 1, Doctor 2, or Operator) */}
-      <Modal
-        isOpen={isPasswordModalOpen}
-        onClose={() => {
-          setIsPasswordModalOpen(false);
-          setNewPassword("");
-          setConfirmPassword("");
-          setPasswordError(null);
-        }}
-        hideDefaultHeader={true}
-        maxWidth="md"
-      >
-        <div className="p-5 sm:p-6 bg-[#FFFFFF] rounded-2xl border-2 border-[#D8C5AD] text-left max-w-md mx-auto shadow-xl relative">
-          <ModalCloseButton
-            onClick={() => {
-              setIsPasswordModalOpen(false);
-              setNewPassword("");
-              setConfirmPassword("");
-              setPasswordError(null);
-            }}
-            className="absolute right-3.5 top-3.5"
-          />
-
-          <div className="text-center border-b border-dashed border-[#D8C5AD] pb-2.5">
-            <h5 className="font-serif font-black text-base tracking-wider text-[#1A120B] uppercase">
-              {clinicName}
-            </h5>
-            <p className="text-sm text-[#8C6843] font-bold mt-0.5">
-              Change Your Account Password
-            </p>
-            <p className="text-xs font-mono text-[#6B5E51] mt-0.5">
-              Logged in as: <span className="font-bold text-[#1A120B]">{profile?.email}</span> ({profile?.role})
-            </p>
-          </div>
-
-          {passwordError && (
-            <div className="mt-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold">
-              {passwordError}
-            </div>
-          )}
-
-          <form onSubmit={handleChangePassword} autoComplete="off">
-            <div className="py-3.5 space-y-3 max-w-[340px] mx-auto w-full">
-              <div>
-                <label className="block text-xs sm:text-sm font-bold text-[#8C6843] mb-1 ml-1">
-                  New Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password"
-                    required
-                    minLength={6}
-                    className="w-full h-10 px-3.5 py-1.5 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] text-[#1A120B] text-sm font-semibold outline-none focus:border-[#8C6843] focus:ring-2 focus:ring-[#8C6843]/20 shadow-2xs"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#1A120B] p-1"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-                <p className="text-[10px] text-[#8C7A6B] font-bold mt-0.5 ml-1">
-                  Minimum 6 characters
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm font-bold text-[#8C6843] mb-1 ml-1">
-                  Confirm New Password
-                </label>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter new password"
-                  required
-                  minLength={6}
-                  className="w-full h-10 px-3.5 py-1.5 rounded-xl bg-[#FFFFFF] border-2 border-[#BCA58C] text-[#1A120B] text-sm font-semibold outline-none focus:border-[#8C6843] focus:ring-2 focus:ring-[#8C6843]/20 shadow-2xs"
-                />
-              </div>
-            </div>
-
-            <div className="mt-3.5 pt-3 border-t border-dashed border-[#D8C5AD] flex items-center justify-center gap-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsPasswordModalOpen(false);
-                  setNewPassword("");
-                  setConfirmPassword("");
-                }}
-                className="px-5 py-2 rounded-xl bg-[#F4EFE6] hover:bg-[#EAE1D3] text-[#4A3522] text-xs font-bold transition border border-[#D8C5AD]"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSavingPassword || newPassword.trim().length < 6}
-                className="px-5 py-2 rounded-xl bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] font-bold text-xs shadow-md transition flex items-center gap-2 disabled:opacity-50 border border-[#2B1E14]"
-              >
-                {isSavingPassword ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-[#D8C5AD]" />
-                ) : (
-                  <KeyRound className="w-4 h-4 text-[#D8C5AD]" />
-                )}
-                <span>{isSavingPassword ? "Saving..." : "Save Password"}</span>
-              </button>
-            </div>
-          </form>
-        </div>
-      </Modal>
     </header>
   );
 }
