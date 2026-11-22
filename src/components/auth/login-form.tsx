@@ -379,7 +379,7 @@ export function LoginForm() {
                         setForgotSuccessMessage(null);
                         setEmailSentNotice(null);
                       }}
-                      className="text-xs sm:text-sm font-bold text-[#8A6338] hover:text-[#1A120B] underline underline-offset-4 decoration-[#8A6338] hover:decoration-[#1A120B] transition-colors cursor-pointer"
+                      className="text-xs sm:text-sm font-bold text-[#2B1E14] hover:text-[#5C3D1E] underline underline-offset-4 decoration-[#2B1E14] hover:decoration-[#5C3D1E] transition-colors cursor-pointer"
                     >
                       Forgot password?
                     </button>
