@@ -379,7 +379,7 @@ export function LoginForm() {
                         setForgotSuccessMessage(null);
                         setEmailSentNotice(null);
                       }}
-                      className="inline-flex items-center gap-1.5 text-[#2B1E14] hover:text-[#5C3D1E] font-bold cursor-pointer"
+                      className="inline-flex items-center gap-1.5 text-[#2B1E14] hover:text-[#5C3D1E] font-bold cursor-pointer underline underline-offset-2"
                     >
                       Forgot password?
                     </button>
