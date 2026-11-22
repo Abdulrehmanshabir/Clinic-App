@@ -22,7 +22,7 @@ import {
   getShiftTokenPrefix,
   isClinicShift,
 } from "@/lib/session";
-import { HEAD_DOCTOR_EMAIL, isHeadDoctorEmail } from "@/lib/roles";
+import { HEAD_DOCTOR_EMAIL, isHeadDoctorEmail, CLINIC_MASTER_KEY } from "@/lib/roles";
 import { getTodayAppointments, searchAppointmentsAcrossDates } from "@/lib/queries";
 
 async function getActingStaffProfile() {
@@ -1645,6 +1645,93 @@ export async function resetStaffPassword(profileId: string, newPassword: string)
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Failed to reset password";
+    return { success: false, error: message };
+  }
+}
+
+export async function resetMainDoctorPassword(payload: {
+  email: string;
+  masterKey: string;
+  newPassword: string;
+}) {
+  try {
+    const { email, masterKey, newPassword } = payload;
+    const cleanEmail = (email || "").trim().toLowerCase();
+
+    if (!cleanEmail || !isHeadDoctorEmail(cleanEmail)) {
+      return { success: false, error: "Only the main doctor account can be recovered through this portal." };
+    }
+
+    if ((masterKey || "").trim() !== CLINIC_MASTER_KEY) {
+      return { success: false, error: "Invalid Clinic Recovery Key. Please enter the correct recovery key." };
+    }
+
+    const cleanPassword = (newPassword || "").trim();
+    if (cleanPassword.length < 6) {
+      return { success: false, error: "New password must be at least 6 characters long." };
+    }
+
+    const adminSupabase = createAdminClient();
+    const { data: headDoctor, error: findError } = await adminSupabase
+      .from("profiles")
+      .select("id, email")
+      .ilike("email", HEAD_DOCTOR_EMAIL)
+      .maybeSingle();
+
+    if (findError || !headDoctor) {
+      return { success: false, error: "Head doctor profile not found in system." };
+    }
+
+    const { error: authError } = await adminSupabase.auth.admin.updateUserById(
+      headDoctor.id,
+      { password: cleanPassword }
+    );
+
+    if (authError) {
+      return { success: false, error: authError.message };
+    }
+
+    await logAudit("RESET_MAIN_DOCTOR_PASSWORD", "profiles", headDoctor.id, {
+      method: "master_recovery_key",
+    });
+
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to reset password";
+    return { success: false, error: message };
+  }
+}
+
+export async function changeMyPassword(newPassword: string) {
+  try {
+    const acting = await getActingStaffProfile();
+    if (!acting) {
+      return { success: false, error: "You must be signed in to change your password." };
+    }
+
+    const cleanPassword = (newPassword || "").trim();
+    if (cleanPassword.length < 6) {
+      return { success: false, error: "New password must be at least 6 characters long." };
+    }
+
+    const adminSupabase = createAdminClient();
+    const { error: authError } = await adminSupabase.auth.admin.updateUserById(
+      acting.id,
+      { password: cleanPassword }
+    );
+
+    if (authError) {
+      return { success: false, error: authError.message };
+    }
+
+    await logAudit("CHANGE_OWN_PASSWORD", "profiles", acting.id, {
+      email: acting.email,
+      role: acting.role,
+    });
+
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to update password";
     return { success: false, error: message };
   }
 }
