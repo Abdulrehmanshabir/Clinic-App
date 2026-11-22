@@ -62,9 +62,7 @@ export function LoginForm() {
       });
 
       if (res.success) {
-        setForgotSuccessMessage("Password reset successfully! Updating login credentials...");
-        setEmail(forgotEmail);
-        setPassword(forgotNewPassword);
+        setForgotSuccessMessage("Password reset successfully! You can now sign in with your new password.");
         setTimeout(() => {
           setIsForgotOpen(false);
           setForgotSuccessMessage(null);
@@ -357,11 +355,13 @@ export function LoginForm() {
                   </label>
                   <input
                     type="email"
+                    name="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter Email"
-                    className="w-full bg-white/50 backdrop-blur-md border border-white/80 focus:border-[#8A6338] focus:bg-white/85 focus:ring-2 focus:ring-[#8A6338]/20 rounded-2xl px-4 py-3.5 text-base sm:text-lg text-[#1A120B] font-bold placeholder-[#6E5D4F] outline-none transition shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
+                    autoComplete="off"
+                    className="w-full bg-white/50 backdrop-blur-md border border-white/80 focus:border-[#8A6338] focus:bg-white/85 focus:ring-2 focus:ring-[#8A6338]/20 rounded-2xl px-4 py-3.5 text-base sm:text-lg text-[#1E1915] font-bold placeholder-[#6E5D4F] outline-none transition shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
                   />
                 </div>
 
@@ -379,7 +379,7 @@ export function LoginForm() {
                         setForgotSuccessMessage(null);
                         setEmailSentNotice(null);
                       }}
-                      className="text-xs sm:text-sm font-bold text-[#2B1E14] hover:text-[#5C3D1E] underline underline-offset-4 decoration-[#2B1E14] hover:decoration-[#5C3D1E] transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#1E1915] hover:bg-[#382C22] text-[#FAF7F2] text-sm font-bold rounded transition"
                     >
                       Forgot password?
                     </button>
@@ -387,11 +387,13 @@ export function LoginForm() {
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
+                      name="password"
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter Password"
-                      className="w-full bg-white/50 backdrop-blur-md border border-white/80 focus:border-[#8A6338] focus:bg-white/85 focus:ring-2 focus:ring-[#8A6338]/20 rounded-2xl pl-4 pr-12 py-3.5 text-base sm:text-lg text-[#1A120B] font-bold placeholder-[#6E5D4F] outline-none transition shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
+                      autoComplete="off"
+                      className="w-full bg-white/50 backdrop-blur-md border border-white/80 focus:border-[#8A6338] focus:bg-white/85 focus:ring-2 focus:ring-[#8A6338]/20 rounded-2xl pl-4 pr-12 py-3.5 text-base sm:text-lg text-[#1E1915] font-bold placeholder-[#6E5D4F] outline-none transition shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
                     />
                     <button
                       type="button"
