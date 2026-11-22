@@ -11,8 +11,6 @@ import {
   Loader2,
   AlertCircle,
   ShieldCheck,
-  Stethoscope,
-  UserCheck,
   Eye,
   EyeOff,
   KeyRound,
@@ -368,24 +366,10 @@ export function LoginForm() {
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-sm font-black text-[#1A120B] flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-[#8A6338]" />
-                      Password
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsForgotOpen(true);
-                        setForgotErrorMessage(null);
-                        setForgotSuccessMessage(null);
-                        setEmailSentNotice(null);
-                      }}
-                      className="text-xs text-[#8A6338] hover:text-[#5C4022] font-black underline transition cursor-pointer"
-                    >
-                      Forgot Password?
-                    </button>
-                  </div>
+                  <label className="block text-sm font-black text-[#1A120B] mb-1.5 flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-[#8A6338]" />
+                    Password
+                  </label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
@@ -408,6 +392,23 @@ export function LoginForm() {
                       )}
                     </button>
                   </div>
+
+                  {/* Prominent High-Contrast Forgot Password Button */}
+                  <div className="flex items-center justify-end mt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsForgotOpen(true);
+                        setForgotErrorMessage(null);
+                        setForgotSuccessMessage(null);
+                        setEmailSentNotice(null);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/80 hover:bg-white text-[#785328] hover:text-[#382310] border border-[#BFA588] shadow-xs text-xs sm:text-sm font-black transition-all hover:shadow-sm active:scale-[0.98] cursor-pointer"
+                    >
+                      <KeyRound className="w-4 h-4 text-[#785328]" />
+                      <span>Forgot Password? (Main Doctor)</span>
+                    </button>
+                  </div>
                 </div>
 
                 <button
@@ -425,47 +426,6 @@ export function LoginForm() {
                   )}
                 </button>
               </form>
-
-              {/* 1-Click Quick Demo Login */}
-              <div className="relative z-10 mt-6 pt-5 border-t border-[#1A120B]/10 space-y-3">
-                <p className="text-[11px] font-black text-[#2B1E14] text-center uppercase tracking-wider">
-                  Quick 1-Click Demo Login
-                </p>
-                <div className="grid grid-cols-2 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail("doctor@clinic.com");
-                      setPassword("doctor123");
-                    }}
-                    className="p-3 rounded-2xl bg-white/45 hover:bg-white/70 backdrop-blur-md border border-white/70 text-[#1A120B] text-xs font-black transition flex flex-col items-center gap-1 shadow-sm group"
-                  >
-                    <div className="flex items-center gap-1.5 text-[#8A6338]">
-                      <Stethoscope className="w-4 h-4" />
-                      <span className="font-black text-[#1A120B]">Doctor Login</span>
-                    </div>
-                    <span className="text-[11px] text-[#2B1E14] font-bold font-mono">doctor@clinic.com</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail("operator@clinic.com");
-                      setPassword("operator123");
-                    }}
-                    className="p-3 rounded-2xl bg-white/45 hover:bg-white/70 backdrop-blur-md border border-white/70 text-[#1A120B] text-xs font-black transition flex flex-col items-center gap-1 shadow-sm group"
-                  >
-                    <div className="flex items-center gap-1.5 text-[#8A6338]">
-                      <UserCheck className="w-4 h-4" />
-                      <span className="font-black text-[#1A120B]">Receptionist</span>
-                    </div>
-                    <span className="text-[11px] text-[#2B1E14] font-bold font-mono">operator@clinic.com</span>
-                  </button>
-                </div>
-                <p className="text-[11px] text-[#2B1E14] text-center font-bold">
-                  Demo credentials: <span className="font-mono text-[#1A120B] font-black underline decoration-[#8A6338]/40">doctor123 / operator123</span>
-                </p>
-              </div>
             </div>
           )}
         </div>
