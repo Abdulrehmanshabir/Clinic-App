@@ -208,15 +208,15 @@ export function AppointmentsPageClient({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-[#1E1915] dark:text-[#FAF7F2]">
+          <table className="w-full min-w-[920px] text-sm text-[#1E1915] dark:text-[#FAF7F2]">
             <thead className="bg-[#F4EFE6] dark:bg-[#1A2230] text-lg font-black tracking-wider text-[#1A120B] dark:text-[#FAF7F2] border-b border-[#E8DFD1] dark:border-[#232F42]">
               <tr>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Token</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Date & Time</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Patient Name</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Address / Phone</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Booking Type</th>
-                <th className="px-6 py-5 text-center font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Status</th>
+                <th className="px-6 py-5 text-center whitespace-nowrap font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Token</th>
+                <th className="px-6 py-5 text-center whitespace-nowrap font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Date & Time</th>
+                <th className="px-6 py-5 text-center whitespace-nowrap font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Patient Name</th>
+                <th className="px-6 py-5 text-center whitespace-nowrap font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Address / Phone</th>
+                <th className="px-6 py-5 text-center whitespace-nowrap font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Booking Type</th>
+                <th className="px-6 py-5 text-center whitespace-nowrap font-black text-base sm:text-lg text-[#1A120B] dark:text-[#FAF7F2]">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EFE6D8] dark:divide-[#232F42]">
@@ -286,12 +286,12 @@ export function AppointmentsPageClient({
                       {/* Booking Type */}
                       <td className="px-6 py-4 text-center">
                         {isWalkIn ? (
-                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-bold bg-[#FAF7F2] dark:bg-[#1A2230] text-[#6B4E31] dark:text-[#D4AF37] border border-[#D8C5AD] dark:border-[#2E3C51]">
+                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-bold whitespace-nowrap bg-[#FAF7F2] dark:bg-[#1A2230] text-[#6B4E31] dark:text-[#D4AF37] border border-[#D8C5AD] dark:border-[#2E3C51]">
                             <UserCheck className="w-4 h-4 text-[#A8835A] dark:text-[#D4AF37]" />
                             Walk-In
                           </span>
                         ) : isCallBooking ? (
-                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-bold bg-[#E0F2FE] dark:bg-[#0C2D48] text-[#0369A1] dark:text-[#38BDF8] border border-[#BAE6FD] dark:border-[#0369A1]">
+                          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-bold whitespace-nowrap bg-[#E0F2FE] dark:bg-[#0C2D48] text-[#0369A1] dark:text-[#38BDF8] border border-[#BAE6FD] dark:border-[#0369A1]">
                             <PhoneCall className="w-4 h-4 text-[#0284C7] dark:text-[#38BDF8]" />
                             Call / Online
                           </span>
