@@ -151,7 +151,15 @@ export function getClinicDateString(date: Date = new Date()): string {
   return `${year}-${month}-${day}`;
 }
 
+export function getYesterdayDateString(): string {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return getClinicDateString(yesterday);
+}
+
 export function getTodayDateString(): string {
+  return getClinicDateString();
+}
   return getClinicDateString();
 }
 

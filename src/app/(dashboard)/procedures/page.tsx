@@ -9,7 +9,36 @@ export const metadata = {
   title: "Clinical Procedures & Treatments | Lumière Skin Clinic",
 };
 
+import { getTodayDateString, getYesterdayDateString } from "@/lib/utils";
+import { getTodayAppointments, getActiveServices, getCurrentProfile, getAppointmentsByDate } from "@/lib/queries";
+
 export default async function ProceduresPage() {
+  const profile = await getCurrentProfile();
+  if (!profile || profile.role !== "doctor") {
+    redirect("/operator");
+  }
+
+  const today = getTodayDateString();
+  const yesterday = getYesterdayDateString();
+
+  // Fetch both today and yesterday appointments and merge them
+  const [todayAppointments, yesterdayAppointments, services] = await Promise.all([
+    getTodayAppointments(today),
+    getAppointmentsByDate(yesterday),
+    getActiveServices(),
+  ]);
+
+  const allAppointments = [...yesterdayAppointments, ...todayAppointments];
+
+  return (
+    <ProceduresPageClient
+      initialAppointments={allAppointments}
+      initialServices={services}
+      clinicDate={today}
+    />
+  );
+}
+
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "doctor") {
     redirect("/operator");
