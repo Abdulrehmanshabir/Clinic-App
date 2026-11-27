@@ -1,6 +1,5 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { isHeadDoctorEmail } from "@/lib/roles";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -65,8 +64,6 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  const isHeadDoc = isHeadDoctorEmail(user?.email);
-
   if (user && isAuthPage) {
     // Fetch profile role to redirect correctly
     const { data: profile } = await supabase
@@ -75,8 +72,8 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .maybeSingle();
 
-    // If non-head-doctor staff is deactivated, keep them on login with message
-    if (profile && !isHeadDoc && profile.is_active === false) {
+    // If non-doctor staff is deactivated, do not redirect to dashboard; let them stay on login with message
+    if (profile && profile.role !== "doctor" && !profile.is_active) {
       return response;
     }
 
@@ -88,7 +85,7 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Check account active status for any authenticated non-head-doctor access
+  // Check account active status for any authenticated non-doctor staff access
   if (user && !isAuthPage && pathname !== "/") {
     const { data: profile } = await supabase
       .from("profiles")
@@ -96,7 +93,7 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (profile && !isHeadDoc && profile.is_active === false) {
+    if (profile && profile.role !== "doctor" && !profile.is_active) {
       return NextResponse.redirect(new URL("/login?error=account_deactivated", request.url));
     }
   }
@@ -124,7 +121,7 @@ export async function updateSession(request: NextRequest) {
       profile = newProfile;
     }
 
-    if (!profile || (!isHeadDoc && profile.is_active === false) || profile.role !== "doctor") {
+    if (!profile || !profile.is_active || profile.role !== "doctor") {
       return NextResponse.redirect(new URL("/operator", request.url));
     }
   }
@@ -137,8 +134,8 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (profile && profile.is_active === false) {
-      return NextResponse.redirect(new URL("/login?error=account_deactivated", request.url));
+    if (profile && !profile.is_active) {
+      return NextResponse.redirect(new URL("/login?error=unauthorized", request.url));
     }
   }
 

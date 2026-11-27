@@ -12,6 +12,5 @@ export const CLINIC_MASTER_KEY = (
 
 export function isHeadDoctorEmail(email?: string | null): boolean {
   if (!email) return false;
-  const clean = email.trim().toLowerCase();
-  return clean === HEAD_DOCTOR_EMAIL || clean === "doctor@clinic.com";
+  return email.trim().toLowerCase() === HEAD_DOCTOR_EMAIL;
 }
