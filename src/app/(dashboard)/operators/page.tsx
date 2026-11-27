@@ -22,6 +22,7 @@ export default async function OperatorsPage() {
   const { data: operators } = await supabase
     .from("profiles")
     .select("*")
+    .eq("role", "operator")
     .order("created_at", { ascending: false });
 
   const staff = ((operators as Profile[]) || []).filter(
