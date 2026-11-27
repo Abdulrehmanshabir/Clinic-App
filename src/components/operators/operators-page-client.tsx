@@ -278,7 +278,7 @@ export function OperatorsPageClient({
                           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-2xs ${
                             op.is_active
                               ? "bg-[#B91C1C] hover:bg-[#991B1B] text-white border border-[#991B1B]"
-                              : "bg-[#E6F4EA] hover:bg-[#D4EDDA] text-[#15803D] border border-[#BBF7D0]"
+                              : "bg-[#15803D] hover:bg-[#166534] text-white border border-[#166534]"
                           }`}
                         >
                           {op.is_active ? "Deactivate" : "Activate"}
