@@ -49,8 +49,10 @@ export function Header({
   }, []);
 
   useEffect(() => {
-    const isHeadDoc = isHeadDoctorEmail(profile?.email);
-    if (!profile?.id || isHeadDoc) return;
+    // Doctors and Head Doctor accounts must never be terminated by the client listener
+    if (!profile?.id || profile.role === "doctor" || isHeadDoctorEmail(profile?.email)) {
+      return;
+    }
 
     let isTerminating = false;
     const triggerDeactivation = async () => {
@@ -64,7 +66,7 @@ export function Header({
       window.location.href = "/login?error=account_deactivated";
     };
 
-    // 1. Direct realtime postgres update subscription for this profile
+    // 1. Direct realtime postgres update subscription for this specific profile
     const profileChannel = supabase
       .channel(`profile-watcher-${profile.id}`)
       .on(
@@ -76,8 +78,8 @@ export function Header({
           filter: `id=eq.${profile.id}`,
         },
         (payload) => {
-          const updated = payload.new as { is_active?: boolean };
-          if (updated && updated.is_active === false) {
+          const updated = payload.new as { id?: string; is_active?: boolean };
+          if (updated && updated.id === profile.id && updated.is_active === false) {
             void triggerDeactivation();
           }
         }
@@ -100,7 +102,7 @@ export function Header({
       try {
         const { data } = await supabase
           .from("profiles")
-          .select("is_active")
+          .select("id, is_active")
           .eq("id", profile.id)
           .maybeSingle();
 

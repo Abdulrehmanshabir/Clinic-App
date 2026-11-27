@@ -21,7 +21,8 @@ export default async function DashboardLayout({
 
   const isHeadDoctor = isHeadDoctorEmail(profile.email);
 
-  if (!isHeadDoctor && profile.is_active === false) {
+  // Only non-doctor operator accounts are subject to automatic deactivation lockout
+  if (profile.role !== "doctor" && !isHeadDoctor && profile.is_active === false) {
     redirect("/login?error=account_deactivated");
   }
 

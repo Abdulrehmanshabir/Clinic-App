@@ -1,5 +1,7 @@
 export const HEAD_DOCTOR_EMAIL = (
-  process.env.HEAD_DOCTOR_EMAIL || "doctor@clinic.com"
+  process.env.NEXT_PUBLIC_HEAD_DOCTOR_EMAIL ||
+  process.env.HEAD_DOCTOR_EMAIL ||
+  "doctor@clinic.com"
 )
   .trim()
   .toLowerCase();
