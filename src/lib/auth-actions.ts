@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isHeadDoctorEmail } from "@/lib/roles";
 
 export async function loginUserAction(formData: { email: string; userId?: string; roleRedirect?: string }) {
   try {
@@ -29,7 +30,8 @@ export async function loginUserAction(formData: { email: string; userId?: string
     }
 
     if (profile) {
-      if (profile.role !== "doctor" && profile.is_active === false) {
+      const isHeadDoc = isHeadDoctorEmail(profile.email);
+      if (!isHeadDoc && profile.is_active === false) {
         return {
           success: false,
           error: "Your account is deactivated. Please contact the administrator.",

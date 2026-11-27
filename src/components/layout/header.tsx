@@ -49,8 +49,8 @@ export function Header({
   }, []);
 
   useEffect(() => {
-    // Doctors and Head Doctor accounts must never be terminated by the client listener
-    if (!profile?.id || profile.role === "doctor" || isHeadDoctorEmail(profile?.email)) {
+    // Head Doctor accounts must never be terminated by the client listener
+    if (!profile?.id || isHeadDoctorEmail(profile?.email)) {
       return;
     }
 
