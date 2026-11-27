@@ -72,11 +72,29 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .maybeSingle();
 
+    // If deactivated, do not redirect to dashboard; let them stay on login with message
+    if (profile && !profile.is_active) {
+      return response;
+    }
+
     const role = profile?.role || (user.email?.toLowerCase().includes("operator") ? "operator" : "doctor");
     if (role === "operator") {
       return NextResponse.redirect(new URL("/operator", request.url));
     } else {
       return NextResponse.redirect(new URL("/doctor", request.url));
+    }
+  }
+
+  // Check account active status for any authenticated access
+  if (user && !isAuthPage && pathname !== "/") {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, is_active")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile && !profile.is_active) {
+      return NextResponse.redirect(new URL("/login?error=account_deactivated", request.url));
     }
   }
 

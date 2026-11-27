@@ -15,12 +15,10 @@ export async function loginUserAction(formData: { email: string; roleRedirect?: 
 
     if (profile) {
       if (!profile.is_active) {
-        // Automatically activate if inactive
-        await admin
-          .from("profiles")
-          .update({ is_active: true, role: profile.role || "doctor" })
-          .eq("id", profile.id);
-        return { success: true, role: profile.role || "doctor" };
+        return {
+          success: false,
+          error: "Your account is deactivated. Please contact the administrator.",
+        };
       }
       return { success: true, role: profile.role };
     }

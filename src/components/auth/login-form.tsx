@@ -123,6 +123,12 @@ export function LoginForm() {
       if (data.user) {
         try {
           const result = await loginUserAction({ email: data.user.email || email });
+          if (!result?.success) {
+            await supabase.auth.signOut();
+            setErrorMessage(result?.error || "Your account is deactivated. Please contact the administrator.");
+            setLoading(false);
+            return;
+          }
           const userRole = result?.role || (email.toLowerCase().includes("operator") ? "operator" : "doctor");
           const targetUrl = userRole === "operator" ? "/operator" : "/doctor";
           window.location.href = targetUrl;
