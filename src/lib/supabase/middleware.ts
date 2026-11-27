@@ -103,13 +103,7 @@ export async function updateSession(request: NextRequest) {
       profile = newProfile;
     }
 
-    // If account is deactivated, send to login
-    if (profile && !profile.is_active) {
-      return NextResponse.redirect(new URL("/login?error=unauthorized", request.url));
-    }
-
-    // Non-doctors cannot access doctor routes
-    if (profile && profile.role !== "doctor") {
+    if (!profile || !profile.is_active || profile.role !== "doctor") {
       return NextResponse.redirect(new URL("/operator", request.url));
     }
   }
@@ -124,11 +118,6 @@ export async function updateSession(request: NextRequest) {
 
     if (profile && !profile.is_active) {
       return NextResponse.redirect(new URL("/login?error=unauthorized", request.url));
-    }
-
-    // Doctors belong on the doctor dashboard, not operator
-    if (profile && profile.role === "doctor") {
-      return NextResponse.redirect(new URL("/doctor", request.url));
     }
   }
 
