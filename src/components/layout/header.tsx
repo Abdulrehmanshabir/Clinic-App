@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { type Profile } from "@/types/database";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { isHeadDoctorEmail } from "@/lib/roles";
 
 interface HeaderProps {
   profile: Profile | null;
@@ -48,7 +49,8 @@ export function Header({
   }, []);
 
   useEffect(() => {
-    if (!profile?.id || profile.role === "doctor") return;
+    const isHeadDoc = isHeadDoctorEmail(profile?.email);
+    if (!profile?.id || isHeadDoc) return;
 
     let isTerminating = false;
     const triggerDeactivation = async () => {
@@ -115,7 +117,7 @@ export function Header({
       void supabase.removeChannel(staffSyncChannel);
       clearInterval(heartbeatInterval);
     };
-  }, [profile?.id, profile?.role, supabase]);
+  }, [profile?.id, profile?.role, profile?.email, supabase]);
 
   const handleLogout = async () => {
     try {

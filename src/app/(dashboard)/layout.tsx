@@ -19,11 +19,11 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  if (profile.role !== "doctor" && profile.is_active === false) {
+  const isHeadDoctor = isHeadDoctorEmail(profile.email);
+
+  if (!isHeadDoctor && profile.is_active === false) {
     redirect("/login?error=account_deactivated");
   }
-
-  const isHeadDoctor = isHeadDoctorEmail(profile.email);
 
   return (
     <div className="min-h-screen bg-[#F8F5EE] dark:bg-[#0B1120] text-[#1E1915] dark:text-[#FAF7F2] flex flex-col antialiased">

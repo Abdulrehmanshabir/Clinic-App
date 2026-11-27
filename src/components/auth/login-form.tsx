@@ -122,7 +122,10 @@ export function LoginForm() {
 
       if (data.user) {
         try {
-          const result = await loginUserAction({ email: data.user.email || email });
+          const result = await loginUserAction({
+            email: data.user.email || email,
+            userId: data.user.id,
+          });
           if (!result?.success) {
             await supabase.auth.signOut();
             setErrorMessage(result?.error || "Your account is deactivated. Please contact the administrator.");
