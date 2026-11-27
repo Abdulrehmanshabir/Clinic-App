@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { type ActiveSession, type Appointment, type ClinicShift, type Service, type Profile } from "@/types/database";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { formatClinicDate, formatClinicTime } from "@/lib/utils";
+import { formatClinicDate, formatClinicTime, isProcedureAppointment } from "@/lib/utils";
 import {
   Filter,
   Phone,
@@ -31,6 +31,11 @@ interface AppointmentsPageClientProps {
 
 function sortAppointmentRecords(rows: Appointment[]): Appointment[] {
   return [...rows].sort((a, b) => {
+    // Keep session tokens (M-/E-) first and procedure (P-) records after them.
+    const procedureA = isProcedureAppointment(a) ? 1 : 0;
+    const procedureB = isProcedureAppointment(b) ? 1 : 0;
+    if (procedureA !== procedureB) return procedureA - procedureB;
+
     const posA = a.token?.queue_position ?? Number.MAX_SAFE_INTEGER;
     const posB = b.token?.queue_position ?? Number.MAX_SAFE_INTEGER;
     if (posA !== posB) return posA - posB;

@@ -143,21 +143,6 @@ export async function getTodayAppointments(clinicDate: string): Promise<Appointm
   // Reuse generic function for today
   return getAppointmentsByDate(clinicDate);
 }
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("appointments")
-    .select(APPOINTMENT_DETAILS_SELECT)
-    .eq("appointment_date", clinicDate)
-    .order("appointment_time", { ascending: true });
-
-  if (error) {
-    console.error("Error fetching appointments:", error);
-    return [];
-  }
-
-  return sortAppointmentsByQueue((data || []) as unknown as Appointment[]);
-}
 
 export async function searchAppointmentsAcrossDates(
   query: string

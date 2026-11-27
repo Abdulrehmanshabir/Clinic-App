@@ -160,8 +160,6 @@ export function getYesterdayDateString(): string {
 export function getTodayDateString(): string {
   return getClinicDateString();
 }
-  return getClinicDateString();
-}
 
 export function getClinicTimeString(date: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat("en-GB", {
