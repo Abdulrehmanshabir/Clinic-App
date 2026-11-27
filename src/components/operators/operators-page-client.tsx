@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { type ClinicSettings, type Profile } from "@/types/database";
 import { createOperatorUser, toggleOperatorStatus, deleteOperatorUser, resetStaffPassword, updateStaffEmail } from "@/lib/actions";
-import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/toast";
 import { Modal } from "@/components/ui/modal";
 import { ModalCloseButton } from "@/components/ui/modal-close-button";
@@ -29,12 +28,6 @@ export function OperatorsPageClient({
 }: OperatorsPageClientProps) {
   const router = useRouter();
   const { success, error } = useToast();
-  const [staffList, setStaffList] = useState<Profile[]>(initialOperators);
-
-  useEffect(() => {
-    setStaffList(initialOperators);
-  }, [initialOperators]);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -76,46 +69,15 @@ export function OperatorsPageClient({
   };
 
   const handleToggle = async (profileId: string, currentStatus: boolean) => {
-    const nextStatus = !currentStatus;
-
-    // 1. Instant optimistic UI update (0ms lag)
-    setStaffList((prev) =>
-      prev.map((op) => (op.id === profileId ? { ...op, is_active: nextStatus } : op))
-    );
-
-    // 2. Instant realtime broadcast to any active operator sessions
     try {
-      const supabase = createClient();
-      const channel = supabase.channel("clinic-staff-sync");
-      channel.subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          void channel.send({
-            type: "broadcast",
-            event: "deactivate_staff",
-            payload: { profileId, is_active: nextStatus },
-          });
-        }
-      });
-    } catch {
-      // ignore
-    }
-
-    try {
-      const res = await toggleOperatorStatus(profileId, nextStatus);
+      const res = await toggleOperatorStatus(profileId, !currentStatus);
       if (res.success) {
-        success(`Staff account ${nextStatus ? "activated" : "deactivated"}`);
+        success(`Staff account ${!currentStatus ? "activated" : "deactivated"}`);
         router.refresh();
       } else {
-        // Rollback on server error
-        setStaffList((prev) =>
-          prev.map((op) => (op.id === profileId ? { ...op, is_active: currentStatus } : op))
-        );
         error("Failed", res.error);
       }
     } catch {
-      setStaffList((prev) =>
-        prev.map((op) => (op.id === profileId ? { ...op, is_active: currentStatus } : op))
-      );
       error("Error", "Could not toggle status");
     }
   };
@@ -130,20 +92,15 @@ export function OperatorsPageClient({
     }
 
     setDeletingId(profileId);
-    // Optimistic removal from UI immediately
-    setStaffList((prev) => prev.filter((op) => op.id !== profileId));
-
     try {
       const res = await deleteOperatorUser(profileId);
       if (res.success) {
         success("Staff Member Deleted", `Account for ${staffName} has been removed.`);
         router.refresh();
       } else {
-        setStaffList(initialOperators);
         error("Delete Failed", res.error);
       }
     } catch {
-      setStaffList(initialOperators);
       error("Error", "Could not delete staff member");
     } finally {
       setDeletingId(null);
@@ -253,7 +210,7 @@ export function OperatorsPageClient({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EFE6D8]">
-              {staffList.length === 0 ? (
+              {initialOperators.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-14 text-center text-[#8C7A6B]">
                     <div className="max-w-sm mx-auto space-y-1.5 py-2">
@@ -263,7 +220,7 @@ export function OperatorsPageClient({
                   </td>
                 </tr>
               ) : (
-                staffList.map((op) => (
+                initialOperators.map((op) => (
                   <tr key={op.id} className="hover:bg-[#F7F3EB]/50 transition-colors duration-150">
                     <td className="px-6 py-4 text-center font-bold text-[#1A120B] text-base font-serif">
                       {op.full_name}
