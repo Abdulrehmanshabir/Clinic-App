@@ -1509,8 +1509,8 @@ export async function toggleOperatorStatus(profileId: string, isActive: boolean)
     return { success: false, error: "You cannot change your own staff status." };
   }
 
-  const adminSupabase = createAdminClient();
-  const { data: target } = await adminSupabase
+  const supabase = await createClient();
+  const { data: target } = await supabase
     .from("profiles")
     .select("email")
     .eq("id", profileId)
@@ -1520,24 +1520,17 @@ export async function toggleOperatorStatus(profileId: string, isActive: boolean)
     return { success: false, error: "The head doctor account cannot be modified." };
   }
 
-  const { data, error } = await adminSupabase
+  const { data, error } = await supabase
     .from("profiles")
     .update({ is_active: isActive })
     .eq("id", profileId)
     .select()
     .single();
 
-  if (error) {
-    console.error("toggleOperatorStatus error:", error);
-    return { success: false, error: error.message };
-  }
+  if (error) return { success: false, error: error.message };
 
   await logAudit("TOGGLE_OPERATOR_STATUS", "profiles", profileId, { is_active: isActive });
   revalidatePath("/operators");
-  revalidatePath("/doctor");
-  revalidatePath("/operator");
-  revalidatePath("/login");
-  revalidatePath("/", "layout");
   return { success: true, data };
 }
 
