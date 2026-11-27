@@ -29,7 +29,7 @@ export async function loginUserAction(formData: { email: string; userId?: string
     }
 
     if (profile) {
-      if (profile.role !== "doctor" && profile.is_active === false) {
+      if (profile.is_active === false) {
         return {
           success: false,
           error: "Your account is deactivated. Please contact the administrator.",
