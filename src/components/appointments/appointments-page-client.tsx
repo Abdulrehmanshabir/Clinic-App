@@ -14,6 +14,8 @@ import {
   Sun,
   Moon,
   Loader2,
+  Stethoscope,
+  DollarSign,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
@@ -143,6 +145,13 @@ export function AppointmentsPageClient({
     filteredAppointments.filter(
       (app) => getAppointmentShift(app) === "evening"
     )
+  );
+
+  const procedureAppointments = filteredAppointments.filter(isProcedureAppointment);
+  const procedureTotalAmount = procedureAppointments.reduce(
+    (sum, app) =>
+      sum + (app.custom_amount != null ? Number(app.custom_amount) : 0),
+    0
   );
 
   const activeShift: ClinicShift | null =
@@ -406,6 +415,37 @@ export function AppointmentsPageClient({
                 {t.label}
               </button>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Procedure summary for the selected records */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="p-5 rounded-3xl bg-[#FCFAF6] dark:bg-[#131924] border border-[#E8DFD1] dark:border-[#232F42] aesthetic-card-shadow flex items-center gap-4">
+          <span className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-[#EEF2FF] dark:bg-[#1A2230] text-[#4338CA] dark:text-[#A78BFA] border-2 border-[#C7D2FE] dark:border-[#2E3C51] shrink-0">
+            <Stethoscope className="w-5 h-5" />
+          </span>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-[#8C7A6B] dark:text-[#94A3B8]">
+              Procedure Patients
+            </p>
+            <p className="text-2xl font-serif font-black text-[#1A120B] dark:text-white">
+              {procedureAppointments.length}
+            </p>
+          </div>
+        </div>
+
+        <div className="p-5 rounded-3xl bg-[#FCFAF6] dark:bg-[#131924] border border-[#E8DFD1] dark:border-[#232F42] aesthetic-card-shadow flex items-center gap-4">
+          <span className="inline-flex items-center justify-center w-11 h-11 rounded-2xl bg-[#ECFDF5] dark:bg-[#1A2230] text-[#047857] dark:text-[#34D399] border-2 border-[#A7F3D0] dark:border-[#2E3C51] shrink-0">
+            <DollarSign className="w-5 h-5" />
+          </span>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-[#8C7A6B] dark:text-[#94A3B8]">
+              Procedure Total Amount
+            </p>
+            <p className="text-2xl font-serif font-black text-[#1A120B] dark:text-white">
+              Rs {procedureTotalAmount.toLocaleString()}
+            </p>
           </div>
         </div>
       </div>
